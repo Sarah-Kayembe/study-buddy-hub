@@ -1,4 +1,4 @@
-CREATE DATABASE StudyBuddy;
+-- CREATE DATABASE StudyBuddy;, removed by Vivek, will cause errors
 use StudyBuddy;
 
 -- ----------------------------------------------------------------------------------------------
