@@ -7,8 +7,8 @@ def get_connection():
     connection = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="REMOVED",
-        database="StudyBuddy"
+        password="password ",
+        database="dbName"
     )
     return connection
 print("MySQL connector is working!")
