@@ -40,7 +40,7 @@ CREATE TABLE mood_levels (
 -- ------------------------------------------------------------
 CREATE TABLE topics (
     topic_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    course_id INT NOT NULL,
+    course_id INT DEFAULT NULL,
     user_id INT DEFAULT NULL,
     topic_name VARCHAR(150) NOT NULL,
     topic_type_id TINYINT UNSIGNED NOT NULL DEFAULT 1,
@@ -107,7 +107,7 @@ CREATE TABLE timersessions (
     topic_id INT UNSIGNED DEFAULT NULL,
     technique_type ENUM('pomodoro','flowtime','custom') DEFAULT 'pomodoro',
     short_break_min TINYINT UNSIGNED DEFAULT NULL,
-    long_break_min  TINYINT UNSIGNED DEFAULT NULL,
+    long_break_min TINYINT UNSIGNED DEFAULT NULL,
     session_type ENUM('solo','group') DEFAULT 'solo',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_timer_host
@@ -217,15 +217,40 @@ CREATE TABLE dailyfocuslog (
 -- (Aggregated user performance metrics)
 -- ------------------------------------------------------------
 CREATE TABLE studystats (
-    user_id INT NOT NULL PRIMARY KEY,
+    user_id INT UNSIGNED PRIMARY KEY,
     total_sessions INT UNSIGNED DEFAULT 0,
     total_focus_time_min INT UNSIGNED DEFAULT 0,
     avg_duration_min DECIMAL(6,2),
     longest_streak_days SMALLINT UNSIGNED DEFAULT 0,
     current_streak_days SMALLINT UNSIGNED DEFAULT 0,
-    last_session_at DATETIME,
-    favorite_item_type ENUM('plant','animal','house','floor','decoration',
-                            'structure','other'),
+    last_session_at DATETIME DEFAULT NULL,
+    favorite_item_type ENUM(
+        'Plant',
+        'Flower',
+        'Tree',
+        'Bush',
+        'Rock',
+        'Water Feature',
+        'Animal',
+        'Pet',
+        'Bird',
+        'Insect',
+        'House',
+        'Apartment',
+        'Building',
+        'Structure',
+        'Bridge',
+        'Tower',
+        'Floor',
+        'Pathway',
+        'Furniture',
+        'Decoration',
+        'Wall Ornament',
+        'Light Fixture',
+        'Vehicle',
+        'Accessory',
+        'Other'
+    ),
     favorite_item_name VARCHAR(100),
     most_frequent_topic INT UNSIGNED,
     CONSTRAINT fk_stats_user
