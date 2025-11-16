@@ -217,7 +217,7 @@ CREATE TABLE dailyfocuslog (
 -- (Aggregated user performance metrics)
 -- ------------------------------------------------------------
 CREATE TABLE studystats (
-    user_id INT UNSIGNED PRIMARY KEY,
+    user_id INT PRIMARY KEY,
     total_sessions INT UNSIGNED DEFAULT 0,
     total_focus_time_min INT UNSIGNED DEFAULT 0,
     avg_duration_min DECIMAL(6,2),
