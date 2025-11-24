@@ -45,19 +45,19 @@ JOIN Study_Group g ON g.group_id = cm.group_id
 JOIN Users u ON u.user_id = cm.user_id
 ORDER BY cm.sent_time DESC;
 
--- 7) resources by uploader 
+-- resources by uploader 
 SELECT r.resource_id, r.title, r.filetype, r.upload_date, r.uploader_id
 FROM Resource r
 JOIN Users u ON u.user_id = r.uploader_id
 ORDER BY r.upload_date DESC;
 
--- 8) match profiles exist with valid users
+-- match profiles exist with valid users
 SELECT mp.user_id, mp.study_style, mp.meeting_pref, LEFT(mp.bio, 60) AS bio_preview
 FROM Match_Profile mp
 JOIN Users u ON u.user_id = mp.user_id
 ORDER BY mp.user_id;
 
--- 9) message requests tie to valid users & course
+-- message requests tie to valid users & course
 SELECT mr.request_id, mr.requester_user_id, mr.target_user_id, mr.course_id, mr.request_status, mr.created_at
 FROM Message_Request mr
 JOIN Users r ON r.user_id = mr.requester_user_id
