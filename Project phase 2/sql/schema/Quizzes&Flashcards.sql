@@ -1,5 +1,4 @@
-CREATE DATABASE flashcardsdb;
-use flashcardsdb;
+use StudyBuddy;
 -- Schema for Quizzes & Flashcards
 -- Author: Vivek Reddy Bhimavarapu
 

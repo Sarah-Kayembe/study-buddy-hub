@@ -1,5 +1,5 @@
 import pandas as pd
-
+# This program cleans the data for colleges by leaving only the college names, and removing all commas
 # Program by Rise Akizaki
 
 # absolute filepath.

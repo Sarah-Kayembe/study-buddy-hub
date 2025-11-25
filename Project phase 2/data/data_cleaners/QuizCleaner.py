@@ -1,5 +1,5 @@
 import pandas as pd
-
+# This program creates two separate data frames, storing a quiz's questions, and their respective answers in proper format.
 # Program by Rise Akizaki
 
 # absolute filepath 

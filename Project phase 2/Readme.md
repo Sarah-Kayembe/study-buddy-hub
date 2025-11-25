@@ -1,3 +1,16 @@
+**About this phase**
+Phase 2 focuses on standing up the entire StudyBuddy database stack: defining all MySQL schemas/procedures for user management, study groups, quizzes/flashcards, and loading a comprehensive set of seed data (users, resources, study groups, fake activity, quiz content). The deliverable is the scripted pipeline in build_database.py plus the associated SQL files so anyone can recreate the database from scratch and verify the relationships/constraints for the project’s features.
+
+
+-**How to run this phase**: 
+-Install MySQL 8.0+ and Python 3.9+ if they aren’t already on your machine.
+-Clone/download the repo, then open a terminal in Study_Buddy_hub/Project phase 2.
+-Install the connector: pip install mysql-connector-python.
+-Make sure your MySQL server has local_infile enabled (needed for CSV imports).
+-Run python build_database.py. When prompted (MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD), type your MySQL info or hit Enter to accept defaults.
+-Watch the log as it executes each SQL file; once you see “Build completed.” the StudyBuddy database is ready.
+-(Optional) Verify in MySQL: mysql -u <user> -p, USE StudyBuddy;, run SELECT COUNT(*) FROM Users; to confirm data is loaded.
+  
 Tasks due for 11/04/2025 - JakeCraig22 - Jake Craig
 - All SQL for the Study Groups & Collaboration section.
   - Creating tables related to Study Groups & Collaboration.
