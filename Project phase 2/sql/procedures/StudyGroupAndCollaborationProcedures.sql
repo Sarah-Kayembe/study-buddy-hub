@@ -383,3 +383,56 @@ END//
 
 DELIMITER ;
 
+DELIMITER //
+
+/*
+   Ensures a user can join a group without breaking any rules
+   eg, max members doesn't overfill, member isn't already a part of the group
+   can be called using: CALL JoinGroupWithLock(group_id, user_id);
+*/
+DROP PROCEDURE IF EXISTS JoinGroupWithLock//
+CREATE PROCEDURE JoinGroupWithLock(
+    IN p_group_id INT,
+    IN p_user_id INT
+)
+BEGIN
+    DECLARE v_max_members INT;
+    DECLARE v_current_members INT;
+    DECLARE v_already_member INT;
+
+    SELECT COUNT(*) INTO v_already_member
+    FROM Group_Member
+    WHERE group_id = p_group_id
+      AND user_id = p_user_id
+    FOR UPDATE;
+
+    IF v_already_member > 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'ALREADY_MEMBER';
+    END IF;
+
+    SELECT max_members
+    INTO v_max_members
+    FROM Study_Group
+    WHERE group_id = p_group_id
+    FOR UPDATE;
+
+    IF v_max_members IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'GROUP_NOT_FOUND';
+    END IF;
+
+    SELECT COUNT(*) INTO v_current_members
+    FROM Group_Member
+    WHERE group_id = p_group_id
+    FOR UPDATE;
+
+    IF v_current_members >= v_max_members THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'GROUP_FULL';
+    END IF;
+
+    INSERT INTO Group_Member (group_id, user_id, role)
+    VALUES (p_group_id, p_user_id, 'member');
+END//
+DELIMITER ;
