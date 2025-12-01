@@ -1,0 +1,537 @@
+:root {
+  --bg: #020617;            /* very dark navy */
+  --bg-soft: #0b1120;
+  --card: #f9fafb;          /* almost white */
+  --card-soft: #e5f3ff;     /* light blue */
+  --accent: #0ea5e9;        /* cyan/sky */
+  --accent-dark: #0369a1;   /* darker blue */
+  --danger: #f97373;
+  --text-main: #0f172a;
+  --text-muted: #6b7280;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background:
+    radial-gradient(circle at top left, #0ea5e9 0, #0b1120 40%, #020617 100%);
+  color: #e5e7eb;
+}
+
+/* Shell */
+
+.app-shell {
+  min-height: 100vh;
+  padding: 2rem 1.5rem 3rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: clamp(2.4rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin: 0 0 1.75rem;
+}
+
+/* Cards / sections */
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: rgba(15, 23, 42, 0.92);
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  backdrop-filter: blur(18px);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.card-subtle {
+  background: rgba(15, 23, 42, 0.8);
+}
+
+/* Inputs */
+
+label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* Normal text / number / password inputs (small pills) */
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="date"],
+input[type="time"] {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: #020617;
+  color: #e5e7eb;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+/* Notes textarea – larger, non-resizable box */
+textarea {
+  width: 100%;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: #020617;
+  color: #e5e7eb;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+  resize: none;                 /* don’t let it drag off screen */
+  min-height: 6rem;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.3);
+}
+
+input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+/* Buttons */
+
+.btn {
+  border-radius: 999px;
+  border: none;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: white;
+  box-shadow: 0 10px 25px rgba(14, 165, 233, 0.45);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(14, 165, 233, 0.6);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #e5e7eb;
+  border: 1px solid rgba(148, 163, 184, 0.55);
+}
+
+.btn-ghost:hover {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+/* smaller button variant for headers */
+.btn-sm {
+  padding: 0.3rem 0.9rem;
+  font-size: 0.82rem;
+}
+
+.icon-btn {
+  padding: 0.3rem 0.55rem;
+}
+
+.icon-btn img {
+  width: 20px;
+  height: 20px;
+  display: block;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.35));
+  transition: transform 0.15s ease;
+}
+
+.icon-btn:hover img {
+  transform: scale(1.08);
+}
+
+
+/* Layout helpers */
+
+.toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.toolbar-row input[type="number"] {
+  width: 110px;
+}
+
+/* Tabs for Create / Search */
+
+.tabs {
+  display: inline-flex;
+  background: rgba(15, 23, 42, 0.85);
+  border-radius: 999px;
+  padding: 0.2rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.tab-btn {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.tab-btn-active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: white;
+}
+
+/* Lists */
+
+ul.clean-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.group-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.group-row:last-child {
+  border-bottom: none;
+}
+
+.group-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.group-name {
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.group-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Scrollable lists (My Groups, Search groups) */
+
+.scroll-list {
+  max-height: 260px;   /* ~4 rows then scroll */
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+
+/* nicer scrollbar */
+.scroll-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-list::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.6);
+  border-radius: 999px;
+}
+
+/* Chat */
+
+.chat-card {
+  margin-top: 1.25rem;
+}
+
+.chat-log {
+  border-radius: 0.9rem;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  padding: 1rem;
+  min-height: 220px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.chat-message {
+  margin-bottom: 0.75rem;
+}
+
+.chat-message strong {
+  color: var(--accent-soft);
+}
+
+.chat-timestamp {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.chat-input-row input[type="text"] {
+  border-radius: 999px;
+}
+
+.error-text {
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+/* === Modal backdrop + panel === */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 6vh;
+  z-index: 50;
+  animation: backdrop-fade-in 0.18s ease-out;
+}
+
+.modal {
+  background: radial-gradient(circle at top left, #02091f 0, #020617 60%);
+  border-radius: 1.5rem;
+  padding: 1.75rem 1.75rem 1.5rem;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  animation: modal-pop 0.2s ease-out;
+}
+
+.modal h2 {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+
+/* inner scroll area for tall content (calendar) */
+.modal-body-scroll {
+  max-height: 420px;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+  padding-right: 0.25rem;
+}
+
+.modal-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* === Toasts === */
+
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.96);
+  z-index: 70;
+  padding: 0.85rem 1.6rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ecfdf5;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.toast-show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.toast-success {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #f97373, #ef4444);
+}
+
+/* === Calendar styles (upcoming sessions modal) === */
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.calendar-month-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.calendar-day {
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.85);
+  min-height: 2.4rem;
+  padding: 0.15rem 0.35rem;
+  text-align: left;
+  font-size: 0.8rem;
+  color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.calendar-day.empty {
+  border: none;
+  background: transparent;
+  cursor: default;
+}
+
+.calendar-day-number {
+  font-weight: 500;
+}
+
+.calendar-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #22c55e;
+}
+
+.calendar-day-has-events {
+  border-color: rgba(34, 197, 94, 0.6);
+}
+
+.calendar-day-selected {
+  background: radial-gradient(
+    circle at top left,
+    rgba(14, 165, 233, 0.55),
+    rgba(15, 23, 42, 0.95)
+  );
+  border-color: rgba(14, 165, 233, 0.9);
+}
+
+.calendar-events {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.calendar-events-header {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.calendar-event-row {
+  padding: 0.35rem 0;
+}
+
+.calendar-event-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.calendar-event-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Animations */
+
+@keyframes modal-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes backdrop-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes toast-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
