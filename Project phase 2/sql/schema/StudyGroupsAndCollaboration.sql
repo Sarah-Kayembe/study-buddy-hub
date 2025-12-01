@@ -7,6 +7,8 @@ CREATE TABLE Study_Group(
     max_members INT NOT NULL,
     is_private BOOLEAN NOT NULL DEFAULT FALSE,
     course_id INT NOT NULL, 
+	invite_code VARCHAR(16) NULL,
+	invite_expires_at DATETIME NULL,
     FOREIGN KEY (course_id) REFERENCES Courses(course_id)
 );
 
