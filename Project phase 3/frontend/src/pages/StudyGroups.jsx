@@ -251,7 +251,7 @@ export default function StudyGroups() {
   try {
     await approveJoinRequest(manageGroup.id, requestUserId, userId);
     showToastMessage("Request approved", "success");
-    // reload requests + members (they just joined)
+    // reload requests + members 
     await loadManageData(manageGroup.id, "requests", manageGroup.role);
     await loadManageData(manageGroup.id, "members", manageGroup.role);
     await loadData(); // refresh My Groups list / counts
@@ -385,9 +385,7 @@ const handleRejectRequest = async (requestUserId) => {
     }
   };
 
-  // --------------------
-  // Chat mode: AFTER all hooks
-  // --------------------
+  // Chat mode
   if (chatGroup !== null) {
     return (
       <ChatPage
@@ -428,9 +426,7 @@ const handleJoinByCode = async (e) => {
   }
 };
 
-  // --------------------
   // Render
-  // --------------------
   return (
     <div className="app-shell">
       {/* Dev user switcher */}
@@ -563,7 +559,6 @@ const handleJoinByCode = async (e) => {
         {/* Right side: Create/Search tabs */}
         <section className="section" style={{ marginBottom: 0 }}>
           <div className="card">
-            {/* REAL tabs */}
             <div className="tabs" style={{ marginBottom: "1rem" }}>
               <button
                 type="button"
@@ -686,7 +681,6 @@ const handleJoinByCode = async (e) => {
                   marginBottom: "0.75rem",
                 }}
               >
-                {/* Left: course filter */}
                 <div
                   style={{
                     display: "flex",
@@ -711,7 +705,7 @@ const handleJoinByCode = async (e) => {
                   </button>
                 </div>
 
-                {/* Right: join-by-code */}
+                {/*join-by-code */}
                 <form
                   onSubmit={handleJoinByCode}
                   style={{
@@ -779,7 +773,7 @@ const handleJoinByCode = async (e) => {
         </section>
       </div>
 
-      {/* -------- Schedule session modal -------- */}
+      {/* Schedule session*/}
       {showScheduleModal && scheduleGroup && (
         <div
           className="modal-backdrop"
@@ -878,7 +872,7 @@ const handleJoinByCode = async (e) => {
         </div>
       )}
 
-      {/* -------- Manage members modal -------- */}
+      {/* Manage members */}
       {showManageModal && manageGroup && (
         <div
           className="modal-backdrop"
@@ -895,7 +889,7 @@ const handleJoinByCode = async (e) => {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Manage members — {manageGroup.name}</h2>
 
-            {/* Tabs: owner gets Requests + Members, others see just Members */}
+            {/* owner gets Requests + Members, others see just Members */}
             {manageGroup.role === "owner" ? (
               <div className="tabs" style={{ marginBottom: "1rem" }}>
                 <button
@@ -1142,7 +1136,7 @@ const handleJoinByCode = async (e) => {
         </div>
       )}
 
-      {/* -------- Upcoming sessions calendar modal -------- */}
+      {/* Upcoming sessions calendar modal  */}
       {showCalendarModal && (
         <div
           className="modal-backdrop"
@@ -1259,7 +1253,7 @@ const handleJoinByCode = async (e) => {
         </div>
       )}
 
-      {/* -------- Toast -------- */}
+      {/* Toast */}
       {showToast && (
         <div
           className={[
