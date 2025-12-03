@@ -7,7 +7,6 @@ import NavBar from "./components/NavBar";
 function App() {
   return (
     <BrowserRouter>
-      {/* Shared navigation bar for all pages */}
       <NavBar />
 
       {/* Page content */}
@@ -15,7 +14,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/groups" element={<StudyGroups />} />
 
-        {/* Add below when ready */}
+        {/* Add routes below */}
         {/* <Route path="/login" element={<LoginPage />} /> */}
         {/* <Route path="/profile" element={<ProfilePage />} /> */}
         {/* <Route path="/flashcards" element={<FlashcardsPage />} /> */}
