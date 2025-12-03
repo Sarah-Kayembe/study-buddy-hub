@@ -10,7 +10,7 @@ def get_db_connection():
         host=os.getenv("MYSQL_HOST", "localhost"),
         port=int(os.getenv("MYSQL_PORT", 3306)),
         user=os.getenv("MYSQL_USER", "root"),
-        password=os.getenv("MYSQL_PASSWORD", "Enter your password here"),
+        password=os.getenv("MYSQL_PASSWORD", "REMOVED"),
         database=os.getenv("MYSQL_DB", "StudyBuddy"),
     )
 
