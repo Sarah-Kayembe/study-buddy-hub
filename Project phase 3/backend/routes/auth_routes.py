@@ -22,7 +22,7 @@ def register_user():
     # don't need these currently, save em for the profile page
     # college_id = data.get("college_id") or None
     # major_id = data.get("major_id") or None
-
+    #
     # validate required fields
     if not first_name or not last_name or not email or not password:
         return jsonify({"error": "Missing required fields"}), 400
