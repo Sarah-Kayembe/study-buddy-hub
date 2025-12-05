@@ -8,7 +8,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix="/auth")
 # For User Registration
 ##############################
 
-# POST - Handle registration form submission
+# Route for user registration
 @auth_bp.route("/register", methods=["POST"])
 def register_user():
     # Get form data
@@ -70,7 +70,7 @@ def register_user():
 # For user login
 ##############################
 
-# POST - Handle login form submission
+# Route for user login
 @auth_bp.route("/login", methods=["POST"])
 def login_user():
     # Get form data

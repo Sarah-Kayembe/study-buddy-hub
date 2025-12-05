@@ -24,6 +24,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
 
         <Route path="/user/account" element={<ProfilePage />} />
+        <Route path="/user/account/edit" element={<EditProfilePage />} />
       
         <Route
           path="/"

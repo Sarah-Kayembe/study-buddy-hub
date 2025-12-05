@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { registerUser, loginUser, fetchColleges, fetchMajors} from "../api/auth.js"; // all methods from the api go here
 
 export function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -53,7 +54,7 @@ export function ProfilePage() {
 
         <button
           style={styles.button}
-          onClick={() => (window.location.href = "/edit-profile")}
+          onClick={() => (window.location.href = "/user/account/edit")}
         >
           Edit Profile
         </button>
@@ -62,10 +63,189 @@ export function ProfilePage() {
   );
 }
 
+export function EditProfilePage() {
+  const [user, setUser] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    college_level: "",
+    college_id: "",   
+    major_id: ""      
+  });
 
-export function EditProfilePage(){
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
+  // Fetch profile
+  useEffect(() => {
+    fetch("http://127.0.0.1:8001/user/account", {
+      method: "GET",
+      credentials: "include"
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.error) {
+          setUser(prev => ({
+            ...prev,
+            first_name: data.first_name,
+            last_name: data.last_name,
+            email: data.email,
+            college_level: data.college_level,
+            college_id: data.college_id || "",
+            major_id: data.major_id || "" // leave ids empty unless changed by the user
+          }));
+        }
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+
+  // loads dropdown info
+  const [colleges, setColleges] = useState([]);
+  const [majors, setMajors] = useState([]);
+
+  useEffect(() => {
+    fetchColleges().then(setColleges).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    fetchMajors().then(setMajors).catch(console.error);
+  }, []);
+
+  const handleChange = (e) => {
+    setUser({
+      ...user,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // Submit form
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+
+    fetch("http://127.0.0.1:8001/user/account", {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user)
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) setError(data.error);
+        else window.location.href = "/user/account";
+      })
+      .catch(() => setError("Server error."))
+      .finally(() => setSaving(false));
+  };
+
+
+  if (loading) 
+    return <h2>Loading...</h2>;
+
+
+  return (
+    <div style={styles.page}>
+      <div style={styles.card}>
+        <h1>Edit Profile</h1>
+
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
+        <form onSubmit={handleSubmit}>
+
+          <label>First Name</label>
+          <input
+            name="first_name"
+            value={user.first_name}
+            onChange={handleChange}
+            style={styles.input}
+          />
+
+          <label>Last Name</label>
+          <input
+            name="last_name"
+            value={user.last_name}
+            onChange={handleChange}
+            style={styles.input}
+          />
+
+          <label>Email</label>
+          <input
+            name="email"
+            value={user.email}
+            onChange={handleChange}
+            style={styles.input}
+          />
+
+          <label>College Year</label>
+          <select
+            name="college_level"
+            value={user.college_level}
+            onChange={handleChange}
+            style={styles.input}
+          >
+            <option value="">Select Year</option>
+            <option value="Freshman">Freshman</option>
+            <option value="Sophomore">Sophomore</option>
+            <option value="Junior">Junior</option>
+            <option value="Senior">Senior</option>
+            <option value="Graduate">Graduate</option> 
+          </select> 
+          
+          <div style={styles.formField}>
+          <label>College</label>
+          <select
+            name="college_id"
+            value={user.college_id}
+            onChange={handleChange}
+            style={styles.input}
+          >
+            <option value="">Select College</option>
+            {colleges.map(c => (
+              <option key={c.college_id} value={c.college_id}>
+                {c.college_name}
+              </option>
+            ))}
+          </select>
+          </div>
+          
+          <div style={styles.formField}>
+          <label>Major</label>
+          <select
+            name="major_id"
+            value={user.major_id}
+            onChange={handleChange}
+            style={styles.input}
+          >
+            <option value="">Select Major</option>
+            {majors.map(m => (
+              <option key={m.major_id} value={m.major_id}>
+                {m.major_name}
+              </option>
+            ))}
+          </select>
+          </div>
+
+          <button type="submit" style={styles.button} disabled={saving}>
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => (window.location.href = "/user/account")}
+            style={{ ...styles.button, backgroundColor: "#777", marginTop: 10 }}
+          >
+            Cancel
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 }
+
+
 
 // default style for web page
 ////////////////////////////
@@ -95,6 +275,12 @@ const styles = {
     flexDirection: "column",
     gap: "12px",
   },
+  formField: {
+    width: "100%",
+    maxWidth: "100%",
+    display: "flex",
+    flexDirection: "column",
+  }, // ensures that input boxes don't go past the card
   input: {
     padding: "12px 14px",
     borderRadius: "6px",
@@ -103,6 +289,9 @@ const styles = {
     backgroundColor: "rgba(10, 15, 26, 0.8)",   
     color: "white",                              
     outline: "none",
+    width: "100%",         
+    maxWidth: "100%",      
+    boxSizing: "border-box" 
   },
   button: {
     marginTop: "10px",
