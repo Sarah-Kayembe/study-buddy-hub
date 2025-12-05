@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { registerUser, loginUser, fetchColleges, fetchMajors} from "../api/auth.js"; // all methods from the api go here
 
 // for the user registration page
-// needs default keyword for some reason
 export function RegisterPage() {
   const [form, setForm] = useState({
     first_name: "",
@@ -40,12 +39,6 @@ export function RegisterPage() {
   ////////////////////
   const handleRegister = async (e) => {
     e.preventDefault();
-
-    // const cleaned = {
-    // ...form,
-    // college_id: form.college_id === "" ? null : Number(form.college_id),
-    // major_id: form.major_id === "" ? null : Number(form.major_id),
-    // };
 
     setLoading(true);
     setError("");
@@ -107,36 +100,6 @@ export function RegisterPage() {
             onChange={handleChange}
             style={styles.input}
           />
-{/*
-Save these for the profile page, we don't need them for registering.
-          <select
-            name="college_id"
-            value={form.college_id}
-            onChange={handleChange}
-            style={styles.input}
-          >
-            <option value="">Select College</option>
-            {(colleges || []).map((c) => (
-              <option key={c.college_id} value={c.college_id}>
-                {c.college_name}
-              </option>
-            ))}
-          </select>
-
-          <select
-            name="major_id"
-            value={form.major_id}
-            onChange={handleChange}
-            style={styles.input}
-          >
-            <option value="">Select Major</option>
-            {(majors || []).map((m) => (
-              <option key={m.major_id} value={m.major_id}>
-                {m.major_name}
-              </option>
-            ))}
-          </select>
-*/}
 
           <button type="submit" disabled={loading} style={styles.button}>
             {loading ? "Registering..." : "Register"}

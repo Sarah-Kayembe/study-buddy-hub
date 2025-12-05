@@ -1,4 +1,4 @@
-from flask import Blueprint, session, jsonify
+from flask import Blueprint, session, jsonify, request
 from db import get_db_connection
 
 user_bp = Blueprint("user", __name__, url_prefix="/user")
@@ -40,3 +40,115 @@ def account():
     connection.close()
 
     return jsonify(data), 200
+
+from flask import request
+
+# route to edit the account itself. Updating the account is a different route
+@user_bp.route("/account/edit", methods=["OPTIONS", "POST"])
+def edit_account():
+    if request.method == "OPTIONS":
+        return "", 200
+
+    user = session.get("user")
+    if not user:
+        return jsonify({"error": "Not logged in"}), 401
+
+    data = request.get_json()
+
+    # Extract fields from JSON
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
+    email = data.get("email")
+    college_level = data.get("college_level")
+    college_id = data.get("college_id")
+    major_id = data.get("major_id")
+
+    # Validate
+    if not first_name or not last_name or not email:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    connection = get_db_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    update_query = """
+        UPDATE Users
+        SET first_name = %s,
+            last_name = %s,
+            email = %s,
+            college_level = %s,
+            college_id = %s,
+            major_id = %s
+        WHERE user_id = %s
+    """
+
+    cursor.execute(update_query, (
+        first_name,
+        last_name,
+        email,
+        college_level,
+        college_id if college_id else None,
+        major_id if major_id else None,
+        user["user_id"]
+    ))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    return jsonify({"success": True}), 200
+
+# Route which updates the account information
+@user_bp.route("/account", methods=["PUT"])
+def update_account():
+    from flask import request
+
+    user = session.get("user")
+    if not user:
+        return jsonify({"error": "Not logged in"}), 401 # make sure user is logged in
+
+    data = request.get_json()
+
+    college_id = data.get("college_id") or None
+    major_id = data.get("major_id") or None
+
+    connection = get_db_connection()
+    connection.start_transaction()
+
+    cursor = connection.cursor()
+
+    try:
+        query = """
+            UPDATE 
+                Users
+            SET 
+                first_name=%s,
+                last_name=%s,
+                email=%s,
+                college_level=%s,
+                college_id=%s,
+                major_id=%s
+            WHERE 
+                user_id=%s
+        """
+
+        cursor.execute(query, (
+            data.get("first_name"),
+            data.get("last_name"),
+            data.get("email"),
+            data.get("college_level"),
+            college_id,
+            major_id,
+            user["user_id"]
+        ))
+
+        connection.commit() 
+        return jsonify({"success": True}), 200
+
+    except Exception as e:
+        connection.rollback()
+        print("UPDATE ERROR:", e)
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
