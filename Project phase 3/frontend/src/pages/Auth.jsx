@@ -177,7 +177,7 @@ export function LoginPage() {
 
       // redirect to home page
       setTimeout(() => {
-        window.location.href = "/home";
+        window.location.href = "/";
       }, 1000);
     } 
     catch (err) {

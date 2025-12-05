@@ -3,9 +3,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import StudyGroups from "./pages/StudyGroups";
 
-// import Auth from "./pages/Auth";
 
-import { RegisterPage, LoginPage } from "./pages/Auth"; // named imports
+import { RegisterPage, LoginPage } from "./pages/Auth"; 
+import { ProfilePage, EditProfilePage } from "./pages/User"; 
 
 import NavBar from "./components/NavBar";
 
@@ -22,6 +22,9 @@ function App() {
 
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
+
+        <Route path="/user/account" element={<ProfilePage />} />
+      
         <Route
           path="/"
           element={<div style={{ padding: "1.5rem" }}>Home page placeholder</div>}

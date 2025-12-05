@@ -1,6 +1,5 @@
-import logging
 import traceback
-from flask import Blueprint, flash, request, render_template_string, redirect, url_for, jsonify
+from flask import Blueprint, request, jsonify, session
 import bcrypt
 from db import get_db_connection
 
@@ -10,7 +9,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix="/auth")
 ##############################
 
 # POST - Handle registration form submission
-@auth_bp.route("/api/register", methods=["POST"])
+@auth_bp.route("/register", methods=["POST"])
 def register_user():
     # Get form data
     data = request.get_json()
@@ -19,10 +18,6 @@ def register_user():
     email = data.get("email")
     password = data.get("password")
 
-    # don't need these currently, save em for the profile page
-    # college_id = data.get("college_id") or None
-    # major_id = data.get("major_id") or None
-    #
     # validate required fields
     if not first_name or not last_name or not email or not password:
         return jsonify({"error": "Missing required fields"}), 400
@@ -35,15 +30,27 @@ def register_user():
         cursor = connection.cursor()
 
         # check duplicate email
-        cursor.execute("SELECT * FROM Users WHERE email = %s", (email,))
+        duplicateEmailQuery = """
+            SELECT 
+                *
+            FROM 
+                Users
+            WHERE
+                email = %s
+        """
+        cursor.execute(duplicateEmailQuery, (email,))
         if cursor.fetchone():
             return jsonify({"error": "Email already registered"}), 400
 
-        # insert user
-        cursor.execute("""
-            INSERT INTO Users (email, password_hash, first_name, last_name, college_id, major_id)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (email, hashed_password, first_name, last_name, None, None))
+        # insert user into db
+        userInsertion = """
+            INSERT INTO
+                Users (email, password_hash, first_name, last_name, college_level, college_id, major_id)
+            VALUES 
+                (%s, %s, %s, %s, %s, %s, %s)
+        """
+
+        cursor.execute(userInsertion, (email, hashed_password, first_name, last_name, None, None, None))
 
         connection.commit()
         cursor.close()
@@ -81,25 +88,36 @@ def login_user():
         cursor = connection.cursor()
 
         # fetch user by email
-        cursor.execute("SELECT first_name, last_name, password_hash FROM Users WHERE email= %s", (email,))
+        emailQuery = """
+            SELECT
+                user_id, password_hash
+            FROM 
+                Users
+            WHERE
+                email = %s
+        """
+
+        cursor.execute(emailQuery, (email,))
         userToLogin = cursor.fetchone()
 
         if userToLogin is None:
             return jsonify({"error": "Account with given email doesn't exist"}), 400
         
-        first_name, last_name, hashed_password = userToLogin
+        user_id, hashed_password = userToLogin
 
         # Verify password
         if not bcrypt.checkpw(password.encode(), hashed_password.encode()):
             return jsonify({"error": "Incorrect password"}), 400
 
+        # creates a user session when they login
+        session["user"] = {
+            "user_id": user_id,
+            "email": email,
+        }
+            
         return jsonify({
             "message": "Login successful! You should be redirected shortly",
-            "user": {
-                "first_name": first_name,
-                "last_name": last_name,
-                "email": email
-            }
+            "user": session["user"]
         }), 200
     
     except Exception as e:

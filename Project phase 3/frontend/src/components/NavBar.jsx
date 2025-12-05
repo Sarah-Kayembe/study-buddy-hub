@@ -52,6 +52,16 @@ export default function NavBar() {
         >
           Account (soon)
         </button>
+
+        <NavLink
+          to="/user/account"
+          className={({ isActive }) =>
+            "nav-link" + (isActive ? " nav-link-active" : "")
+          }
+          end
+        >
+          Account (TEST)
+        </NavLink>
       </nav>
     </header>
   );
