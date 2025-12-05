@@ -4,10 +4,10 @@ from flask_cors import CORS
 from routes.studygroup_routes import bp as studygroup_bp
 from routes.chat_routes import bp as chat_bp
 
-from routes.auth_routes import auth_bp       # NEW
-from routes.user_routes import user_bp       # NEW
+from routes.auth_routes import auth_bp       
+from routes.user_routes import user_bp       
 
-from db import get_db_connection as get_db                     # NEW
+from db import get_db_connection as get_db                     
 
 def create_app():
     app = Flask(__name__)
@@ -28,18 +28,6 @@ def create_app():
     @app.route("/")
     def health():
         return jsonify({"status": "backend running"})
-    
-    # # ---- DB Test Endpoint ----
-    # @app.route("/test-db")
-    # def test_db():
-    #     db = get_db()
-    #     cursor = db.cursor()
-    #     cursor.execute("SELECT * FROM Users")
-    #     rows = cursor.fetchall()
-    #     cursor.close()
-    #     db.close()
-
-    #     return jsonify({"users": rows})
 
     # Blueprints already include url_prefix="/groups"
     app.register_blueprint(studygroup_bp)
