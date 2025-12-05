@@ -11,6 +11,7 @@ from db import get_db_connection as get_db
 
 def create_app():
     app = Flask(__name__)
+    app.secret_key = "secret_key" # needed for sessions
 
     # Allow your Vite dev server to talk to the backend
     CORS(
@@ -20,9 +21,10 @@ def create_app():
                 "origins": [
                     "http://localhost:5173",
                     "http://127.0.0.1:5173",
-                ]
+                ],
             }
         },
+        supports_credentials=True
     )
 
     @app.route("/")
@@ -33,9 +35,9 @@ def create_app():
     app.register_blueprint(studygroup_bp)
     app.register_blueprint(chat_bp)
 
-    # Register NEW user management blueprints
+    # user management blueprints
     app.register_blueprint(auth_bp, url_prefix="/auth")
-    app.register_blueprint(user_bp, url_prefix="/users")
+    app.register_blueprint(user_bp, url_prefix="/user")
 
     return app
 
