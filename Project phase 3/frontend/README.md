@@ -1,18 +1,16 @@
-# Study Buddy Frontend (Phase 3)
+# React + Vite
 
-This is a minimal React (Vite) frontend that provides simple UIs for Flashcards and Quizzes.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Quick start (PowerShell):
+Currently, two official plugins are available:
 
-```powershell
-cd "c:\Users\user\Desktop\COS457\Study_Buddy_hub-main\Project phase 3\frontend"
-npm install
-npm run dev
-```
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-The frontend expects the backend to run on `http://localhost:5000`.
-Note: I added `react-router-dom` for page routing. Run `npm install` again if you updated the repo after this change so the new dependency is installed. The app provides two top-level pages:
-- `/flashcards` — create and practice flashcards
-- `/quizzes` — create quizzes (quiz-taking UI can be added)
+## React Compiler
 
-Open `http://localhost:5173` in your browser and use the top navigation to switch pages.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

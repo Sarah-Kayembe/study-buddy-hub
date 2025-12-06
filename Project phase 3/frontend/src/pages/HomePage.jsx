@@ -135,32 +135,23 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* <p className="feature-card-body">
+            <p className="feature-card-body">
               Quizzes &amp; Flashcards description (placeholder text).
-            </p> */}
+            </p>
 
-            {/* <ul className="clean-list feature-card-list">
+            <ul className="clean-list feature-card-list">
               <li>• Feature 1</li>
               <li>• Feature 2</li>
               <li>• Feature 3</li>
-            </ul> */}
+            </ul>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "1rem" }}>
-              <button
-                className="btn btn-primary feature-card-btn"
-                type="button"
-                onClick={() => navigate("/quizzes")}
-              >
-                Open Quizzes
-              </button>
-              <button
-                className="btn btn-primary feature-card-btn"
-                type="button"
-                onClick={() => navigate("/flashcards")}
-              >
-                Open Flashcards
-              </button>
-            </div>
+            <button
+              className="btn btn-ghost btn-sm feature-card-btn"
+              type="button"
+              disabled
+            >
+              Coming soon
+            </button>
           </section>
 
           {/* Study Management & Focus */}
