@@ -1,26 +1,37 @@
-import React from "react";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+// src/App.jsx
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import StudyGroups from "./pages/StudyGroups";
 import FlashcardsPage from "./pages/FlashcardsPage";
 import QuizzesPage from "./pages/QuizzesPage";
 
-export default function App() {
+import { RegisterPage, LoginPage } from "./pages/Auth";
+import { ProfilePage, EditProfilePage } from "./pages/User";
+
+import NavBar from "./components/NavBar";
+
+function App() {
   return (
     <BrowserRouter>
-      <div style={{ padding: 12, fontFamily: 'Arial, sans-serif' }}>
-        <header style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-          <h1 style={{ margin: 0 }}>Study Buddy</h1>
-          <nav style={{ marginLeft: 20 }}>
-            <Link to="/flashcards" style={{ marginRight: 12 }}>Flashcards</Link>
-            <Link to="/quizzes">Quizzes</Link>
-          </nav>
-        </header>
+      <NavBar />
 
-        <Routes>
-          <Route path="/" element={<FlashcardsPage />} />
-          <Route path="/flashcards" element={<FlashcardsPage />} />
-          <Route path="/quizzes" element={<QuizzesPage />} />
-        </Routes>
-      </div>
+      {/* Page content */}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/groups" element={<StudyGroups />} />
+        <Route path="/flashcards" element={<FlashcardsPage />} />
+        <Route path="/quizzes" element={<QuizzesPage />} />
+
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route path="/user/account" element={<ProfilePage />} />
+        <Route path="/user/account/edit" element={<EditProfilePage />} />
+
+        {/* Add routes below */}
+      </Routes>
     </BrowserRouter>
   );
 }
+
+export default App;
