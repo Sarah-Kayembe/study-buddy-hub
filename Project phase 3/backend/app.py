@@ -5,7 +5,10 @@ from routes.studygroup_routes import bp as studygroup_bp
 from routes.chat_routes import bp as chat_bp
 
 from routes.auth_routes import auth_bp       
-from routes.user_routes import user_bp       
+from routes.user_routes import user_bp
+
+from routes.quiz_routes import quiz_bp
+from routes.flashcard_routes import flashcard_bp
 
 from db import get_db_connection as get_db                     
 
@@ -21,6 +24,8 @@ def create_app():
                 "origins": [
                     "http://localhost:5173",
                     "http://127.0.0.1:5173",
+                    "http://localhost:5176",
+                    "http://127.0.0.1:5176"
                 ],
             }
         },
@@ -38,6 +43,10 @@ def create_app():
     # User management blueprints. Need different url_prefix for both auth, and user.
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(user_bp, url_prefix="/user")
+
+    # Quiz and Flashcardbluep rints. Blueprints already include url_prefix="/groups"
+    app.register_blueprint(quiz_bp)
+    app.register_blueprint(flashcard_bp)
 
     return app
 
