@@ -31,8 +31,9 @@ def account():
         WHERE 
             u.user_id = %s
     """
-    # Left join needed for null fields
+    # Left join needed for null fields (Edited with ChatGPT)
 
+    # Advanced DB Feature: Parametrized SQL Query prevents SQL Injection attacks by not concatenating the input directly onto the query
     cursor.execute(query, (user["user_id"],))
     data = cursor.fetchone()
 
@@ -44,18 +45,20 @@ def account():
 from flask import request
 
 # route to edit the account itself. Updating the account is a different route
+# Request method OPTIONS added in by ChatGPT
 @user_bp.route("/account/edit", methods=["OPTIONS", "POST"])
 def edit_account():
     if request.method == "OPTIONS":
-        return "", 200
+        return "", 200 
 
     user = session.get("user")
+
     if not user:
         return jsonify({"error": "Not logged in"}), 401
 
     data = request.get_json()
 
-    # Extract fields from JSON
+    # get user info 
     first_name = data.get("first_name")
     last_name = data.get("last_name")
     email = data.get("email")
@@ -63,14 +66,13 @@ def edit_account():
     college_id = data.get("college_id")
     major_id = data.get("major_id")
 
-    # Validate
     if not first_name or not last_name or not email:
         return jsonify({"error": "Missing required fields"}), 400
 
     connection = get_db_connection()
     cursor = connection.cursor(dictionary=True)
 
-    update_query = """
+    updateQuery = """
         UPDATE Users
         SET first_name = %s,
             last_name = %s,
@@ -81,16 +83,16 @@ def edit_account():
         WHERE user_id = %s
     """
 
-    cursor.execute(update_query, (
-        first_name,
-        last_name,
-        email,
-        college_level,
-        college_id if college_id else None,
-        major_id if major_id else None,
-        user["user_id"]
-    ))
+    # Advanced DB Feature: Parametrized SQL Query prevents SQL Injection attacks by not concatenating the input directly onto the query
+    cursor.execute(updateQuery, (first_name, 
+                                  last_name, 
+                                  email, 
+                                  college_level, 
+                                  college_id if college_id else None, 
+                                  major_id if major_id else None, 
+                                  user["user_id"]))
 
+    # commit before closing
     connection.commit()
     cursor.close()
     connection.close()
@@ -113,7 +115,6 @@ def update_account():
 
     connection = get_db_connection()
     connection.start_transaction()
-
     cursor = connection.cursor()
 
     try:
@@ -131,15 +132,14 @@ def update_account():
                 user_id=%s
         """
 
-        cursor.execute(query, (
-            data.get("first_name"),
-            data.get("last_name"),
-            data.get("email"),
-            data.get("college_level"),
-            college_id,
-            major_id,
-            user["user_id"]
-        ))
+        # Advanced DB Feature: Parametrized SQL Query prevents SQL Injection attacks by not concatenating the input directly onto the query
+        cursor.execute(query, (data.get("first_name"),
+                               data.get("last_name"),
+                               data.get("email"),
+                               data.get("college_level"),
+                               college_id,
+                               major_id,
+                               user["user_id"]))
 
         connection.commit() 
         return jsonify({"success": True}), 200
@@ -147,7 +147,7 @@ def update_account():
     except Exception as e:
         connection.rollback()
         print("UPDATE ERROR:", e)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 500 # Exception generated with ChatGPT
 
     finally:
         cursor.close()
