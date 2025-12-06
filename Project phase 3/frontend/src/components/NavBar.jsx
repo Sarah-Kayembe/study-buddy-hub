@@ -29,13 +29,23 @@ export default function NavBar() {
           Study Groups
         </NavLink>
 
-        <button
-          type="button"
-          className="nav-link nav-link-disabled"
-          disabled
+        <NavLink
+          to="/quizzes"
+          className={({ isActive }) =>
+            "nav-link" + (isActive ? " nav-link-active" : "")
+          }
         >
-          Quizzes (soon)
-        </button>
+          Quizzes
+        </NavLink>
+
+        <NavLink
+          to="/flashcards"
+          className={({ isActive }) =>
+            "nav-link" + (isActive ? " nav-link-active" : "")
+          }
+        >
+          Flashcards
+        </NavLink>
 
         <button
           type="button"
