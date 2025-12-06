@@ -2,13 +2,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import StudyGroups from "./pages/StudyGroups";
-import FlashcardsPage from "./pages/FlashcardsPage";
-import QuizzesPage from "./pages/QuizzesPage";
 
-import { RegisterPage, LoginPage } from "./pages/Auth";
-import { ProfilePage, EditProfilePage } from "./pages/User";
+
+import { RegisterPage, LoginPage } from "./pages/Auth"; 
+import { ProfilePage, EditProfilePage } from "./pages/User"; 
 
 import NavBar from "./components/NavBar";
+
 
 function App() {
   return (
@@ -19,19 +19,25 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/groups" element={<StudyGroups />} />
-        <Route path="/flashcards" element={<FlashcardsPage />} />
-        <Route path="/quizzes" element={<QuizzesPage />} />
 
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
 
         <Route path="/user/account" element={<ProfilePage />} />
         <Route path="/user/account/edit" element={<EditProfilePage />} />
-
+      
+        <Route
+          path="/"
+          element={<div style={{ padding: "1.5rem" }}>Home page placeholder</div>}
+        />
         {/* Add routes below */}
+        {/* <Route path="/login" element={<LoginPage />} /> */}
+        {/* <Route path="/profile" element={<ProfilePage />} /> */}
+        {/* <Route path="/flashcards" element={<FlashcardsPage />} /> */}
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
+
