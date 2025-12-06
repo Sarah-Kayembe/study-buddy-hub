@@ -892,7 +892,7 @@ ul.clean-list {
   border-radius: 1.2rem;
   border: 1px solid rgba(148, 163, 184, 0.5);
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
-  padding: 2.6rem 1.5rem 1.1rem;   /* extra top padding for logo */
+  padding: 2.6rem 1.5rem 1.1rem;   /* ⬅ extra top padding for logo */
 }
 
 .feature-card-gamified::before {
@@ -1100,65 +1100,6 @@ ul.clean-list {
   justify-content: center;
 }
 
-/* Flashcard visuals used by PracticeFlashcards */
-.flashcard-card {
-  width: 100%;
-  max-width: 560px;
-  height: 280px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(14,165,233,0.08), rgba(79,70,229,0.05));
-  border: 2px solid rgba(14,165,233,0.3);
-  box-shadow: 0 15px 50px rgba(14,165,233,0.2), inset 0 1px 1px rgba(255,255,255,0.1);
-  cursor: pointer;
-  padding: 2rem;
-  color: #e5e7eb;
-  text-align: center;
-  position: relative;
-  perspective: 1000px;
-  transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  user-select: none;
-}
-
-.flashcard-card.flipped {
-  transform: rotateY(180deg);
-}
-
-.flashcard-front, 
-.flashcard-back {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  backface-visibility: hidden;
-}
-
-.flashcard-front {
-  font-size: 1.8rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  background: linear-gradient(135deg, #0ea5e9, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.flashcard-back {
-  font-size: 1.2rem;
-  font-weight: 500;
-  transform: rotateY(180deg);
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-
 .feature-card-icon-placeholder img {
   width: 70%;
   height: 70%;
@@ -1210,5 +1151,6 @@ ul.clean-list {
     margin-right: 3.5rem;
   }
 }
+
 
 
