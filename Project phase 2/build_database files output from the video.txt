@@ -1,0 +1,92 @@
+Study_Buddy_hub-main\Project phase 2> & C:/Users/user/anaconda3/python.exe "c:/Users/user/Desktop/COS457/Study_Buddy_hub-main/Project phase 2/build_database.py"
+MYSQL_HOST [localhost]: 
+MYSQL_PORT [3306]: 
+MYSQL_USER [root]: 
+MYSQL_PASSWORD []: *********
+Connecting to MySQL at localhost:3306 as root...
+Connection successful.
+Resetting database 'StudyBuddy'...
+Database 'StudyBuddy' created and selected.
+
+Starting database build...
+Executing SQL file: sql/schema/User_Management.sql...
+Executing SQL file: sql/schema/study_Management_script.sql...
+Executing SQL file: sql/schema/StudyGroupsAndCollaboration.sql...
+Executing SQL file: sql/schema/Quizzes&Flashcards.sql...
+Executing SQL file: sql/procedures/Study_Management_procedures.sql...
+Executing SQL file: sql/procedures/StudyGroupAndCollaborationProcedures.sql...
+Executing SQL file: sql/load/User_Management_Data_Insertion.sql...
+Executing SQL file: sql/load/User_Management_Relationship_Testing.sql...
+Executing SQL file: sql/load/import_clean_resources.sql...
+Executing SQL file: sql/load/TestDataForStudyGroups.sql...
+Executing SQL file: sql/load/fake_data_Script.sql...
+Executing SQL file: sql/load/import_clean_quiz.sql...
+
+[SUCCESS] Database build completed successfully!
+MySQL connection closed.
+PS C:\Users\user\Desktop\COS457\Study_Buddy_hub-main\Project phase 2> mysql -u root -p
+Enter password: *********
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 52
+Server version: 8.0.44 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2025, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> USE StudyBuddy;
+Database changed
+mysql>
+mysql> SELECT COUNT(*) FROM Users;
++----------+
+| COUNT(*) |
++----------+
+|        8 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT COUNT(*) FROM Study_Group;
++----------+
+| COUNT(*) |
++----------+
+|        3 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT COUNT(*) FROM Match_Profile;
++----------+
+| COUNT(*) |
++----------+
+|        6 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT COUNT(*) FROM Quiz;
++----------+
+| COUNT(*) |
++----------+
+|        1 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT user_id,email FROM Users WHERE user_id BETWEEN 1001 AND 1006;
++---------+------------------------+
+| user_id | email                  |
++---------+------------------------+
+|    1001 | sg_owner@example.com   |
+|    1002 | testuser1@system.local |
+|    1003 | testuser2@system.local |
+|    1004 | testuser3@system.local |
+|    1005 | testuser4@system.local |
+|    1006 | sg_solo@example.com    |
++---------+------------------------+
+6 rows in set (0.00 sec)
+
+mysql> INSERT INTO Match_Profile (user_id, study_style, meeting_pref, bio)
+    -> VALUES (9999,'solo','online','bad');
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`studybuddy`.`match_profile`, CONSTRAINT `match_profile_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`))
+mysql>
