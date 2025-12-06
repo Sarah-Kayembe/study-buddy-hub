@@ -8,7 +8,8 @@ export async function registerUser(formData) {
   let data;
   try {
     data = await res.json();
-  } catch {
+  } 
+  catch {
     throw new Error("Invalid server response");
   }
 
@@ -29,8 +30,8 @@ export async function loginUser(formData) {
   });
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Unknown error" }));
-    throw new Error(err.error || "Registration failed");
+    const e = await res.json().catch(() => ({ error: "Unknown error" }));
+    throw new Error(e.error || "Registration failed");
   }
 
   return res.json();

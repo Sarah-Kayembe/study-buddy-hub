@@ -29,7 +29,7 @@ def register_user():
         connection = get_db_connection()
         cursor = connection.cursor()
 
-        # check duplicate email
+        # check for duplicate email
         duplicateEmailQuery = """
             SELECT 
                 *
@@ -38,19 +38,21 @@ def register_user():
             WHERE
                 email = %s
         """
-        cursor.execute(duplicateEmailQuery, (email,))
+
+        # Advanced DB Feature: Parametrized SQL Query prevents SQL Injection attacks by not concatenating the input directly onto the query
+        cursor.execute(duplicateEmailQuery, (email,)) 
         if cursor.fetchone():
             return jsonify({"error": "Email already registered"}), 400
 
         # insert user into db
-        userInsertion = """
+        userInsertionQuery = """
             INSERT INTO
                 Users (email, password_hash, first_name, last_name, college_level, college_id, major_id)
             VALUES 
                 (%s, %s, %s, %s, %s, %s, %s)
-        """
+        """ 
 
-        cursor.execute(userInsertion, (email, hashed_password, first_name, last_name, None, None, None))
+        cursor.execute(userInsertionQuery, (email, hashed_password, first_name, last_name, None, None, None))
 
         connection.commit()
         cursor.close()
@@ -60,10 +62,8 @@ def register_user():
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-
     finally:
-        if connection:
-            connection.close()
+        connection.close()
 
 
 
@@ -97,6 +97,7 @@ def login_user():
                 email = %s
         """
 
+        # Advanced DB Feature: Parametrized SQL Query prevents SQL Injection attacks by not concatenating the input directly onto the query
         cursor.execute(emailQuery, (email,))
         userToLogin = cursor.fetchone()
 
@@ -123,10 +124,8 @@ def login_user():
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-
     finally:
-        if connection:
-            connection.close()
+        connection.close()
 
 # Data retrival methods
 #######################
@@ -136,9 +135,10 @@ def login_user():
 def get_colleges():
     connection = get_db_connection()
     try:
-        cursor = connection.cursor(dictionary=True)
+        cursor = connection.cursor(dictionary=True) # Asked ChatGPT for the syntax of this cursor
         cursor.execute("SELECT college_id, college_name FROM Colleges")
         colleges = cursor.fetchall()
+
         return jsonify(colleges)
     finally:
         connection.close()
@@ -151,6 +151,7 @@ def get_majors():
         cursor = connection.cursor(dictionary=True)
         cursor.execute("SELECT major_id, major_name FROM Majors")
         majors = cursor.fetchall()
+
         return jsonify(majors)
     finally:
         connection.close()
