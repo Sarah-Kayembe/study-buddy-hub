@@ -21,7 +21,8 @@ def account():
             u.email,
             u.college_level,
             c.college_name,
-            m.major_name
+            m.major_name,
+            u.bio
         FROM 
             Users u
         LEFT JOIN 
@@ -65,6 +66,7 @@ def edit_account():
     college_level = data.get("college_level")
     college_id = data.get("college_id")
     major_id = data.get("major_id")
+    bio = data.get("bio")
 
     if not first_name or not last_name or not email:
         return jsonify({"error": "Missing required fields"}), 400
@@ -79,7 +81,8 @@ def edit_account():
             email = %s,
             college_level = %s,
             college_id = %s,
-            major_id = %s
+            major_id = %s,
+            bio = %s
         WHERE user_id = %s
     """
 
@@ -90,6 +93,7 @@ def edit_account():
                                   college_level, 
                                   college_id if college_id else None, 
                                   major_id if major_id else None, 
+                                  bio if bio else None,
                                   user["user_id"]))
 
     # commit before closing
@@ -122,14 +126,15 @@ def update_account():
             UPDATE 
                 Users
             SET 
-                first_name=%s,
-                last_name=%s,
-                email=%s,
-                college_level=%s,
-                college_id=%s,
-                major_id=%s
+                first_name = %s,
+                last_name = %s,
+                email = %s,
+                college_level = %s,
+                college_id = %s,
+                major_id = %s,
+                bio = %s
             WHERE 
-                user_id=%s
+                user_id = %s
         """
 
         # Advanced DB Feature: Parametrized SQL Query prevents SQL Injection attacks by not concatenating the input directly onto the query
@@ -139,6 +144,7 @@ def update_account():
                                data.get("college_level"),
                                college_id,
                                major_id,
+                               data.get("bio"),
                                user["user_id"]))
 
         connection.commit() 

@@ -5,7 +5,7 @@ import StudyGroups from "./pages/StudyGroups";
 
 
 import { RegisterPage, LoginPage } from "./pages/Auth"; 
-import { ProfilePage, EditProfilePage } from "./pages/User"; 
+import { AccountPage, EditAccountPage } from "./pages/User"; 
 
 import NavBar from "./components/NavBar";
 
@@ -23,8 +23,8 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
 
-        <Route path="/user/account" element={<ProfilePage />} />
-        <Route path="/user/account/edit" element={<EditProfilePage />} />
+        <Route path="/user/account" element={<AccountPage />} />
+        <Route path="/user/account/edit" element={<EditAccountPage />} />
       
         <Route
           path="/"
