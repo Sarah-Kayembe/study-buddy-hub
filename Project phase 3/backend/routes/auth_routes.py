@@ -127,6 +127,19 @@ def login_user():
     finally:
         connection.close()
 
+@auth_bp.route("/logout", methods=["POST"])
+def logout_user():
+    try:
+        session.pop("user")
+        return jsonify({
+            "message": "Login out successful! You should be redirected shortly",
+        }), 200
+    
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
 # Data retrival methods
 #######################
 
