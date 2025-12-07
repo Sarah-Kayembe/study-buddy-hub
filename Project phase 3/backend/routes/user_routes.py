@@ -110,7 +110,7 @@ def update_account():
 
     user = session.get("user")
     if not user:
-        return jsonify({"error": "Not logged in"}), 401 # make sure user is logged in
+        return jsonify({"error": "Not logged in"}), 401 
 
     data = request.get_json()
 
