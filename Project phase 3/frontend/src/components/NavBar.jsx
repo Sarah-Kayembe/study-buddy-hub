@@ -20,16 +20,17 @@ export default function NavBar() {
           Home
         </NavLink>
 
+
         <NavLink
-          to="/groups"
+          to="/quizzes"
           className={({ isActive }) =>
             "nav-link" + (isActive ? " nav-link-active" : "")
           }
         >
-          Study Groups
+          Quizzes
         </NavLink>
 
-        <NavLink
+                <NavLink
           to="/match"
           className={({ isActive }) =>
             "nav-link" + (isActive ? " nav-link-active" : "")
@@ -38,21 +39,34 @@ export default function NavBar() {
           StudyBuddy Match
         </NavLink>
 
-        <button
-          type="button"
-          className="nav-link nav-link-disabled"
-          disabled
+        <NavLink
+          to="/flashcards"
+          className={({ isActive }) =>
+            "nav-link" + (isActive ? " nav-link-active" : "")
+          }
         >
-          Quizzes (soon)
-        </button>
+          Flashcards
+        </NavLink>
 
-        <button
-          type="button"
-          className="nav-link nav-link-disabled"
-          disabled
-        >
-          Study Tools (soon)
-        </button>
+
+          <button
+            type="button"
+            className="nav-link nav-link-disabled"
+            disabled
+          >
+            Study Tools (soon)
+          </button>
+
+          {/* I left this placeholder because I didn't know if you still needed it -Rise */}
+          <NavLink
+            to="/user/account"
+            className={({ isActive }) =>
+              "nav-link" + (isActive ? " nav-link-active" : "")
+            }
+            end
+          >
+            Account
+          </NavLink>
 
         <button
           type="button"

@@ -12,6 +12,7 @@ def get_db_connection():
         user=os.getenv("MYSQL_USER", "root"),
         password=os.getenv("MYSQL_PASSWORD", "REMOVED"),
         database=os.getenv("MYSQL_DB", "StudyBuddy"),
+        autocommit=True # need this because saving profile changes kept getting locked
     )
 
 
