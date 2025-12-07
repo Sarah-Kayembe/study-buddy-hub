@@ -9,6 +9,7 @@ import { RegisterPage, LoginPage } from "./pages/Auth";
 import { ProfilePage, EditProfilePage } from "./pages/User";
 
 import NavBar from "./components/NavBar";
+import StudyBuddyMatch from "./pages/StuddyBuddyMatch";
 
 function App() {
   return (
@@ -16,9 +17,11 @@ function App() {
       <NavBar />
 
       {/* Page content */}
-      <Routes>
+            <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/groups" element={<StudyGroups />} />
+        <Route path="/match" element={<StudyBuddyMatch />} />
+
         <Route path="/flashcards" element={<FlashcardsPage />} />
         <Route path="/quizzes" element={<QuizzesPage />} />
 
@@ -30,6 +33,7 @@ function App() {
 
         {/* Add routes below */}
       </Routes>
+
     </BrowserRouter>
   );
 }
