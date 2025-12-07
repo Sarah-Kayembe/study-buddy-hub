@@ -29,6 +29,15 @@ export default function NavBar() {
           Study Groups
         </NavLink>
 
+        <NavLink
+          to="/match"
+          className={({ isActive }) =>
+            "nav-link" + (isActive ? " nav-link-active" : "")
+          }
+        >
+          StudyBuddy Match
+        </NavLink>
+
         <button
           type="button"
           className="nav-link nav-link-disabled"
@@ -56,3 +65,4 @@ export default function NavBar() {
     </header>
   );
 }
+

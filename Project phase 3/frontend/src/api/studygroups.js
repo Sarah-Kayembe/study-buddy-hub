@@ -167,3 +167,14 @@ export async function joinByInviteCode(inviteCode, userId) {
     }),
   });
 }
+
+export async function searchCourses(query, limit = 8) {
+  const params = new URLSearchParams({
+    q: query,
+    limit: String(limit),
+  });
+
+  // Use the same API_BASE + apiFetch as your other calls
+  return apiFetch(`/courses/search?${params.toString()}`);
+}
+
