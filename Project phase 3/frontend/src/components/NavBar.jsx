@@ -30,6 +30,15 @@ export default function NavBar() {
           Quizzes
         </NavLink>
 
+                <NavLink
+          to="/match"
+          className={({ isActive }) =>
+            "nav-link" + (isActive ? " nav-link-active" : "")
+          }
+        >
+          StudyBuddy Match
+        </NavLink>
+
         <NavLink
           to="/flashcards"
           className={({ isActive }) =>
@@ -38,6 +47,7 @@ export default function NavBar() {
         >
           Flashcards
         </NavLink>
+
 
           <button
             type="button"
@@ -69,3 +79,4 @@ export default function NavBar() {
     </header>
   );
 }
+
