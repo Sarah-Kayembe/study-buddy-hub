@@ -37,6 +37,22 @@ export async function loginUser(formData) {
   return res.json();
 }
 
+export async function logoutUser() {
+  const res = await fetch("http://127.0.0.1:8001/auth/logout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({ error: "Unknown error" }));
+    throw new Error(e.error || "Logout failed");
+  }
+
+  window.location.href = "/";
+}
+
+
 export async function fetchColleges() {
   const res = await fetch("http://127.0.0.1:8001/auth/colleges");
 

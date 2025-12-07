@@ -174,8 +174,22 @@ export function LoginPage() {
             style={styles.input}
           />
 
-          <button type="submit" disabled={loading} style={styles.button}>
+          <button 
+            type="submit" 
+            disabled={loading} 
+            style={styles.button}>
             {loading ? "Logging in..." : "Login"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => (window.location.href = "/register")}
+            style={{
+              ...styles.button, 
+              backgroundColor: "#120a52ff",
+              marginTop: 10}}
+          >
+            Register
           </button>
         </form>
 

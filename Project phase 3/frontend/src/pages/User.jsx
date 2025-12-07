@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { registerUser, loginUser, fetchColleges, fetchMajors} from "../api/auth.js"; // all methods from the api go here
+import { registerUser, loginUser, fetchColleges, fetchMajors, logoutUser} from "../api/auth.js"; // all methods from the api go here
 
 export function ProfilePage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  //"/user/account"
   useEffect(() => {
     fetch("http://127.0.0.1:8001/user/account", {
       method: "GET",
@@ -43,7 +42,7 @@ export function ProfilePage() {
   return (
     <div style={styles.page}>
       <div style={styles.card}>
-        <h1 style={styles.title}>My Profile</h1>
+        <h1 style={styles.title}>My Account</h1>
 
         <p style={styles.text}><strong>First Name:</strong> {user.first_name}</p>
         <p style={styles.text}><strong>Last Name:</strong> {user.last_name}</p>
@@ -54,9 +53,20 @@ export function ProfilePage() {
 
         <button
           style={styles.button}
-          onClick={() => (window.location.href = "/user/account/edit")}
+          onClick={() => (window.location.href = "/user/account/edit")} // go to edit account page
         >
-          Edit Profile
+          Edit Account
+        </button>
+
+        <button
+          style={{
+            ...styles.button, 
+            backgroundColor: "#252140ff", 
+            marginLeft: 25
+          }}
+          onClick={(logoutUser)} 
+        >
+          Log Out
         </button>
       </div>
     </div>
@@ -228,14 +238,20 @@ export function EditProfilePage() {
           </select>
           </div>
 
-          <button type="submit" style={styles.button} disabled={saving}>
+          <button 
+            type="submit" 
+            style={styles.button} 
+            disabled={saving}>
             {saving ? "Saving..." : "Save Changes"}
           </button>
 
           <button
             type="button"
             onClick={() => (window.location.href = "/user/account")}
-            style={{...styles.button, backgroundColor: "#777", marginTop: 10}}
+            style={{
+              ...styles.button, 
+              backgroundColor: "#777", 
+              marginTop: 10}}
           >
             Cancel
           </button>
@@ -281,7 +297,7 @@ const styles = {
     maxWidth: "100%",
     display: "flex",
     flexDirection: "column",
-  }, // ensures that input boxes don't go past the card. Generated with ChatGPT
+  }, // ensures that input boxes don't go past the card. Edited with ChatGPT
   input: {
     padding: "12px 14px",
     borderRadius: "6px",
