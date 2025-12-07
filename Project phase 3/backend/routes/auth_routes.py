@@ -153,6 +153,9 @@ def get_colleges():
         colleges = cursor.fetchall()
 
         return jsonify(colleges)
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
     finally:
         connection.close()
 
@@ -166,6 +169,9 @@ def get_majors():
         majors = cursor.fetchall()
 
         return jsonify(majors)
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
     finally:
         connection.close()
 
