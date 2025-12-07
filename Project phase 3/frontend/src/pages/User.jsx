@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { registerUser, loginUser, fetchColleges, fetchMajors, logoutUser} from "../api/auth.js"; // all methods from the api go here
+import { fetchColleges, fetchMajors, logoutUser} from "../api/auth.js"; // all methods from the api go here
 
-export function ProfilePage() {
+export function AccountPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -50,6 +50,7 @@ export function ProfilePage() {
         <p style={styles.text}><strong>College Year:</strong> {user.college_level}</p>
         <p style={styles.text}><strong>College:</strong> {user.college_name}</p>
         <p style={styles.text}><strong>Major:</strong> {user.major_name}</p>
+        <p style={styles.text}><strong>Bio:</strong> {user.bio}</p>
 
         <button
           style={styles.button}
@@ -73,21 +74,22 @@ export function ProfilePage() {
   );
 }
 
-export function EditProfilePage() {
+export function EditAccountPage() {
   const [user, setUser] = useState({
     first_name: "",
     last_name: "",
     email: "",
     college_level: "",
     college_id: "",   
-    major_id: ""      
+    major_id: "",
+    bio: ""      
   });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Fetch profile
+  // Fetch account
   useEffect(() => {
     fetch("http://127.0.0.1:8001/user/account", {
       method: "GET",
@@ -103,7 +105,8 @@ export function EditProfilePage() {
             email: data.email,
             college_level: data.college_level,
             college_id: data.college_id || "",
-            major_id: data.major_id || "" // leaves ids empty unless changed by the user
+            major_id: data.major_id || "", // leaves ids empty unless changed by the user
+            bio: data.bio || ""
           }));
         }
       })
@@ -159,7 +162,7 @@ export function EditProfilePage() {
   return (
     <div style={styles.page}>
       <div style={styles.card}>
-        <h1>Edit Profile</h1>
+        <h1>Edit Account Details</h1>
 
         {error && <p style={{ color: "red" }}>{error}</p>}
 
@@ -237,6 +240,14 @@ export function EditProfilePage() {
             ))}
           </select>
           </div>
+
+          <label>Bio</label>
+          <input
+            name="bio"
+            value={user.bio}
+            onChange={handleChange}
+            style={styles.input}
+          />
 
           <button 
             type="submit" 

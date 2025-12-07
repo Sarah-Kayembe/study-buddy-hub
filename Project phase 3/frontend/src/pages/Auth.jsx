@@ -10,6 +10,7 @@ export function RegisterPage() {
     password: "",
     college_id: "",
     major_id: "",
+    bio: ""
   });
 
   const [loading, setLoading] = useState(false);
