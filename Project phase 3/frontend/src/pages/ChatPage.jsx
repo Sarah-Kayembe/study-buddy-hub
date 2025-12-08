@@ -1,4 +1,5 @@
-// src/pages/ChatPage.jsx
+// Jacob Craig
+
 import { useEffect, useState, useRef } from "react";
 import { getChatMessages, sendChatMessage } from "../api/chat.js";
 
