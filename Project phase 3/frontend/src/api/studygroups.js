@@ -1,4 +1,4 @@
-// frontend/src/api/studygroups.js
+// Jacob Craig
 
 import { API_BASE } from "./base";
 
