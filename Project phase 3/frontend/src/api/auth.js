@@ -1,3 +1,5 @@
+// By Rise Akizaki
+
 export async function registerUser(formData) {
   const response = await fetch("http://127.0.0.1:8001/auth/register", {
     method: "POST",
@@ -5,19 +7,11 @@ export async function registerUser(formData) {
     body: JSON.stringify(formData),
   });
 
-  let data;
-  try {
-    data = await response.json();
-  } 
-  catch {
-    throw new Error("Invalid server response");
-  }
-
   if (!response.ok) {
     throw new Error(data.error || "Registration failed");
   }
 
-  return data;
+  return response.json();
 }
 
 // TODO: add try/catch here, or remove try/catch above
@@ -47,7 +41,7 @@ export async function logoutUser() {
     throw new Error(e.error || "Logout failed");
   }
 
-  window.location.href = "/";
+  window.location.href = "/"; // redirect to homepage after logging out
 }
 
 

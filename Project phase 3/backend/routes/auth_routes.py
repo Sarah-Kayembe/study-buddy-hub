@@ -1,3 +1,5 @@
+# By Rise Akizaki
+
 import traceback
 from flask import Blueprint, request, jsonify, session
 import bcrypt
@@ -106,7 +108,7 @@ def login_user():
         
         user_id, hashed_password = userToLogin
 
-        # Verify password
+        # verify password
         if not bcrypt.checkpw(password.encode(), hashed_password.encode()):
             return jsonify({"error": "Incorrect password"}), 400
 
@@ -157,6 +159,7 @@ def get_colleges():
         traceback.print_exc()
         return jsonify({"error": str(exception)}), 500
     finally:
+        cursor.close()
         connection.close()
 
 # gets all majors from DB
@@ -173,6 +176,7 @@ def get_majors():
         traceback.print_exc()
         return jsonify({"error": str(exception)}), 500
     finally:
+        cursor.close()
         connection.close()
 
 

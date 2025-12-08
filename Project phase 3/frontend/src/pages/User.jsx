@@ -1,3 +1,5 @@
+// By Rise Akizaki
+
 import { useEffect, useState } from "react";
 import { fetchColleges, fetchMajors, logoutUser} from "../api/auth.js"; // all methods from the api go here
 
