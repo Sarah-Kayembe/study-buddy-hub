@@ -46,10 +46,6 @@ def create_app():
     def health():
         return jsonify({"status": "backend running"})
 
-    @app.route("/")
-    def health():
-        return jsonify({"status": "backend running"})
-
     # serve uploaded files (profile pics, resources, etc.)
     @app.route("/uploads/<path:filename>")
     def uploaded_file(filename):
