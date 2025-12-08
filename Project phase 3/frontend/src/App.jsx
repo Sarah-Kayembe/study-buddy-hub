@@ -8,7 +8,6 @@ import QuizzesPage from "./pages/QuizzesPage";
 
 import { RegisterPage, LoginPage } from "./pages/Auth"; 
 import { AccountPage, EditAccountPage } from "./pages/User"; 
-import { ProfilePage, EditProfilePage } from "./pages/User";
 
 import NavBar from "./components/NavBar";
 import StudyBuddyMatch from "./pages/StuddyBuddyMatch";
