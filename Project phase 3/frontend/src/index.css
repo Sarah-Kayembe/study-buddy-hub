@@ -887,11 +887,14 @@ ul.clean-list {
 }
 
 .feature-grid-subtitle {
+  display: block;       
   font-size: 0.9rem;
-  color: var(--text-muted);
-  max-width: 580px;
+  color: #ffffff;
+  max-width: 520px;
   margin-top: 0.3rem;
 }
+
+
 
 .feature-grid {
   display: grid;
