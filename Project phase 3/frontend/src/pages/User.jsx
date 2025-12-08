@@ -10,12 +10,12 @@ export function AccountPage() {
       method: "GET",
       credentials: "include" // required for session cookies. Generated with ChatGPT
     })
-      .then(res => {
-        if (res.status === 401) {
+      .then(response => {
+        if (response.status === 401) {
           window.location.href = "/login";
           return null;
         }
-        return res.json();
+        return response.json();
       })
       .then(data => {
         if (data && !data.error) 
@@ -88,43 +88,8 @@ export function EditAccountPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-
-  // Fetch account
-  useEffect(() => {
-    fetch("http://127.0.0.1:8001/user/account", {
-      method: "GET",
-      credentials: "include"
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (!data.error) {
-          setUser(prev => ({
-            ...prev,
-            first_name: data.first_name,
-            last_name: data.last_name,
-            email: data.email,
-            college_level: data.college_level,
-            college_id: data.college_id || "",
-            major_id: data.major_id || "", // leaves ids empty unless changed by the user
-            bio: data.bio || ""
-          }));
-        }
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-
-  // loads dropdown info
   const [colleges, setColleges] = useState([]);
   const [majors, setMajors] = useState([]);
-
-  useEffect(() => {
-    fetchColleges().then(setColleges).catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    fetchMajors().then(setMajors).catch(console.error);
-  }, []);
 
   const handleChange = (e) => {
     setUser({
@@ -145,7 +110,7 @@ export function EditAccountPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(user)
     })
-      .then(res => res.json())
+      .then(response => response.json())
       .then(data => {
         if (data.error) 
           setError(data.error);
@@ -155,6 +120,37 @@ export function EditAccountPage() {
       .finally(() => setSaving(false));
   };
 
+  // Fetch account
+  useEffect(() => {
+    fetch("http://127.0.0.1:8001/user/account", {
+      method: "GET",
+      credentials: "include"
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (!data.error) {
+          setUser(prev => ({
+            ...prev,
+            first_name: data.first_name,
+            last_name: data.last_name,
+            email: data.email,
+            college_level: data.college_level,
+            college_id: data.college_id || "",
+            major_id: data.major_id || "", // leaves ids empty unless changed by the user
+            bio: data.bio || ""
+          }));
+        }
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetchColleges().then(setColleges).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    fetchMajors().then(setMajors).catch(console.error);
+  }, []);
 
   if (loading) 
     return <h2>Loading...</h2>;
