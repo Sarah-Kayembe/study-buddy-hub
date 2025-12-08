@@ -150,10 +150,10 @@ def update_account():
         connection.commit() 
         return jsonify({"success": True}), 200
 
-    except Exception as e:
+    except Exception as exception:
         connection.rollback()
-        print("UPDATE ERROR:", e)
-        return jsonify({"error": str(e)}), 500 # Exception generated with ChatGPT
+        print("UPDATE ERROR:", exception)
+        return jsonify({"error": str(exception)}), 500 # Exception generated with ChatGPT
 
     finally:
         cursor.close()

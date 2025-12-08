@@ -32,13 +32,13 @@ export function RegisterPage() {
       const data = await registerUser(form);
       setMessage(data.message);
 
-      // Redirects to login page after successfully registering account
+      // redirects to login page after successfully registering account
       setTimeout(() => {
         window.location.href = "/login";
       }, 1000);
     } 
-    catch (err) {
-      setError(err.message || "Registration failed");
+    catch (error) {
+      setError(error.message || "Registration failed");
     } 
     finally {
       setLoading(false);
@@ -127,8 +127,8 @@ export function LoginPage() {
         window.location.href = "/";
       }, 1000);
     } 
-    catch (err) {
-      setError(err.message || "Login failed");
+    catch (error) {
+      setError(error.message || "Login failed");
     } 
     finally {
       setLoading(false);

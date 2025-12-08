@@ -59,9 +59,9 @@ def register_user():
 
         return jsonify({"message": "Registration successful! You should be redirected shortly"}), 200
 
-    except Exception as e:
+    except Exception as exception:
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(exception)}), 500
     finally:
         connection.close()
 
@@ -121,9 +121,9 @@ def login_user():
             "user": session["user"]
         }), 200
     
-    except Exception as e:
+    except Exception as exception:
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(exception)}), 500
     finally:
         connection.close()
 
@@ -135,9 +135,9 @@ def logout_user():
             "message": "Login out successful! You should be redirected shortly",
         }), 200
     
-    except Exception as e:
+    except Exception as exception:
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(exception)}), 500
 
 
 # Data retrival methods
@@ -153,9 +153,9 @@ def get_colleges():
         colleges = cursor.fetchall()
 
         return jsonify(colleges)
-    except Exception as e:
+    except Exception as exception:
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(exception)}), 500
     finally:
         connection.close()
 
@@ -169,9 +169,9 @@ def get_majors():
         majors = cursor.fetchall()
 
         return jsonify(majors)
-    except Exception as e:
+    except Exception as exception:
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(exception)}), 500
     finally:
         connection.close()
 
