@@ -1,4 +1,4 @@
-// src/pages/StuddyBuddyMatch.jsx
+// Jacob Craig
 
 import { useEffect, useState } from "react";
 import {
