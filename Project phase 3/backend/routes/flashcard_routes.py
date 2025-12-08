@@ -1,25 +1,68 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from db import get_db_connection
 from utils.transactions import create_flashcard_set_transaction
 
 flashcard_bp = Blueprint("flashcards", __name__, url_prefix="/flashcards")
+
 
 # ------------------------------
 # Create Flashcard Set (ACID)
 # ------------------------------
 @flashcard_bp.route("/create", methods=["POST"])
 def create_set():
-    data = request.json
-    
-    if not data.get('title') or not data.get('creator_id'):
-        return jsonify({"error": "Title and Creator ID are required"}), 400
+    # Require logged-in user (same pattern as quizzes)
+    user = session.get("user")
+    if not user:
+        return jsonify({"error": "Not logged in"}), 401
 
-    set_id, error = create_flashcard_set_transaction(data)
-    
+    data = request.get_json() or {}
+
+    title = data.get("title")
+    if not title:
+        return jsonify({"error": "Title is required"}), 400
+
+    # Normalize flashcards from frontend
+    raw_cards = data.get("flashcards") or data.get("cards") or []
+    normalized_cards = []
+
+    for idx, c in enumerate(raw_cards):
+        # Try multiple possible keys for front/back, but your frontend uses front/back
+        front_text = (
+            c.get("front_text")
+            or c.get("front")
+            or c.get("question")
+        )
+        back_text = (
+            c.get("back_text")
+            or c.get("back")
+            or c.get("answer")
+        )
+
+        # Skip cards that don't have both sides
+        if not front_text or not back_text:
+            continue
+
+        normalized_cards.append({
+            "front_text": front_text,
+            "back_text": back_text,
+        })
+
+    payload = {
+        "title": title,
+        "description": data.get("description"),
+        "course_id": data.get("course_id"),
+        "creator_id": user["user_id"],
+        "flashcards": normalized_cards,
+    }
+
+    set_id, error = create_flashcard_set_transaction(payload)
+
     if error:
+        print("FLASHCARD_SET CREATE ERROR:", error)
         return jsonify({"error": error}), 500
-        
+
     return jsonify({"message": "Flashcard set created", "set_id": set_id}), 201
+
 
 # ------------------------------
 # Get Flashcard Set
@@ -68,7 +111,10 @@ def list_flashcard_sets():
 
     cursor = conn.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT set_id AS id, title, description FROM flashcardset ORDER BY set_id DESC LIMIT 50")
+        cursor.execute(
+            "SELECT set_id AS id, title, description FROM flashcardset "
+            "ORDER BY set_id DESC LIMIT 50"
+        )
         rows = cursor.fetchall()
         return jsonify(rows)
     except Exception as e:
