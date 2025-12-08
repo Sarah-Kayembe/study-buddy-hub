@@ -1,10 +1,10 @@
-// frontend/src/pages/ResourcesPage.jsx
 import { useEffect, useState } from "react";
 import {
   fetchResources as apiFetchResources,
   createResource as apiCreateResource,
   uploadResourceFile as apiUploadResourceFile,
 } from "../api/resources";
+import { API_BASE } from "../api/base";
 
 export default function ResourcesPage() {
   const [resources, setResources] = useState([]);
@@ -12,22 +12,20 @@ export default function ResourcesPage() {
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
-
-  // create-resource form state
+// uploading new stuff
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [newFiletype, setNewFiletype] = useState("LINK");
-  const [newSource, setNewSource] = useState(""); // URL
-  const [uploadFile, setUploadFile] = useState(null); // for PDFs / other files
+  const [newSource, setNewSource] = useState(""); // URL for plain links
+  const [uploadFile, setUploadFile] = useState(null); // file input (pdf / video / other)
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
 
-  // ----- LOAD RESOURCES -----
   const loadResources = async () => {
     setLoading(true);
     setError("");
     try {
-      const data = await apiFetchResources(); // <- use the imported helper
+      const data = await apiFetchResources();
       const list = Array.isArray(data) ? data : data.resources || [];
       setResources(list);
     } catch (err) {
@@ -42,7 +40,6 @@ export default function ResourcesPage() {
     loadResources();
   }, []);
 
-  // ----- CREATE / UPLOAD RESOURCE -----
   const handleCreateResource = async (e) => {
     e.preventDefault();
     setCreateError("");
@@ -54,8 +51,8 @@ export default function ResourcesPage() {
 
     const typeUpper = newFiletype.toUpperCase();
 
-    // FILE UPLOAD PATH (PDF / OTHER)
-    if (typeUpper === "PDF" || typeUpper === "OTHER") {
+    // file upload path (pdf, video, other files)
+    if (typeUpper === "PDF" || typeUpper === "OTHER" || typeUpper === "VIDEO") {
       if (!uploadFile) {
         setCreateError("Please choose a file to upload.");
         return;
@@ -77,7 +74,6 @@ export default function ResourcesPage() {
           await loadResources();
         }
 
-        // reset form
         setNewTitle("");
         setNewDescription("");
         setNewFiletype("LINK");
@@ -92,9 +88,9 @@ export default function ResourcesPage() {
       return;
     }
 
-    // LINK / VIDEO PATH (URL-based)
+    // URL-based path (straight links only)
     if (!newSource.trim()) {
-      setCreateError("URL is required for links and videos.");
+      setCreateError("URL is required for links.");
       return;
     }
 
@@ -126,7 +122,6 @@ export default function ResourcesPage() {
     }
   };
 
-  // ----- FILTERING -----
   const filteredResources = resources.filter((r) => {
     const text = (r.title || "") + " " + (r.description || "");
     const matchesText = text.toLowerCase().includes(filter.toLowerCase());
@@ -136,7 +131,6 @@ export default function ResourcesPage() {
     return matchesText && matchesType;
   });
 
-  // when they change type, clear URL/file to avoid weird state
   const handleTypeChange = (val) => {
     setNewFiletype(val);
     setNewSource("");
@@ -155,7 +149,7 @@ export default function ResourcesPage() {
           alignItems: "flex-start",
         }}
       >
-        {/* LEFT: search + results */}
+        {/* left side: search + list */}
         <section className="section">
           <div className="card">
             <div className="card-header" style={{ marginBottom: "0.75rem" }}>
@@ -168,7 +162,6 @@ export default function ResourcesPage() {
               </p>
             )}
 
-            {/* search + type filters */}
             <div
               className="toolbar-row"
               style={{ marginBottom: "0.75rem", alignItems: "stretch" }}
@@ -213,7 +206,7 @@ export default function ResourcesPage() {
           </div>
         </section>
 
-        {/* RIGHT: add new resource */}
+        {/* right side: create / upload */}
         <section className="section">
           <div className="card">
             <div className="card-title" style={{ marginBottom: "0.75rem" }}>
@@ -227,7 +220,7 @@ export default function ResourcesPage() {
                 marginBottom: "0.75rem",
               }}
             >
-              Add helpful links, PDFs, or videos for your classmates.
+              Drop helpful resources here for everyone else!
             </p>
 
             {createError && (
@@ -258,7 +251,7 @@ export default function ResourcesPage() {
                   <textarea
                     value={newDescription}
                     onChange={(e) => setNewDescription(e.target.value)}
-                    placeholder="Short summary of why this is useful…"
+                    placeholder="Short note on why this is useful…"
                     rows={3}
                   />
                 </label>
@@ -271,7 +264,7 @@ export default function ResourcesPage() {
                   gap: "0.75rem",
                 }}
               >
-                {(newFiletype === "LINK" || newFiletype === "VIDEO") && (
+                {newFiletype === "LINK" && (
                   <label>
                     URL
                     <input
@@ -283,12 +276,20 @@ export default function ResourcesPage() {
                   </label>
                 )}
 
-                {(newFiletype === "PDF" || newFiletype === "OTHER") && (
+                {(newFiletype === "PDF" ||
+                  newFiletype === "OTHER" ||
+                  newFiletype === "VIDEO") && (
                   <label>
                     File
                     <input
                       type="file"
-                      accept=".pdf"
+                      accept={
+                        newFiletype === "PDF"
+                          ? ".pdf"
+                          : newFiletype === "VIDEO"
+                          ? "video/*"
+                          : "*/*"
+                      }
                       onChange={(e) =>
                         setUploadFile(e.target.files?.[0] || null)
                       }
@@ -321,7 +322,7 @@ export default function ResourcesPage() {
                   >
                     <option value="LINK">Link</option>
                     <option value="PDF">PDF (upload)</option>
-                    <option value="VIDEO">Video link</option>
+                    <option value="VIDEO">Video (upload)</option>
                     <option value="OTHER">Other file</option>
                   </select>
                 </label>
@@ -345,7 +346,11 @@ export default function ResourcesPage() {
 }
 
 function ResourceCard({ resource }) {
-  const url = resource.source || resource.url;
+  let url = resource.source || resource.url;
+
+  if (url && url.startsWith("/uploads")) {
+    url = `${API_BASE}${url}`;
+  }
   const added =
     resource.upload_date || resource.created_at || resource.createdAt;
   const filetype =

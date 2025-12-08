@@ -162,9 +162,13 @@ export default function HomePage() {
           <h1 className="page-title">StudyBuddy Hub</h1>
 
           {/* description */}
-          <p className="hero-subtitle">StudyBuddy Hub description</p>
+          <p className="hero-subtitle">Study how you want.</p>
 
-          <p className="hero-body-text">placeholder description for studybuddy</p>
+          <p className="hero-body-text">Welcome to StudyBuddy! Studybuddy makes it 
+            easier for students to study. We offer many features such as study groups,
+            quizzes, flashcards, and more! If you are a student looking for academic
+            resources, click resources below. If you are looking to get started on studying,
+            click view features below!</p>
 
           <div className="hero-actions">
             <button
@@ -251,10 +255,11 @@ export default function HomePage() {
       >
         <div className="feature-grid-header">
           <h2 className="feature-grid-title">Choose your path</h2>
-          <p className="feature-grid-subtitle">
-            Short placeholder description of the different areas of StudyBuddy
-            Hub (quizzes, focus tools, groups, matches).
-          </p>
+          <p2 className="feature-grid-subtitle">
+            We offer many features in StudyBuddy. You can create your owner
+            quizzes or flashcards, use our study tools, find or create a study
+            group, or find the perfect sutdy partner on StudyBuddy Match!
+          </p2>
         </div>
 
         <div className="feature-grid">
@@ -343,7 +348,7 @@ export default function HomePage() {
                   <img src={NetworkIcon} alt="Study Groups logo" />
                 </div>
                 <div className="card-title">
-                  Study Groups &amp; Collaboration
+                  Study Groups
                 </div>
               </div>
             </div>
