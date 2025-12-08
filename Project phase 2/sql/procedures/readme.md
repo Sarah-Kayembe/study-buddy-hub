@@ -1,4 +1,4 @@
-# tudyBuddy SQL Stored Procedures
+# StudyBuddy SQL Stored Procedures
 
 **Overview**
 
