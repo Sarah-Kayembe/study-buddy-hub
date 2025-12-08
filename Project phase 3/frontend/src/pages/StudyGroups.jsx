@@ -15,6 +15,7 @@ import {
   kickMember,
   generateInviteCode,
   joinByInviteCode,
+  searchCourses,
 } from "../api/studygroups.js";
 
 import ChatPage from "./ChatPage";
@@ -32,6 +33,10 @@ export default function StudyGroups() {
   const [publicGroups, setPublicGroups] = useState([]);
   const [myGroups, setMyGroups] = useState([]);
   const [upcomingSessions, setUpcomingSessions] = useState([]);
+
+  const [courseQuery, setCourseQuery] = useState("");        // text the user types
+  const [courseSuggestions, setCourseSuggestions] = useState([]); // dropdown list
+  const [courseSearchLoading, setCourseSearchLoading] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -385,6 +390,118 @@ const handleRejectRequest = async (requestUserId) => {
     }
   };
 
+    const handleCourseSearchChange = async (e) => {
+    const value = e.target.value;
+    setCourseQuery(value);
+
+    if (value.trim().length < 2) {
+      setCourseSuggestions([]);
+      return;
+    }
+
+    try {
+      setCourseSearchLoading(true);
+      const results = await searchCourses(value.trim(), 8);
+      setCourseSuggestions(results);
+    } catch (err) {
+      console.error(err);
+      setCourseSuggestions([]);
+    } finally {
+      setCourseSearchLoading(false);
+    }
+  };
+
+  const handleSelectCourseSuggestion = (course) => {
+    setCourseId(course.course_id);
+    setCourseQuery(`${course.course_code} — ${course.course_name}`);
+    setCourseSuggestions([]);
+    loadData();
+  };
+
+  const coursePicker = (
+    <div style={{ position: "relative" }}>
+      <label>
+        Course
+        <input
+          type="text"
+          value={courseQuery}
+          onChange={handleCourseSearchChange}
+          placeholder="e.g., COS 420 or Database Systems"
+        />
+      </label>
+
+      {courseSearchLoading && (
+        <div
+          style={{
+            fontSize: "0.8rem",
+            opacity: 0.7,
+            marginTop: "0.15rem",
+          }}
+        >
+          Searching...
+        </div>
+      )}
+
+      {courseSuggestions.length > 0 && (
+        <ul
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            zIndex: 20,
+            marginTop: "0.25rem",
+            maxHeight: "220px",
+            overflowY: "auto",
+            listStyle: "none",
+            padding: 0,
+            borderRadius: "0.5rem",
+            border: "1px solid rgba(148,163,184,0.5)",
+            background: "#020617",
+            boxShadow: "0 12px 30px rgba(15,23,42,0.7)",
+          }}
+        >
+          {courseSuggestions.map((c) => (
+            <li
+              key={c.course_id}
+              style={{ padding: "0.4rem 0.65rem", cursor: "pointer" }}
+              onClick={() => handleSelectCourseSuggestion(c)}
+            >
+              <div style={{ fontSize: "0.9rem", fontWeight: 500 }}>
+                {c.course_code} — {c.course_name}
+              </div>
+              {c.college_name && (
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    opacity: 0.75,
+                    marginTop: "0.1rem",
+                  }}
+                >
+                  {c.college_name}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* debug / user feedback */}
+      {courseId && (
+        <div
+          style={{
+            fontSize: "0.8rem",
+            opacity: 0.7,
+            marginTop: "0.25rem",
+          }}
+        >
+          Search for the course name or code
+        </div>
+      )}
+    </div>
+  );
+
+
   // Chat mode
   if (chatGroup !== null) {
     return (
@@ -603,18 +720,9 @@ const handleJoinByCode = async (e) => {
                       />
                     </label>
                   </div>
-
                   <div>
-                    <label>
-                      Course ID
-                      <input
-                        type="number"
-                        value={courseId}
-                        onChange={(e) => setCourseId(Number(e.target.value))}
-                      />
-                    </label>
+                    {coursePicker}
                   </div>
-
                   <div
                     style={{
                       display: "flex",
@@ -655,10 +763,10 @@ const handleJoinByCode = async (e) => {
               </div>
             )}
 
-            {activeTab === "search" && (
+                        {activeTab === "search" && (
               <div>
                 <div className="card-title" style={{ fontSize: "1.05rem" }}>
-                  Public Groups for Course {courseId}
+                  Search public groups by course
                 </div>
                 <p
                   style={{
@@ -667,85 +775,73 @@ const handleJoinByCode = async (e) => {
                     opacity: 0.75,
                   }}
                 >
-                  Filter and discover public groups by course ID.
+                  Start typing a course code (e.g., COS 420) or course name to
+                  discover groups.
                 </p>
 
-               <div
-                className="toolbar-row"
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: "1rem",
-                  flexWrap: "wrap",
-                  marginBottom: "0.75rem",
-                }}
-              >
                 <div
+                  className="toolbar-row"
                   style={{
                     display: "flex",
-                    alignItems: "center",
-                    gap: "0.75rem",
-                  }}
-                >
-                  <label>
-                    Course ID
-                    <input
-                      type="number"
-                      value={courseId}
-                      onChange={(e) => setCourseId(Number(e.target.value))}
-                    />
-                  </label>
-                  <button
-                    className="btn btn-primary"
-                    onClick={loadData}
-                    type="button"
-                  >
-                    Refresh
-                  </button>
-                </div>
-
-                {/*join-by-code */}
-                <form
-                  onSubmit={handleJoinByCode}
-                  style={{
-                    display: "flex",
-                    gap: "0.5rem",
-                    alignItems: "center",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    gap: "1rem",
                     flexWrap: "wrap",
+                    marginBottom: "0.75rem",
                   }}
                 >
-                  <span style={{ fontSize: "0.85rem", opacity: 0.8 }}>
-                    Or join a private group by code:
-                  </span>
-                  <input
-                    type="text"
-                    value={inviteCodeInput}
-                    onChange={(e) => setInviteCodeInput(e.target.value)}
-                    placeholder="Enter invite code"
-                    style={{ width: "160px" }}
-                  />
-                  <button
-                    type="submit"
-                    className="btn btn-ghost"
-                    disabled={inviteJoinLoading}
-                  >
-                    {inviteJoinLoading ? "Joining..." : "Join with code"}
-                  </button>
-                </form>
-              </div>
+                  {/* smart course picker + refresh */}
+                  <div style={{ flex: "1 1 260px" }}>
+                    {coursePicker}
+                    <button
+                      className="btn btn-primary"
+                      onClick={loadData}
+                      type="button"
+                      style={{ marginTop: "0.5rem" }}
+                    >
+                      Refresh groups for this course
+                    </button>
+                  </div>
 
+                  {/* join-by-code */}
+                  <form
+                    onSubmit={handleJoinByCode}
+                    style={{
+                      display: "flex",
+                      gap: "0.5rem",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <span style={{ fontSize: "0.85rem", opacity: 0.8 }}>
+                      Or join a private group by code:
+                    </span>
+                    <input
+                      type="text"
+                      value={inviteCodeInput}
+                      onChange={(e) => setInviteCodeInput(e.target.value)}
+                      placeholder="Enter invite code"
+                      style={{ width: "160px" }}
+                    />
+                    <button
+                      type="submit"
+                      className="btn btn-ghost"
+                      disabled={inviteJoinLoading}
+                    >
+                      {inviteJoinLoading ? "Joining..." : "Join with code"}
+                    </button>
+                  </form>
+                </div>
 
                 {loading && <p>Loading groups...</p>}
                 {error && <p className="error-text">{error}</p>}
 
-               {visiblePublicGroups.length === 0 ? (
+                {visiblePublicGroups.length === 0 ? (
                   <p>No public groups found.</p>
                 ) : (
                   <div className="scroll-list">
                     <ul className="clean-list">
                       {visiblePublicGroups.map((g) => (
-
                         <li key={g.group_id} className="group-row">
                           <div className="group-main">
                             <span className="group-name">{g.group_name}</span>
@@ -769,6 +865,7 @@ const handleJoinByCode = async (e) => {
                 )}
               </div>
             )}
+
           </div>
         </section>
       </div>
@@ -1268,5 +1365,4 @@ const handleJoinByCode = async (e) => {
     </div>
   );
 }
-
 
