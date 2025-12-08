@@ -13,6 +13,7 @@ from routes.user_routes import user_bp
 from routes.quiz_routes import quiz_bp
 from routes.flashcard_routes import flashcard_bp
 
+from routes.resource_routes import bp as resources_bp
 from db import get_db_connection as get_db
                   
 
@@ -67,6 +68,9 @@ def create_app():
     # Quizzes & flashcards
     app.register_blueprint(quiz_bp)
     app.register_blueprint(flashcard_bp)
+
+    #Resources
+    app.register_blueprint(resources_bp)
 
     return app
 

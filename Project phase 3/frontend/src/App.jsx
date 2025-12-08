@@ -4,6 +4,7 @@ import HomePage from "./pages/HomePage";
 import StudyGroups from "./pages/StudyGroups";
 import FlashcardsPage from "./pages/FlashcardsPage";
 import QuizzesPage from "./pages/QuizzesPage";
+import ResourcesPage from "./pages/ResourcesPage";
 
 
 import { RegisterPage, LoginPage } from "./pages/Auth"; 
@@ -31,7 +32,8 @@ function App() {
 
         <Route path="/user/account" element={<AccountPage />} />
         <Route path="/user/account/edit" element={<EditAccountPage />} />
-      
+        <Route path="/resources" element={<ResourcesPage />} />
+
         {/* <Route
           path="/"
           element={<div style={{ padding: "1.5rem" }}>Home page placeholder</div>}
