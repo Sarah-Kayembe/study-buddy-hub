@@ -1,6 +1,6 @@
 // frontend/src/api/studygroups.js
 
-const API_BASE = "http://127.0.0.1:8001";
+import { API_BASE } from "./base";
 
 // small helper to standardize fetch + error handling
 async function apiFetch(path, options = {}) {
@@ -25,10 +25,6 @@ async function apiFetch(path, options = {}) {
 
   return data;
 }
-
-/* -----------------------------
-   Existing functions
------------------------------ */
 
 export async function fetchPublicGroups(courseId, limit = 20) {
   const params = new URLSearchParams({
@@ -62,8 +58,6 @@ export async function createGroup(payload) {
   });
 }
 
-// NOTE: after your backend change, this now creates a JOIN REQUEST
-// instead of instantly adding the member. The exact response body
 // comes from /groups/<id>/join (status/message fields).
 export async function joinGroup(groupId, userId) {
   return apiFetch(`/groups/${groupId}/join`, {
@@ -88,10 +82,6 @@ export async function fetchUpcomingSessions(userId, limit = 50) {
 
   return apiFetch(`/groups/sessions/upcoming?${params.toString()}`);
 }
-
-/* -----------------------------
-   NEW: Join request owner APIs
------------------------------ */
 
 // GET /groups/:id/requests?owner_id=...
 // returns: [{ user_id, full_name, request_date }, ...]
@@ -150,7 +140,6 @@ export async function kickMember(groupId, userId, ownerId) {
   return res.json();
 }
 
-
 export async function generateInviteCode(groupId, ownerId) {
   return apiFetch(`/groups/${groupId}/invite-code`, {
     method: "POST",
@@ -174,7 +163,5 @@ export async function searchCourses(query, limit = 8) {
     limit: String(limit),
   });
 
-  // Use the same API_BASE + apiFetch as your other calls
   return apiFetch(`/courses/search?${params.toString()}`);
 }
-

@@ -1,4 +1,3 @@
-// src/components/NavBar.jsx
 import { NavLink } from "react-router-dom";
 
 export default function NavBar() {
@@ -20,6 +19,15 @@ export default function NavBar() {
           Home
         </NavLink>
 
+        {/* NEW: Study Groups tab */}
+        <NavLink
+          to="/groups"
+          className={({ isActive }) =>
+            "nav-link" + (isActive ? " nav-link-active" : "")
+          }
+        >
+          Study Groups
+        </NavLink>
 
         <NavLink
           to="/quizzes"
@@ -30,7 +38,7 @@ export default function NavBar() {
           Quizzes
         </NavLink>
 
-                <NavLink
+        <NavLink
           to="/match"
           className={({ isActive }) =>
             "nav-link" + (isActive ? " nav-link-active" : "")
@@ -48,35 +56,25 @@ export default function NavBar() {
           Flashcards
         </NavLink>
 
-
-          <button
-            type="button"
-            className="nav-link nav-link-disabled"
-            disabled
-          >
-            Study Tools (soon)
-          </button>
-
-          {/* I left this placeholder because I didn't know if you still needed it -Rise */}
-          <NavLink
-            to="/user/account"
-            className={({ isActive }) =>
-              "nav-link" + (isActive ? " nav-link-active" : "")
-            }
-            end
-          >
-            Account
-          </NavLink>
-
         <button
           type="button"
           className="nav-link nav-link-disabled"
           disabled
         >
-          Account (soon)
+          Study Tools (soon)
         </button>
+
+        <NavLink
+          to="/user/account"
+          className={({ isActive }) =>
+            "nav-link" + (isActive ? " nav-link-active" : "")
+          }
+          end
+        >
+          Account
+        </NavLink>
+
       </nav>
     </header>
   );
 }
-
