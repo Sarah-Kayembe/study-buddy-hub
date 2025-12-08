@@ -1,13 +1,12 @@
 // src/api/axiosClient.js
-
 import axios from "axios";
 import { API_BASE } from "./base";
 
-// Axios client used by quizzes/flashcards/etc.
 const client = axios.create({
   baseURL: API_BASE,
   timeout: 5000,
   headers: { "Content-Type": "application/json" },
+  withCredentials: true,     
 });
 
 client.interceptors.response.use(
@@ -19,3 +18,4 @@ client.interceptors.response.use(
 );
 
 export default client;
+
