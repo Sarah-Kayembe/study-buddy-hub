@@ -1,4 +1,5 @@
-// src/pages/StudyBuddyMatch.jsx
+// src/pages/StuddyBuddyMatch.jsx
+
 import { useEffect, useState } from "react";
 import {
   saveMatchProfile,
@@ -13,10 +14,14 @@ import {
   respondToMessageRequest,
 } from "../api/match";
 import { searchCourses } from "../api/studygroups";
-
-const FAKE_USER_ID = 1001; // replace with real auth later
+import { API_BASE } from "../api/base";
 
 export default function StudyBuddyMatch() {
+  // 🔐 Logged-in user
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // Match profile
   const [profile, setProfile] = useState({
     study_style: "group",
     meeting_pref: "in_person",
@@ -51,17 +56,57 @@ export default function StudyBuddyMatch() {
   const [isLoadingChat, setIsLoadingChat] = useState(false);
 
   const [showChatDock, setShowChatDock] = useState(false);
-  const [inbox, setInbox] = useState([]);       // all conversations
-  const [requests, setRequests] = useState([]); // pending message requests
+  const [inbox, setInbox] = useState([]); // conversations
+  const [requests, setRequests] = useState([]); // message requests
   const [isLoadingInbox, setIsLoadingInbox] = useState(false);
 
-  const [selectedMatch, setSelectedMatch] = useState(null); // for profile popup
+  const [selectedMatch, setSelectedMatch] = useState(null); // profile popup
 
-  // Load existing profile (if any) on mount
+  // ---------------------------
+  // 1) Load logged-in user
+  // ---------------------------
   useEffect(() => {
+    async function loadUser() {
+      try {
+        const res = await fetch(`${API_BASE}/user/account`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (res.status === 401) {
+          // Not logged in -> go to login page
+          window.location.href = "/login";
+          return;
+        }
+
+        const data = await res.json();
+        if (data && !data.error) {
+          setCurrentUser(data); // includes user_id
+        } else {
+          setError(data.error || "Failed to load account.");
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load account.");
+      } finally {
+        setAuthLoading(false);
+      }
+    }
+
+    loadUser();
+  }, []);
+
+  // ---------------------------
+  // 2) Load match profile for this user
+  // ---------------------------
+  useEffect(() => {
+    // Wait until we know who the user is
+    if (!currentUser || !currentUser.user_id) return;
+
     async function init() {
       try {
-        const data = await fetchMatchProfile(FAKE_USER_ID);
+        const data = await fetchMatchProfile(currentUser.user_id);
+
         if (data && data.exists && data.profile) {
           const p = data.profile;
 
@@ -81,12 +126,14 @@ export default function StudyBuddyMatch() {
           setHasProfile(true);
           setShowProfileForm(false); // existing users see matches first
           setInfo("Loaded your match profile.");
-          await loadMatchesInternal();
+
+          await loadMatchesInternal(currentUser.user_id);
         } else {
           setHasProfile(false);
           setShowProfileForm(true);
         }
       } catch (err) {
+        console.error(err);
         setError(err.message || "Failed to load profile");
       } finally {
         setInitialized(true);
@@ -95,14 +142,15 @@ export default function StudyBuddyMatch() {
 
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentUser]);
 
-  // load inbox whenever the dock is opened and you have a profile
+  // Load inbox whenever the dock opens (and we have both profile + user)
   useEffect(() => {
-    if (showChatDock && hasProfile) {
+    if (showChatDock && hasProfile && currentUser?.user_id) {
       loadInbox();
     }
-  }, [showChatDock, hasProfile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showChatDock, hasProfile, currentUser]);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -169,6 +217,7 @@ export default function StudyBuddyMatch() {
       }));
       setInfo("Profile image uploaded.");
     } catch (err) {
+      console.error(err);
       setError(err.message || "Failed to upload image");
     } finally {
       setIsUploading(false);
@@ -182,22 +231,28 @@ export default function StudyBuddyMatch() {
     return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }
 
-  // open conversation from inbox (normal chat, no request gating)
-    async function openConversationFromInbox(convo) {
+  // ---------------------------
+  // Open a conversation from inbox list
+  // ---------------------------
+  async function openConversationFromInbox(convo) {
+    const userId = currentUser?.user_id;
+    if (!userId) {
+      setError("You must be logged in to view messages.");
+      return;
+    }
+
     setError("");
     setIsLoadingChat(true);
 
     try {
       const msgs = await fetchDirectMessages(convo.conversation_id, 50);
 
-      // Normalize request status
-      const requestStatus = convo.request_status || "accepted"; // null -> treat as accepted
+      const requestStatus = convo.request_status || "accepted";
       const isRequestFlow = requestStatus === "pending";
       const isYouRequester = convo.is_requester === 1;
 
-      // 👇 Check if YOU have already sent a message in this convo
       const youAlreadySent = (msgs || []).some(
-        (m) => m.sender_user_id === FAKE_USER_ID
+        (m) => m.sender_user_id === userId
       );
 
       setActiveConversation({
@@ -207,26 +262,34 @@ export default function StudyBuddyMatch() {
           first_name: convo.first_name,
           last_name: convo.last_name,
         },
-        requestStatus,             // "pending" / "accepted"
-        isRequestFlow,             // true only when pending
-        isYouRequester,            // true if you made the request
-        hasSentInitial:
-          isRequestFlow && isYouRequester && youAlreadySent, 
+        requestStatus,
+        isRequestFlow,
+        isYouRequester,
+        hasSentInitial: isRequestFlow && isYouRequester && youAlreadySent,
       });
 
       setDmMessages(msgs || []);
     } catch (err) {
+      console.error(err);
       setError(err.message || "Failed to load conversation.");
     } finally {
       setIsLoadingChat(false);
     }
   }
 
-
+  // ---------------------------
+  // Send DM in active conversation
+  // ---------------------------
   async function handleSendDm(e) {
     e.preventDefault();
     const text = dmInput.trim();
     if (!text || !activeConversation) return;
+
+    const userId = currentUser?.user_id;
+    if (!userId) {
+      setError("You must be logged in to send messages.");
+      return;
+    }
 
     const { isRequestFlow, hasSentInitial, isYouRequester } = activeConversation;
 
@@ -247,7 +310,7 @@ export default function StudyBuddyMatch() {
     try {
       await sendDirectMessage(
         activeConversation.conversation_id,
-        FAKE_USER_ID,
+        userId,
         text
       );
 
@@ -256,7 +319,7 @@ export default function StudyBuddyMatch() {
         ...prev,
         {
           message_id: `local-${Date.now()}`,
-          sender_user_id: FAKE_USER_ID,
+          sender_user_id: userId,
           first_name: "You",
           last_name: "",
           content: text,
@@ -280,15 +343,20 @@ export default function StudyBuddyMatch() {
 
       await loadInbox();
     } catch (err) {
+      console.error(err);
       setError(err.message || "Failed to send message.");
     }
   }
 
+  // ---------------------------
+  // Save / update match profile
+  // ---------------------------
   async function handleSaveProfile() {
     setError("");
     setInfo("");
 
-    if (!FAKE_USER_ID) {
+    const userId = currentUser?.user_id;
+    if (!userId) {
       setError("User is not logged in.");
       return;
     }
@@ -306,7 +374,7 @@ export default function StudyBuddyMatch() {
           : Number(profile.age);
 
       const payload = {
-        user_id: FAKE_USER_ID,
+        user_id: userId,
         study_style: profile.study_style || null,
         meeting_pref: profile.meeting_pref || null,
         bio: profile.bio || null,
@@ -323,41 +391,53 @@ export default function StudyBuddyMatch() {
       await saveMatchProfile(payload);
       setHasProfile(true);
       setInfo("Profile saved.");
-      await loadMatchesInternal();
+      await loadMatchesInternal(userId);
     } catch (err) {
+      console.error(err);
       setError(err.message || "Failed to save profile");
     } finally {
       setIsSaving(false);
     }
   }
 
+  // ---------------------------
+  // Inbox and requests
+  // ---------------------------
   async function loadInbox() {
+    const userId = currentUser?.user_id;
+    if (!userId) return;
+
     setIsLoadingInbox(true);
     setError("");
     try {
       const [convos, reqs] = await Promise.all([
-        fetchInbox(FAKE_USER_ID),
-        fetchMessageRequests(FAKE_USER_ID),
+        fetchInbox(userId),
+        fetchMessageRequests(userId),
       ]);
       setInbox(convos || []);
       setRequests(reqs || []);
     } catch (err) {
+      console.error(err);
       setError(err.message || "Failed to load chat.");
     } finally {
       setIsLoadingInbox(false);
     }
   }
 
-  async function loadMatchesInternal() {
+  async function loadMatchesInternal(userIdParam) {
+    const userId = userIdParam ?? currentUser?.user_id;
+    if (!userId) return;
+
     setError("");
     setIsLoadingMatches(true);
     try {
-      const data = await fetchMatchSuggestions(FAKE_USER_ID, 20);
+      const data = await fetchMatchSuggestions(userId, 20);
       setMatches(data || []);
       if (!data || data.length === 0) {
         setInfo("No matches found yet.");
       }
     } catch (err) {
+      console.error(err);
       setError(err.message || "Failed to load matches");
     } finally {
       setIsLoadingMatches(false);
@@ -368,101 +448,109 @@ export default function StudyBuddyMatch() {
     await loadMatchesInternal();
   }
 
- async function handleRespondToRequest(req, action) {
-  try {
-    // Call backend
-    await respondToMessageRequest(req.request_id, action, FAKE_USER_ID);
+  async function handleRespondToRequest(req, action) {
+    const userId = currentUser?.user_id;
+    if (!userId) {
+      setError("You must be logged in to respond to requests.");
+      return;
+    }
 
-    // 👉 UPDATE the active conversation immediately
-    setActiveConversation((prev) => {
-      if (!prev) return prev;
+    try {
+      await respondToMessageRequest(req.request_id, action, userId);
 
-      // Only update if this request belongs to the currently opened DM
-      if (prev.partner.other_user_id !== req.requester_user_id) {
-        return prev;
-      }
+      // Update active conversation if it matches this request
+      setActiveConversation((prev) => {
+        if (!prev) return prev;
+        if (prev.partner.other_user_id !== req.requester_user_id) {
+          return prev;
+        }
+        return {
+          ...prev,
+          requestStatus: action === "accept" ? "accepted" : "rejected",
+          isRequestFlow: false,
+          hasSentInitial: false,
+        };
+      });
 
-      return {
-        ...prev,
-        requestStatus: action === "accept" ? "accepted" : "rejected",   // <<< HERE
-        isRequestFlow: false,
-        hasSentInitial: false,
-      };
-    });
-
-    // Refresh inbox so request disappears
-    await loadInbox();
-  } catch (err) {
-    setError(err.message || "Failed to update request.");
+      await loadInbox();
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Failed to update request.");
+    }
   }
-}
 
   async function openChatWithMatch(match) {
-  setError("");
-  setInfo("");
-  setIsLoadingChat(true);
-  try {
-    const { conversation_id } = await startConversation(
-      FAKE_USER_ID,
-      match.other_user_id
-    );
+    const userId = currentUser?.user_id;
+    if (!userId) {
+      setError("You must be logged in to start a chat.");
+      return;
+    }
 
-    await loadInbox(); // keep inbox in sync
-    const msgs = await fetchDirectMessages(conversation_id, 50);
+    setError("");
+    setInfo("");
+    setIsLoadingChat(true);
+    try {
+      const { conversation_id } = await startConversation(
+        userId,
+        match.other_user_id
+      );
 
-    const alreadySent = (msgs || []).some(
-      (m) => m.sender_user_id === FAKE_USER_ID
-    );
+      await loadInbox();
+      const msgs = await fetchDirectMessages(conversation_id, 50);
 
-    setActiveConversation({
-      conversation_id,
-      partner: match,
-      isRequestFlow: true,
-      hasSentInitial: alreadySent,
-      isYouRequester: true,
-      requestStatus: "pending", // ✅ this is a pending request
-    });
-    setDmMessages(msgs || []);
-    setShowChatDock(true);
-  } catch (err) {
-    setError(err.message || "Failed to open chat.");
-  } finally {
-    setIsLoadingChat(false);
+      const alreadySent = (msgs || []).some(
+        (m) => m.sender_user_id === userId
+      );
+
+      setActiveConversation({
+        conversation_id,
+        partner: match,
+        isRequestFlow: true,
+        hasSentInitial: alreadySent,
+        isYouRequester: true,
+        requestStatus: "pending",
+      });
+      setDmMessages(msgs || []);
+      setShowChatDock(true);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Failed to open chat.");
+    } finally {
+      setIsLoadingChat(false);
+    }
   }
-}
 
-function truncatePreview(text, max = 60) {
-  if (!text) return "";
-  return text.length > max ? text.slice(0, max - 1) + "…" : text;
-}
+  function truncatePreview(text, max = 60) {
+    if (!text) return "";
+    return text.length > max ? text.slice(0, max - 1) + "…" : text;
+  }
 
   // ----- request / input gating helpers -----
   const isPendingRequest =
-  !!activeConversation && activeConversation.requestStatus === "pending";
+    !!activeConversation && activeConversation.requestStatus === "pending";
 
-const isRejectedRequest =
-  !!activeConversation && activeConversation.requestStatus === "rejected";
+  const isRejectedRequest =
+    !!activeConversation && activeConversation.requestStatus === "rejected";
 
-const isYouRequester =
-  isPendingRequest && activeConversation?.isYouRequester === true;
+  const isYouRequester =
+    isPendingRequest && activeConversation?.isYouRequester === true;
 
-const isYouTarget =
-  isPendingRequest && activeConversation?.isYouRequester === false;
+  const isYouTarget =
+    isPendingRequest && activeConversation?.isYouRequester === false;
 
-const disableDmInput =
-  (isYouRequester && activeConversation?.hasSentInitial) ||
-  isYouTarget ||
-  isRejectedRequest;
+  const disableDmInput =
+    (isYouRequester && activeConversation?.hasSentInitial) ||
+    isYouTarget ||
+    isRejectedRequest;
 
-const dmPlaceholder = isRejectedRequest
-  ? "This message request was ignored."
-  : isPendingRequest
-  ? isYouRequester
-    ? `Waiting for ${activeConversation.partner.first_name} to accept...`
-    : "You need to accept this message request before replying."
-  : "Type a message...";
+  const dmPlaceholder = isRejectedRequest
+    ? "This message request was ignored."
+    : isPendingRequest
+    ? isYouRequester
+      ? `Waiting for ${activeConversation.partner.first_name} to accept...`
+      : "You need to accept this message request before replying."
+    : "Type a message...";
 
-  
   // 🔍 DEBUG LOGS — TEMPORARY
   useEffect(() => {
     console.log("ACTIVE CONVERSATION STATE", activeConversation);
@@ -472,7 +560,18 @@ const dmPlaceholder = isRejectedRequest
     console.log("DISABLE DM INPUT?", disableDmInput);
   }, [disableDmInput]);
 
-  // ----- render -----
+  // While we’re figuring out who the user is, show a soft loading state
+  if (authLoading) {
+    return (
+      <div className="app-shell home-page">
+        <p className="group-meta">Loading your account…</p>
+      </div>
+    );
+  }
+
+  // ---------------------------
+  // Render
+  // ---------------------------
   return (
     <div className="app-shell home-page">
       <div
@@ -852,71 +951,70 @@ const dmPlaceholder = isRejectedRequest
                 <ul className="clean-list">
                   {matches.map((m) => {
                     const isThisOpen =
-                        activeConversation?.partner?.other_user_id === m.other_user_id;
+                      activeConversation?.partner?.other_user_id ===
+                      m.other_user_id;
 
                     return (
-                        <li key={m.other_user_id} className="group-row">
+                      <li key={m.other_user_id} className="group-row">
                         <div className="group-main">
-                            {/* Name becomes a clickable “open profile” trigger */}
-                            <button
+                          <button
                             type="button"
                             className="group-name"
                             style={{
-                                background: "none",
-                                border: "none",
-                                padding: 0,
-                                margin: 0,
-                                textAlign: "left",
-                                cursor: "pointer",
+                              background: "none",
+                              border: "none",
+                              padding: 0,
+                              margin: 0,
+                              textAlign: "left",
+                              cursor: "pointer",
                             }}
                             onClick={() => setSelectedMatch(m)}
-                            >
+                          >
                             {m.first_name} {m.last_name}
-                            </button>
+                          </button>
                         </div>
 
                         <div
-                            style={{
+                          style={{
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "flex-end",
                             gap: "0.4rem",
-                            }}
+                          }}
                         >
-                            {m.profile_image_url ? (
+                          {m.profile_image_url ? (
                             <img
-                                src={m.profile_image_url}
-                                alt={`${m.first_name} ${m.last_name}`}
-                                style={{
+                              src={m.profile_image_url}
+                              alt={`${m.first_name} ${m.last_name}`}
+                              style={{
                                 width: "44px",
                                 height: "44px",
                                 borderRadius: "999px",
                                 objectFit: "cover",
                                 border: "1px solid rgba(148,163,184,0.6)",
-                                }}
-                                onError={(e) => {
+                              }}
+                              onError={(e) => {
                                 e.currentTarget.style.display = "none";
-                                }}
+                              }}
                             />
-                            ) : null}
+                          ) : null}
 
-                            <button
+                          <button
                             type="button"
                             className="btn btn-sm btn-primary"
                             onClick={() => openChatWithMatch(m)}
                             disabled={isLoadingChat && isThisOpen}
-                            >
+                          >
                             {isLoadingChat && isThisOpen
-                                ? "Opening..."
-                                : isThisOpen
-                                ? "Open chat"
-                                : "Message"}
-                            </button>
+                              ? "Opening..."
+                              : isThisOpen
+                              ? "Open chat"
+                              : "Message"}
+                          </button>
                         </div>
-                        </li>
+                      </li>
                     );
-                    })}
-
+                  })}
                 </ul>
               </div>
             )}
@@ -1024,14 +1122,13 @@ const dmPlaceholder = isRejectedRequest
                               {c.first_name} {c.last_name}
                             </span>
                             <span
-                            className="group-meta"
-                            style={{ fontSize: "0.75rem" }}
+                              className="group-meta"
+                              style={{ fontSize: "0.75rem" }}
                             >
-                            {c.last_message
-                                ? truncatePreview(c.last_message, 70)   // adjust 70 if you want shorter/longer
+                              {c.last_message
+                                ? truncatePreview(c.last_message, 70)
                                 : "No messages yet"}
                             </span>
-
                           </div>
                         </li>
                       ))}
@@ -1144,7 +1241,7 @@ const dmPlaceholder = isRejectedRequest
                                 style={{
                                   display: "flex",
                                   flexDirection:
-                                    msg.sender_user_id === FAKE_USER_ID
+                                    msg.sender_user_id === currentUser?.user_id
                                       ? "row-reverse"
                                       : "row",
                                   marginBottom: "0.5rem",
@@ -1168,7 +1265,8 @@ const dmPlaceholder = isRejectedRequest
                                       opacity: 0.9,
                                     }}
                                   >
-                                    {msg.sender_user_id === FAKE_USER_ID
+                                    {msg.sender_user_id ===
+                                    currentUser?.user_id
                                       ? "You"
                                       : `${msg.first_name} ${msg.last_name}`}
                                   </div>
@@ -1190,24 +1288,23 @@ const dmPlaceholder = isRejectedRequest
                       </div>
 
                       {/* input */}
-                    <form
+                      <form
                         onSubmit={handleSendDm}
                         style={{
-                            display: "flex",
-                            gap: "0.5rem",
-                            alignItems: "flex-end",
+                          display: "flex",
+                          gap: "0.5rem",
+                          alignItems: "flex-end",
                         }}
-                        >
+                      >
                         <textarea
-                            placeholder={dmPlaceholder}
-                            value={dmInput}
-                            onChange={(e) => {
+                          placeholder={dmPlaceholder}
+                          value={dmInput}
+                          onChange={(e) => {
                             setDmInput(e.target.value);
-                            // auto-grow textarea
                             e.target.style.height = "auto";
                             e.target.style.height = `${e.target.scrollHeight}px`;
-                            }}
-                            style={{
+                          }}
+                          style={{
                             flex: 1,
                             minHeight: "40px",
                             maxHeight: "120px",
@@ -1217,25 +1314,26 @@ const dmPlaceholder = isRejectedRequest
                             fontSize: "0.9rem",
                             resize: "none",
                             overflowY: "auto",
-                            }}
-                            disabled={disableDmInput}
+                          }}
+                          disabled={disableDmInput}
                         />
                         <button
-                            type="submit"
-                            className="btn btn-primary"
-                            disabled={disableDmInput || !dmInput.trim()}
+                          type="submit"
+                          className="btn btn-primary"
+                          disabled={disableDmInput || !dmInput.trim()}
                         >
-                            Send
+                          Send
                         </button>
-                        </form>
+                      </form>
 
-
-                        {isRejectedRequest && (
-                            <p className="group-meta" style={{ marginTop: "0.25rem", color: "#f55" }}>
-                                This message request was ignored.
-                            </p>
-                        )}
-
+                      {isRejectedRequest && (
+                        <p
+                          className="group-meta"
+                          style={{ marginTop: "0.25rem", color: "#f55" }}
+                        >
+                          This message request was ignored.
+                        </p>
+                      )}
                     </>
                   ) : (
                     <p className="group-meta" style={{ paddingTop: "0.5rem" }}>
@@ -1251,9 +1349,9 @@ const dmPlaceholder = isRejectedRequest
       )}
 
       {/* Match profile popup */}
-        {selectedMatch && (
+      {selectedMatch && (
         <div
-            style={{
+          style={{
             position: "fixed",
             inset: 0,
             background: "rgba(15,23,42,0.65)",
@@ -1261,100 +1359,99 @@ const dmPlaceholder = isRejectedRequest
             alignItems: "center",
             justifyContent: "center",
             zIndex: 60,
-            }}
-            onClick={() => setSelectedMatch(null)}
+          }}
+          onClick={() => setSelectedMatch(null)}
         >
-            <div
+          <div
             className="card card-subtle"
             style={{
-                width: "480px",
-                maxWidth: "90vw",
-                maxHeight: "80vh",
-                overflowY: "auto",
-                padding: "1.25rem 1.5rem",
+              width: "480px",
+              maxWidth: "90vw",
+              maxHeight: "80vh",
+              overflowY: "auto",
+              padding: "1.25rem 1.5rem",
             }}
-            onClick={(e) => e.stopPropagation()} // don’t close when clicking inside
-            >
+            onClick={(e) => e.stopPropagation()}
+          >
             <div
-                className="card-header"
-                style={{
+              className="card-header"
+              style={{
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: 0,
                 marginBottom: "0.75rem",
-                }}
+              }}
             >
-                <div className="card-title" style={{ fontSize: "1.1rem" }}>
+              <div className="card-title" style={{ fontSize: "1.1rem" }}>
                 {selectedMatch.first_name} {selectedMatch.last_name}
-                </div>
-                <button
+              </div>
+              <button
                 type="button"
                 className="btn btn-ghost"
                 onClick={() => setSelectedMatch(null)}
-                >
+              >
                 Close
-                </button>
+              </button>
             </div>
 
             <div
-                style={{
+              style={{
                 display: "flex",
                 gap: "1rem",
                 marginBottom: "0.75rem",
                 alignItems: "flex-start",
-                }}
+              }}
             >
-                {selectedMatch.profile_image_url && (
+              {selectedMatch.profile_image_url && (
                 <img
-                    src={selectedMatch.profile_image_url}
-                    alt={`${selectedMatch.first_name} ${selectedMatch.last_name}`}
-                    style={{
+                  src={selectedMatch.profile_image_url}
+                  alt={`${selectedMatch.first_name} ${selectedMatch.last_name}`}
+                  style={{
                     width: "72px",
                     height: "72px",
                     borderRadius: "999px",
                     objectFit: "cover",
                     border: "1px solid rgba(148,163,184,0.6)",
-                    }}
-                    onError={(e) => {
+                  }}
+                  onError={(e) => {
                     e.currentTarget.style.display = "none";
-                    }}
+                  }}
                 />
-                )}
+              )}
 
-                <div>
+              <div>
                 {selectedMatch.age && (
-                    <p className="group-meta">Age {selectedMatch.age}</p>
+                  <p className="group-meta">Age {selectedMatch.age}</p>
                 )}
                 <p className="group-meta">
-                    Shared courses: {selectedMatch.shared_courses ?? 0}
+                  Shared courses: {selectedMatch.shared_courses ?? 0}
                 </p>
-                </div>
+              </div>
             </div>
 
             <div style={{ marginBottom: "0.75rem" }}>
-                <p className="group-meta">
+              <p className="group-meta">
                 Style: {selectedMatch.study_style} · Meeting:{" "}
                 {selectedMatch.meeting_pref} · Goal: {selectedMatch.study_goal}
-                </p>
+              </p>
             </div>
 
             <div>
-                <div
+              <div
                 className="card-title"
                 style={{ fontSize: "0.95rem", marginBottom: "0.35rem" }}
-                >
+              >
                 Bio
-                </div>
-                <p className="group-meta">
+              </div>
+              <p className="group-meta">
                 {selectedMatch.bio && selectedMatch.bio.trim().length > 0
-                    ? selectedMatch.bio
-                    : "This student hasn't added a bio yet."}
-                </p>
+                  ? selectedMatch.bio
+                  : "This student hasn't added a bio yet."}
+              </p>
             </div>
-            </div>
+          </div>
         </div>
-        )}
-
+      )}
     </div>
   );
 }

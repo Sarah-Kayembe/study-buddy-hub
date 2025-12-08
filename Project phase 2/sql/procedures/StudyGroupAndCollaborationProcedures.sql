@@ -237,6 +237,7 @@ BEGIN
       g.group_name,
       s.session_date,
       s.start_time,
+      s.end_time,
       s.location,
       u.user_id,
       CONCAT(u.first_name, ' ', u.last_name) AS user_name
@@ -578,15 +579,20 @@ END//
 
 
 -- Latest uploaded resources
--- Ex CALL GetLatestResources(25);
 DROP PROCEDURE IF EXISTS GetLatestResources//
 CREATE PROCEDURE GetLatestResources(
     IN p_limit INT
 )
 BEGIN
-  SELECT resource_id, title, filetype, source
+  SELECT 
+    resource_id,
+    title,
+    description,
+    filetype,
+    source,
+    upload_date
   FROM Resource
-  ORDER BY resource_id DESC
+  ORDER BY upload_date DESC, resource_id DESC
   LIMIT p_limit;
 END//
 
