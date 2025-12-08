@@ -1,4 +1,4 @@
-// frontend/src/api/resources.js
+// Jacob Craig
 import client from "./axiosClient"; 
 
 // GET /resources
