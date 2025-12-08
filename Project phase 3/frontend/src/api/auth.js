@@ -1,22 +1,25 @@
-// By Rise Akizaki
+// src/api/auth.js
+// By Rise Akizaki, cleaned up to use API_BASE
+
+import { API_BASE } from "./base";
 
 export async function registerUser(formData) {
-  const response = await fetch("http://127.0.0.1:8001/auth/register", {
+  const response = await fetch(`${API_BASE}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),
   });
 
   if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
     throw new Error(data.error || "Registration failed");
   }
 
   return response.json();
 }
 
-// TODO: add try/catch here, or remove try/catch above
 export async function loginUser(formData) {
-  const response = await fetch("http://127.0.0.1:8001/auth/login", {
+  const response = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -24,44 +27,46 @@ export async function loginUser(formData) {
   });
 
   if (!response.ok) {
-    throw new Error(e.error || "Registration failed");
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || "Login failed");
   }
 
   return response.json();
 }
 
 export async function logoutUser() {
-  const response = await fetch("http://127.0.0.1:8001/auth/logout", {
+  const response = await fetch(`${API_BASE}/auth/logout`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
   });
 
   if (!response.ok) {
-    throw new Error(e.error || "Logout failed");
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || "Logout failed");
   }
 
-  window.location.href = "/"; // redirect to homepage after logging out
+  window.location.href = "/";
 }
 
-
 export async function fetchColleges() {
-  const response = await fetch("http://127.0.0.1:8001/auth/colleges");
+  const response = await fetch(`${API_BASE}/auth/colleges`);
 
   if (!response.ok) {
-    throw new Error(e.error || "Failed to load colleges");
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || "Failed to load colleges");
   }
 
   return response.json();
 }
 
 export async function fetchMajors() {
-  const response = await fetch("http://127.0.0.1:8001/auth/majors");
+  const response = await fetch(`${API_BASE}/auth/majors`);
 
   if (!response.ok) {
-    throw new Error(e.error || "Failed to load majors");
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || "Failed to load majors");
   }
 
   return response.json();
 }
-

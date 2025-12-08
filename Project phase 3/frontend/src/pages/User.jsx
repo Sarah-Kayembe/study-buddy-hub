@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { fetchColleges, fetchMajors, logoutUser} from "../api/auth.js"; // all methods from the api go here
+import { API_BASE } from "../api/base";
 
 export function AccountPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8001/user/account", {
+    fetch(`${API_BASE}/user/account`, {
       method: "GET",
       credentials: "include" // required for session cookies. Generated with ChatGPT
     })
@@ -106,7 +107,7 @@ export function EditAccountPage() {
     setSaving(true);
     setError("");
 
-    fetch("http://127.0.0.1:8001/user/account", {
+    fetch(`${API_BASE}/user/account`, {
       method: "PUT",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
