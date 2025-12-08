@@ -1,4 +1,4 @@
-// src/api/chat.js
+// jacob craig
 
 import { API_BASE } from "./base";
 
