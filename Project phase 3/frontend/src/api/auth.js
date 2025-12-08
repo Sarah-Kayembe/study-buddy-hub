@@ -1,59 +1,67 @@
+// By Rise Akizaki
+
 export async function registerUser(formData) {
-  const res = await fetch("http://127.0.0.1:8001/auth/register", {
+  const response = await fetch("http://127.0.0.1:8001/auth/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),
   });
 
-  let data;
-  try {
-    data = await res.json();
-  } 
-  catch {
-    throw new Error("Invalid server response");
-  }
-
-  if (!res.ok) {
+  if (!response.ok) {
     throw new Error(data.error || "Registration failed");
   }
 
-  return data;
+  return response.json();
 }
 
-
+// TODO: add try/catch here, or remove try/catch above
 export async function loginUser(formData) {
-  const res = await fetch("http://127.0.0.1:8001/auth/login", {
+  const response = await fetch("http://127.0.0.1:8001/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify(formData),
   });
 
-  if (!res.ok) {
-    const e = await res.json().catch(() => ({ error: "Unknown error" }));
+  if (!response.ok) {
     throw new Error(e.error || "Registration failed");
   }
 
-  return res.json();
+  return response.json();
 }
 
-export async function fetchColleges() {
-  const res = await fetch("http://127.0.0.1:8001/auth/colleges");
+export async function logoutUser() {
+  const response = await fetch("http://127.0.0.1:8001/auth/logout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
 
-  if (!res.ok) {
-    throw new Error("Failed to load colleges");
+  if (!response.ok) {
+    throw new Error(e.error || "Logout failed");
   }
 
-  return res.json();
+  window.location.href = "/"; // redirect to homepage after logging out
+}
+
+
+export async function fetchColleges() {
+  const response = await fetch("http://127.0.0.1:8001/auth/colleges");
+
+  if (!response.ok) {
+    throw new Error(e.error || "Failed to load colleges");
+  }
+
+  return response.json();
 }
 
 export async function fetchMajors() {
-  const res = await fetch("http://127.0.0.1:8001/auth/majors");
+  const response = await fetch("http://127.0.0.1:8001/auth/majors");
 
-  if (!res.ok) {
-    throw new Error("Failed to load majors");
+  if (!response.ok) {
+    throw new Error(e.error || "Failed to load majors");
   }
 
-  return res.json();
+  return response.json();
 }
 

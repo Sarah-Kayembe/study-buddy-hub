@@ -1,3 +1,5 @@
+# By Rise Akizaki
+
 import traceback
 from flask import Blueprint, request, jsonify, session
 import bcrypt
@@ -59,9 +61,9 @@ def register_user():
 
         return jsonify({"message": "Registration successful! You should be redirected shortly"}), 200
 
-    except Exception as e:
+    except Exception as exception:
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(exception)}), 500
     finally:
         connection.close()
 
@@ -106,7 +108,7 @@ def login_user():
         
         user_id, hashed_password = userToLogin
 
-        # Verify password
+        # verify password
         if not bcrypt.checkpw(password.encode(), hashed_password.encode()):
             return jsonify({"error": "Incorrect password"}), 400
 
@@ -121,11 +123,24 @@ def login_user():
             "user": session["user"]
         }), 200
     
-    except Exception as e:
+    except Exception as exception:
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(exception)}), 500
     finally:
         connection.close()
+
+@auth_bp.route("/logout", methods=["POST"])
+def logout_user():
+    try:
+        session.pop("user")
+        return jsonify({
+            "message": "Login out successful! You should be redirected shortly",
+        }), 200
+    
+    except Exception as exception:
+        traceback.print_exc()
+        return jsonify({"error": str(exception)}), 500
+
 
 # Data retrival methods
 #######################
@@ -140,7 +155,11 @@ def get_colleges():
         colleges = cursor.fetchall()
 
         return jsonify(colleges)
+    except Exception as exception:
+        traceback.print_exc()
+        return jsonify({"error": str(exception)}), 500
     finally:
+        cursor.close()
         connection.close()
 
 # gets all majors from DB
@@ -153,7 +172,11 @@ def get_majors():
         majors = cursor.fetchall()
 
         return jsonify(majors)
+    except Exception as exception:
+        traceback.print_exc()
+        return jsonify({"error": str(exception)}), 500
     finally:
+        cursor.close()
         connection.close()
 
 
