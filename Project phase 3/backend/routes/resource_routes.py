@@ -1,4 +1,4 @@
-# routes/resource_routes.py
+# Jacob Craig
 import os
 from flask import Blueprint, request, jsonify, session, current_app
 from db import get_db_connection
