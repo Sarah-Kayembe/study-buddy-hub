@@ -118,23 +118,7 @@ Study_Buddy_hub/
 - Practice flashcards with navigation controls
 - Real-time auto-refresh when creating new content
 
-#### Advanced Database Features
-- **ACID Transactions:** Ensures data consistency for quiz and flashcard creation
-- **SQL Injection Prevention:** Parametrized queries throughout the application
-- **Error Handling:** Comprehensive try-catch-finally patterns
-- **Database Constraints:** Foreign keys and data integrity validation
 
-#### Performance Optimizations
-- **N+1 Query Elimination:** Reduced from 11 queries to 2 queries for quiz detail
-- **Batch Query Processing:** Efficient answer retrieval using IN clauses
-- **Pagination:** Default 20 items per page, scalable to 100
-- **Performance Metrics:** 67-96% improvement in response times (20-50ms vs 200-500ms)
-
-#### Authentication & Security
-- Session-based user authentication
-- Admin user auto-seeding on first run
-- Role-based access control
-- Password hashing and verification
 
 ## Default Login Credentials
 
@@ -287,3 +271,4 @@ For issues, questions, or feedback, please refer to the documentation PDFs in `P
 **Last Updated:** December 8, 2025  
 **Author:** Vivek Reddy Bhimavarapu  
 **Course:** Database Systems
+
