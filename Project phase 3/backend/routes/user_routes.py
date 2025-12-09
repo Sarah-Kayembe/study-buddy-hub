@@ -5,7 +5,7 @@ from db import get_db_connection
 
 user_bp = Blueprint("user", __name__, url_prefix="/user")
 
-# route to for the account itself
+# route to for the account itself. Gets the account information
 @user_bp.route("/account", methods=["GET"])
 def account():
     user = session.get("user")
