@@ -108,16 +108,26 @@ def list_quizzes():
 
     cursor = conn.cursor(dictionary=True)
     try:
+        # Pagination: defaults page=1, limit=20, max limit=100
+        try:
+            page = max(1, int(request.args.get("page", 1)))
+            limit = int(request.args.get("limit", 20))
+        except ValueError:
+            return jsonify({"error": "Invalid pagination parameters"}), 400
+        limit = min(max(limit, 1), 100)
+        offset = (page - 1) * limit
+
         cursor.execute(
             """
             SELECT quiz_id AS id, title, description, creator_id, created_at
             FROM Quiz
             ORDER BY quiz_id DESC
-            LIMIT 50
-            """
+            LIMIT %s OFFSET %s
+            """,
+            (limit, offset),
         )
         quizzes = cursor.fetchall()
-        return jsonify(quizzes)
+        return jsonify({"page": page, "limit": limit, "items": quizzes})
     except Exception as e:
         print("LIST_QUIZZES ERROR:", e)
         return jsonify({"error": str(e)}), 500
@@ -152,12 +162,17 @@ def get_quiz(quiz_id):
         cursor.execute("SELECT * FROM Question WHERE quiz_id = %s", (quiz_id,))
         questions = cursor.fetchall()
 
+        # Batch fetch all answers to avoid N+1 query pattern
+        question_ids = [q["question_id"] for q in questions]
+        answers_by_qid = {qid: [] for qid in question_ids}
+        if question_ids:
+            placeholders = ",".join(["%s"] * len(question_ids))
+            cursor.execute(f"SELECT * FROM Answer WHERE question_id IN ({placeholders})", tuple(question_ids))
+            for ans in cursor.fetchall():
+                answers_by_qid[ans["question_id"]].append(ans)
+
         for q in questions:
-            cursor.execute(
-                "SELECT * FROM Answer WHERE question_id = %s",
-                (q["question_id"],),
-            )
-            q["answers"] = cursor.fetchall()
+            q["answers"] = answers_by_qid.get(q["question_id"], [])
 
         quiz["questions"] = questions
         return jsonify(quiz)

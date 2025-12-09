@@ -19,10 +19,14 @@ function App() {
       <NavBar />
 
       {/* Page content */}
-      <Routes>
-        <Route path="/" element={<HomePage />} />
+            <Routes>
+        {/* Default entry now points to Login page */}
+        <Route path="/" element={<LoginPage />} />
         <Route path="/groups" element={<StudyGroups />} />
         <Route path="/match" element={<StudyBuddyMatch />} />
+
+        {/* Keep Home accessible at an explicit route if needed */}
+        <Route path="/home" element={<HomePage />} />
 
         <Route path="/flashcards" element={<FlashcardsPage />} />
         <Route path="/quizzes" element={<QuizzesPage />} />
