@@ -9,7 +9,8 @@ export const createQuiz = async (data) => {
 
 export const listQuizzes = async () => {
   const res = await client.get(`${API_PREFIX}/quizzes`);
-  return res.data;
+  // Handle paginated response (backend returns {page, limit, items})
+  return res.data.items || res.data;
 };
 
 export const getQuiz = async (quizId) => {

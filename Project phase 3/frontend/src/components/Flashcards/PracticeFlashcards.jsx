@@ -23,7 +23,11 @@ const PracticeFlashcards = forwardRef((props, ref) => {
   const reloadSets = () => {
     setLoading(true);
     listFlashcardSets()
-      .then(setSets)
+      .then((data) => {
+        // Handle paginated response: check if data has 'items' property
+        const sets = data.items || data;
+        setSets(sets);
+      })
       .catch((err) => {
         setError(typeof err === 'string' ? err : 'Failed to load sets');
         setSets([]);

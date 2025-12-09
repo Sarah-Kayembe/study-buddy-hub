@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 import os
+from dotenv import load_dotenv
 
 from routes.studygroup_routes import bp as studygroup_bp
 from routes.chat_routes import bp as chat_bp
@@ -15,6 +16,45 @@ from routes.flashcard_routes import flashcard_bp
 
 from routes.resource_routes import bp as resources_bp
 from db import get_db_connection as get_db
+
+# Load environment variables
+load_dotenv()
+
+
+def seed_admin_user():
+    """Auto-create admin user on first run if it doesn't exist."""
+    admin_username = os.getenv("ADMIN_USERNAME", "admin")
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin")
+    
+    conn = get_db()
+    if not conn:
+        print("[SEED] Database connection failed; skipping admin user seed.")
+        return
+    
+    cursor = conn.cursor(dictionary=True)
+    try:
+        # Check if admin user exists
+        cursor.execute("SELECT user_id FROM users WHERE email = %s", (admin_username,))
+        existing = cursor.fetchone()
+        
+        if not existing:
+            # Create admin user (adjust fields to match your users table schema)
+            cursor.execute(
+                """
+                INSERT INTO users (first_name, last_name, email, password_hash, bio)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                ("Admin", "User", admin_username, admin_password, "Default admin account")
+            )
+            conn.commit()
+            print(f"[SEED] Admin user created: {admin_username}/{admin_password}")
+        else:
+            print(f"[SEED] Admin user already exists: {admin_username}")
+    except Exception as e:
+        print(f"[SEED] Error seeding admin user: {e}")
+    finally:
+        cursor.close()
+        conn.close()
                   
 
 def create_app():
@@ -75,5 +115,8 @@ def create_app():
     return app
 
 if __name__ == "__main__":
+    # Seed admin user on startup
+    seed_admin_user()
+    
     app = create_app()
     app.run(host="127.0.0.1", port=8001, debug=True)
