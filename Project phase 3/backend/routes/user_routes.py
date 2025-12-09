@@ -5,6 +5,7 @@ from db import get_db_connection
 
 user_bp = Blueprint("user", __name__, url_prefix="/user")
 
+# route to for the account itself
 @user_bp.route("/account", methods=["GET"])
 def account():
     user = session.get("user")
@@ -45,7 +46,7 @@ def account():
 
     return jsonify(data), 200
 
-# route to edit the account itself. Updating the account is a different route
+# route to edit the account.
 # Request method OPTIONS added in by ChatGPT
 @user_bp.route("/account", methods=["OPTIONS", "PUT"])
 def update_account():
