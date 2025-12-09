@@ -1,6 +1,7 @@
 // By Rise Akizaki
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { registerUser, loginUser} from "../api/auth.js"; // all methods from the api go here
 
 // For the user registration page
@@ -110,6 +111,7 @@ export function LoginPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({...form, [e.target.name]: e.target.value});
@@ -124,11 +126,8 @@ export function LoginPage() {
     try {
       const data = await loginUser(form);
       setMessage(data.message);
-
-      // redirect to home page
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 1000);
+      // redirect to home page immediately after successful login
+      navigate("/home", { replace: true });
     } 
     catch (error) {
       setError(error.message || "Login failed");
