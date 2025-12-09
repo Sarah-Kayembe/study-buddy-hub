@@ -1,0 +1,177 @@
+========================================
+ALL CHANGES MADE TO STUDY BUDDY PROJECT
+========================================
+
+FILES EDITED (15 total):
+1. frontend/src/pages/FlashcardsPage.jsx
+2. frontend/src/components/Flashcards/CreateFlashcardSet.jsx
+3. frontend/src/components/Flashcards/PracticeFlashcards.jsx
+4. frontend/src/pages/Auth.jsx
+5. frontend/src/App.jsx
+6. frontend/src/api/quizzes.js
+7. backend/db.py
+8. backend/app.py
+9. backend/routes/quiz_routes.py
+10. backend/routes/flashcard_routes.py
+11. backend/install_and_run.bat
+12. backend/install_and_run.sh
+13. frontend/install_and_run.bat
+14. frontend/install_and_run.sh
+15. Project phase 3/README.md
+
+NEW FILES CREATED (2 total):
+1. backend/.env.example
+2. install_and_run.bat (root level - runs everything)
+
+========================================
+CHANGE DETAILS
+========================================
+
+FILE 1: frontend/src/pages/FlashcardsPage.jsx
+WHAT CHANGED: Added useRef to access PracticeFlashcards component
+WHY: So when a flashcard set is created, we can automatically reload the list without clicking refresh
+HOW IT WORKS: 
+- Created a ref called practiceRef
+- When CreateFlashcardSet finishes creating a set, it calls handleSetCreated
+- handleSetCreated uses the ref to call reloadSets() in PracticeFlashcards
+
+FILE 2: frontend/src/components/Flashcards/CreateFlashcardSet.jsx
+WHAT CHANGED: Added onSetCreated callback prop
+WHY: To notify the parent component when a new flashcard set is created
+HOW IT WORKS:
+- After successfully saving a flashcard set, calls onSetCreated() if it exists
+- This triggers the auto-refresh in the parent component
+
+FILE 3: frontend/src/components/Flashcards/PracticeFlashcards.jsx
+WHAT CHANGED: Wrapped component in forwardRef and exposed reloadSets method
+WHY: So the parent component can tell this component to refresh its list
+HOW IT WORKS:
+- Uses forwardRef to accept a ref from parent
+- Uses useImperativeHandle to expose reloadSets method
+- When reloadSets is called, it fetches the flashcard list again
+- Added handling for paginated API response (data.items || data)
+
+FILE 4: frontend/src/pages/Auth.jsx
+WHAT CHANGED: Changed redirect after login from window.location.href to navigate()
+WHY: Better React routing, no full page reload
+HOW IT WORKS:
+- Uses useNavigate hook from react-router-dom
+- After successful login, calls navigate("/home", {replace: true})
+
+FILE 5: frontend/src/App.jsx
+WHAT CHANGED: Root route changed from HomePage to LoginPage
+WHY: App should start at login screen, not homepage
+HOW IT WORKS:
+- Route path="/" now shows LoginPage
+- HomePage moved to path="/home"
+
+FILE 6: frontend/src/api/quizzes.js
+WHAT CHANGED: listQuizzes now handles paginated response
+WHY: Backend returns {page, limit, items} but frontend expects array
+HOW IT WORKS:
+- Returns res.data.items if it exists, otherwise res.data
+- Works with both old and new response formats
+
+FILE 7: backend/db.py
+WHAT CHANGED: Default MySQL password changed to "REMOVED"
+WHY: To match your MySQL password
+HOW IT WORKS: Connection uses this password if no environment variable set
+
+FILE 8: backend/app.py
+WHAT CHANGED: 
+1. Added load_dotenv() to read .env file
+2. Added seed_admin_user() function
+3. Fixed table name from "User" to "users"
+WHY: Auto-create admin user on startup so no manual setup needed
+HOW IT WORKS:
+- Reads ADMIN_USERNAME and ADMIN_PASSWORD from .env (defaults: admin/admin)
+- On app startup, checks if admin exists in users table
+- If not exists, creates admin user automatically
+
+FILE 9: backend/routes/quiz_routes.py
+WHAT CHANGED: 
+1. Fixed N+1 query problem in get_quiz - now fetches all answers in one query
+2. Added pagination to list_quizzes endpoint
+WHY: Performance optimization - reduce database queries
+HOW IT WORKS:
+- Collects all question IDs first
+- Uses "WHERE question_id IN (...)" to fetch all answers at once
+- Groups answers by question in Python
+- list_quizzes accepts page and limit parameters (default: page=1, limit=20, max=100)
+- Returns {page, limit, items}
+
+FILE 10: backend/routes/flashcard_routes.py
+WHAT CHANGED: Added pagination to list_flashcard_sets endpoint
+WHY: Performance optimization - limit response size
+HOW IT WORKS:
+- Accepts page and limit query parameters
+- Returns {page, limit, items} instead of plain array
+
+FILE 11-14: install_and_run scripts (backend and frontend)
+WHAT CHANGED: Simplified to silently install dependencies and run
+WHY: Grader needs single command with no arguments
+HOW IT WORKS:
+- Runs dependency install silently (pip/npm)
+- Copies .env.example to .env if needed
+- Starts the server
+
+FILE 15: Project phase 3/README.md
+WHAT CHANGED: Complete rewrite with professional structure
+WHY: Better documentation for graders and users
+SECTIONS ADDED:
+- Clear setup instructions with single command
+- Advanced Database Features section (ACID transactions)
+- Performance Analysis & Optimization section (N+1 removal, pagination with metrics)
+
+NEW FILE: backend/.env.example
+WHAT IT IS: Template for environment configuration
+CONTAINS:
+- MySQL connection settings (host, port, user, password, database)
+- Admin user credentials (username: admin, password: admin)
+WHY: So users can easily configure the app by copying to .env
+
+NEW FILE: install_and_run.bat (ROOT LEVEL)
+WHAT IT IS: Master script that runs everything with one command
+HOW IT WORKS:
+- Installs backend dependencies silently
+- Installs frontend dependencies silently
+- Starts backend server in background
+- Starts frontend dev server
+WHY: Grader can run ONE command and everything works
+
+========================================
+TECHNICAL FLOW: FLASHCARD AUTO-REFRESH
+========================================
+1. User fills out form in CreateFlashcardSet component
+2. User clicks "Save Flashcard Set" button
+3. CreateFlashcardSet calls API to save the set
+4. After successful save, CreateFlashcardSet calls onSetCreated()
+5. onSetCreated is the handleSetCreated function in FlashcardsPage
+6. handleSetCreated uses practiceRef to call reloadSets() in PracticeFlashcards
+7. PracticeFlashcards fetches the updated list from the API
+8. New flashcard set appears in the list immediately - no manual refresh needed!
+
+========================================
+PERFORMANCE IMPROVEMENTS
+========================================
+1. Quiz Detail N+1 Query Fix:
+   BEFORE: 1 query for quiz + N queries for answers (one per question)
+   AFTER: 1 query for quiz + 1 query for all answers
+   EXAMPLE: Quiz with 10 questions went from 11 queries to 2 queries
+
+2. Pagination on Quiz List:
+   BEFORE: Returns all quizzes (could be hundreds)
+   AFTER: Returns 20 quizzes per page (configurable, max 100)
+
+3. Pagination on Flashcard List:
+   BEFORE: Returns all flashcard sets
+   AFTER: Returns 20 sets per page (configurable, max 100)
+
+========================================
+SETUP IMPROVEMENTS
+========================================
+1. .env.example template - easy configuration
+2. Admin user auto-seeds on startup - no manual user creation
+3. Single command install and run - no arguments needed
+4. Silent dependency installation - clean output for graders
+5. Master script runs backend + frontend + everything with ONE command
