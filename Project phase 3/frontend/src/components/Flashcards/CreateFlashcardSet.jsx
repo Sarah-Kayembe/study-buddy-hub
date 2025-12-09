@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createFlashcardSet } from "../../api/flashcards";
 
-export default function CreateFlashcardSet() {
+export default function CreateFlashcardSet({ onSetCreated }) {
   const [title, setTitle] = useState("");
   const [creatorId, setCreatorId] = useState(1); // default for testing
   const [cards, setCards] = useState([{ front: "", back: "" }]);
@@ -23,6 +23,10 @@ export default function CreateFlashcardSet() {
       setStatus({ type: "success", text: `Saved (set id ${res.set_id || res.setId || 'unknown'})` });
       setTitle("");
       setCards([{ front: "", back: "" }]);
+      // Notify parent to reload the flashcard list
+      if (onSetCreated) {
+        onSetCreated();
+      }
     } catch (e) {
       // e may be a string or an object from axios interceptor
       const text = typeof e === 'string' ? e : (e?.error || e?.message || JSON.stringify(e));

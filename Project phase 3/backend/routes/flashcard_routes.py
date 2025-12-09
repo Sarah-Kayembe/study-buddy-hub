@@ -111,12 +111,21 @@ def list_flashcard_sets():
 
     cursor = conn.cursor(dictionary=True)
     try:
+        # Pagination: defaults page=1, limit=20, max limit=100
+        try:
+            page = max(1, int(request.args.get("page", 1)))
+            limit = int(request.args.get("limit", 20))
+        except ValueError:
+            return jsonify({"error": "Invalid pagination parameters"}), 400
+        limit = min(max(limit, 1), 100)
+        offset = (page - 1) * limit
+
         cursor.execute(
-            "SELECT set_id AS id, title, description FROM flashcardset "
-            "ORDER BY set_id DESC LIMIT 50"
+            "SELECT set_id AS id, title, description FROM flashcardset ORDER BY set_id DESC LIMIT %s OFFSET %s",
+            (limit, offset),
         )
         rows = cursor.fetchall()
-        return jsonify(rows)
+        return jsonify({"page": page, "limit": limit, "items": rows})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:
