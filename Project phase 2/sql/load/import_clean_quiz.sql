@@ -8,7 +8,7 @@
 use StudyBuddy;
 
 --  Configure quiz metadata and creator 
-SET @CREATOR_ID := 1;  -- Change to an existing user_id in the Users table ( testing with admin for now)
+SET @CREATOR_ID := 1001;  -- Change to an existing user_id in the Users table ( testing with admin for now)
 SET @QUIZ_TITLE := 'SQL Basics (Imported)';
 SET @QUIZ_DESC  := 'Imported from Clean_data';
 
@@ -42,7 +42,7 @@ CREATE TABLE stage_answers (
 -- If LOCAL INFILE is disabled on the server, use Workbench's Import Wizard into the staging tables
 -- and skip these LOAD DATA statements.
 
-LOAD DATA LOCAL INFILE 'C:/Users/user/Desktop/COS457/Study_Buddy_hub-main/Project phase 2/data/Clean_data/quiz_questions_clean.csv'
+LOAD DATA LOCAL INFILE 'data/Clean_data/quiz_questions_clean.csv'
 INTO TABLE stage_questions
 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'
 LINES TERMINATED BY '\n'
@@ -54,7 +54,7 @@ SET old_question_id=@old_q_id,
     question_type=@q_type,
     points=@pts;
 
-LOAD DATA LOCAL INFILE 'C:/Users/user/Desktop/COS457/Study_Buddy_hub-main/Project phase 2/data/Clean_data/quiz_answers_clean.csv'
+LOAD DATA LOCAL INFILE 'data/Clean_data/quiz_answers_clean.csv'
 INTO TABLE stage_answers
 FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'
 LINES TERMINATED BY '\n'
@@ -110,5 +110,4 @@ DROP TABLE stage_questions;
 DROP TABLE stage_answers;
 
 COMMIT;
-
 

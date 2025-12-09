@@ -1,6 +1,5 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from db import get_db_connection
-# Import the new transaction function
 from utils.transactions import create_full_quiz_transaction, submit_quiz_transaction
 
 quiz_bp = Blueprint("quiz", __name__, url_prefix="/quiz")
@@ -10,19 +9,93 @@ quiz_bp = Blueprint("quiz", __name__, url_prefix="/quiz")
 # ------------------------------
 @quiz_bp.route("/create", methods=["POST"])
 def create_quiz():
-    # Expects full JSON: { title, course_id, creator_id, questions: [...] }
-    data = request.json
-    
-    if not data.get('title') or not data.get('creator_id'):
-        return jsonify({"error": "Title and Creator ID are required"}), 400
+    # Require logged-in user
+    user = session.get("user")
+    if not user:
+        return jsonify({"error": "Not logged in"}), 401
 
-    # Use the transaction logic
-    quiz_id, error = create_full_quiz_transaction(data)
-    
+    data = request.get_json() or {}
+
+    title = data.get("title")
+    if not title:
+        return jsonify({"error": "Title is required"}), 400
+
+    raw_questions = data.get("questions") or []
+    normalized_questions = []
+
+    for idx, q in enumerate(raw_questions):
+        # Try multiple possible keys for the question text
+        q_text = (
+            q.get("question_text")
+            or q.get("text")
+            or q.get("question")
+            or q.get("prompt")
+        )
+
+        if not q_text:
+            return jsonify({
+                "error": f"Question {idx + 1} is missing text"
+            }), 400
+
+        q_type = q.get("question_type") or q.get("type") or "multiple_choice"
+        points = q.get("points", 1)
+
+        # Normalize answers/options
+        raw_answers = (
+            q.get("answers")
+            or q.get("options")
+            or []
+        )
+        normalized_answers = []
+        for a in raw_answers:
+            a_text = (
+                a.get("answer_text")
+                or a.get("text")
+                or a.get("label")
+                or a.get("option")
+            )
+            if not a_text:
+                # skip answer with no text
+                continue
+
+            is_correct = None
+            if "is_correct" in a:
+                is_correct = a.get("is_correct")
+            elif "correct" in a:
+                is_correct = a.get("correct")
+            elif "isCorrect" in a:
+                is_correct = a.get("isCorrect")
+
+            is_correct = 1 if is_correct else 0
+
+            normalized_answers.append({
+                "answer_text": a_text,
+                "is_correct": is_correct,
+            })
+
+        normalized_questions.append({
+            "question_text": q_text,
+            "question_type": q_type,
+            "points": points,
+            "answers": normalized_answers,
+        })
+
+    payload = {
+        "title": title,
+        "description": data.get("description"),
+        "course_id": data.get("course_id"),
+        "creator_id": user["user_id"],
+        "questions": normalized_questions,
+    }
+
+    quiz_id, error = create_full_quiz_transaction(payload)
+
     if error:
+        print("QUIZ CREATE ERROR:", error)
         return jsonify({"error": error}), 500
-        
+
     return jsonify({"message": "Quiz created successfully", "quiz_id": quiz_id}), 201
+
 
 # ------------------------------
 # List Quizzes
@@ -35,15 +108,18 @@ def list_quizzes():
 
     cursor = conn.cursor(dictionary=True)
     try:
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT quiz_id AS id, title, description, creator_id, created_at
-            FROM quiz
+            FROM Quiz
             ORDER BY quiz_id DESC
             LIMIT 50
-        """)
+            """
+        )
         quizzes = cursor.fetchall()
         return jsonify(quizzes)
     except Exception as e:
+        print("LIST_QUIZZES ERROR:", e)
         return jsonify({"error": str(e)}), 500
     finally:
         try:
@@ -77,12 +153,16 @@ def get_quiz(quiz_id):
         questions = cursor.fetchall()
 
         for q in questions:
-            cursor.execute("SELECT * FROM Answer WHERE question_id = %s", (q["question_id"],))
+            cursor.execute(
+                "SELECT * FROM Answer WHERE question_id = %s",
+                (q["question_id"],),
+            )
             q["answers"] = cursor.fetchall()
 
         quiz["questions"] = questions
         return jsonify(quiz)
     except Exception as e:
+        print("GET_QUIZ ERROR:", e)
         return jsonify({"error": str(e)}), 500
     finally:
         try:
@@ -94,19 +174,32 @@ def get_quiz(quiz_id):
         except Exception:
             pass
 
+
 # ------------------------------
 # Submit Quiz
 # ------------------------------
 @quiz_bp.route("/submit", methods=["POST"])
 def submit_quiz():
-    data = request.json
+    user = session.get("user")
+    if not user:
+        return jsonify({"error": "Not logged in"}), 401
+
+    data = request.get_json() or {}
+
+    quiz_id = data.get("quiz_id")
+    answers = data.get("answers")
+
+    if not quiz_id or answers is None:
+        return jsonify({"error": "quiz_id and answers are required"}), 400
+
     result, error = submit_quiz_transaction(
-        user_id=data['user_id'], 
-        quiz_id=data['quiz_id'], 
-        answers_dict=data['answers']
+        user_id=user["user_id"],
+        quiz_id=quiz_id,
+        answers_dict=answers,
     )
-    
+
     if error:
+        print("SUBMIT_QUIZ ERROR:", error)
         return jsonify({"error": error}), 500
-        
+
     return jsonify(result), 200

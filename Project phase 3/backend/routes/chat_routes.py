@@ -1,5 +1,4 @@
-# backend/routes/chat_routes.py
-# Jacob Craig - Chat endpoints (Flask)
+# Jacob Craig 
 
 from flask import Blueprint, request, jsonify
 from mysql.connector import Error as MySQLError
@@ -62,12 +61,12 @@ def get_chat_messages(group_id: int):
 @bp.route("/<int:group_id>/chat", methods=["POST"])
 def post_chat_message(group_id: int):
     """
-    Inserts a new chat message into Chat_Message.
+    Inserts a new chat message via AddChatMessage.
     Body JSON: { "user_id": 1005, "content": "hello" }
     """
     data = request.get_json(silent=True) or {}
     user_id = data.get("user_id")
-    content = data.get("content")
+    content = (data.get("content") or "").strip()
 
     if not user_id or not content:
         return jsonify({"detail": "user_id and content are required"}), 400
@@ -79,16 +78,20 @@ def post_chat_message(group_id: int):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute(
-            """
-            INSERT INTO Chat_Message (group_id, user_id, content)
-            VALUES (%s, %s, %s)
-            """,
-            (group_id, int(user_id), content),
-        )
+        # CALL AddChatMessage(p_group_id, p_user_id, p_content)
+        cursor.callproc("AddChatMessage", (group_id, int(user_id), content))
+
+        message_id = None
+        for result in cursor.stored_results():
+            row = result.fetchone()
+            if row:
+                message_id = row[0] if not isinstance(row, dict) else row["message_id"]
+                break
 
         conn.commit()
-        message_id = cursor.lastrowid
+
+        if message_id is None:
+            return jsonify({"detail": "Failed to create message"}), 500
 
         return jsonify({"message_id": message_id}), 201
 

@@ -1,4 +1,6 @@
-const API_BASE = "http://127.0.0.1:8001";
+// jacob craig
+
+import { API_BASE } from "./base";
 
 export async function getChatMessages(groupId, limit = 50) {
   const res = await fetch(`${API_BASE}/groups/${groupId}/chat?limit=${limit}`);

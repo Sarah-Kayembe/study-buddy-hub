@@ -98,6 +98,25 @@ input[type="time"] {
     background-color 0.15s ease;
 }
 
+
+.modal input[type="date"],
+.modal input[type="time"],
+.modal input[type="text"],
+.modal textarea {
+  background: #0f172a;  
+  border-color: rgba(148, 163, 184, 0.6);
+  color: #e5e7eb;
+}
+
+
+.modal input[type="date"]::-webkit-calendar-picker-indicator,
+.modal input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  filter: brightness(1.6); 
+}
+
+
+
 /* Notes textarea  */
 textarea {
   width: 100%;
@@ -868,11 +887,14 @@ ul.clean-list {
 }
 
 .feature-grid-subtitle {
+  display: block;       
   font-size: 0.9rem;
-  color: var(--text-muted);
-  max-width: 580px;
+  color: #ffffff;
+  max-width: 520px;
   margin-top: 0.3rem;
 }
+
+
 
 .feature-grid {
   display: grid;
@@ -892,7 +914,10 @@ ul.clean-list {
   border-radius: 1.2rem;
   border: 1px solid rgba(148, 163, 184, 0.5);
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
-  padding: 2.6rem 1.5rem 1.1rem;   /* extra top padding for logo */
+  padding: 2.6rem 1.5rem 1.1rem;   
+  min-height: 260px;               
+  display: flex;                 
+  flex-direction: column;
 }
 
 .feature-card-gamified::before {
@@ -1210,5 +1235,37 @@ ul.clean-list {
     margin-right: 3.5rem;
   }
 }
+
+/* Match profile selects – reuse pill look from inputs */
+.match-select {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: #020617;
+  color: #e5e7eb;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.match-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.3);
+}
+
+/* --- DATE INPUT (works natively) --- */
+.date-time-label input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.4);
+  opacity: 0.9;
+}
+
+.date-time-label input[type="date"]::-webkit-calendar-picker-indicator,
+.time-input-label input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(2);
+  opacity: 1;
+}
+
 
 
