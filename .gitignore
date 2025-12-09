@@ -1,0 +1,21 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual env
+.venv/
+
+# Node modules
+Project phase 3/frontend/node_modules/
+
+# Build output
+dist/
+build/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Uploaded files (profile pics, resources, etc.)
+Project phase 3/backend/uploads/
+backend/uploads/
