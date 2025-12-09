@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import { listFlashcardSets, getFlashcardSet, deleteFlashcardSet, updateFlashcardSet, updateFlashcard, deleteFlashcard } from "../../api/flashcards";
 
-export default function PracticeFlashcards() {
+const PracticeFlashcards = forwardRef((props, ref) => {
   const [sets, setSets] = useState([]);
   const [selected, setSelected] = useState(null);
   const [index, setIndex] = useState(0);
@@ -30,6 +30,11 @@ export default function PracticeFlashcards() {
       })
       .finally(() => setLoading(false));
   };
+
+  // Expose reloadSets via forwardRef
+  useImperativeHandle(ref, () => ({
+    reloadSets
+  }));
 
   useEffect(() => {
     reloadSets();
@@ -710,4 +715,7 @@ export default function PracticeFlashcards() {
       )}
     </div>
   );
-}
+});
+
+PracticeFlashcards.displayName = "PracticeFlashcards";
+export default PracticeFlashcards;
