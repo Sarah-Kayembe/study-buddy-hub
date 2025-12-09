@@ -19,7 +19,7 @@ function App() {
       <NavBar />
 
       {/* Page content */}
-            <Routes>
+      <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/groups" element={<StudyGroups />} />
         <Route path="/match" element={<StudyBuddyMatch />} />
