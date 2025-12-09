@@ -1,174 +1,457 @@
 import { useEffect, useState } from "react";
+import {
+  fetchResources as apiFetchResources,
+  createResource as apiCreateResource,
+  uploadResourceFile as apiUploadResourceFile,
+} from "../api/resources";
+import { API_BASE } from "../api/base";
 
 export default function ResourcesPage() {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("ALL");
+// uploading new stuff
+  const [newTitle, setNewTitle] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newFiletype, setNewFiletype] = useState("LINK");
+  const [newSource, setNewSource] = useState(""); // URL for plain links
+  const [uploadFile, setUploadFile] = useState(null); // file input (pdf / video / other)
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
 
-  useEffect(() => {
-    fetchResources();
-  }, []);
-
-  const fetchResources = async () => {
+  const loadResources = async () => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("http://127.0.0.1:8001/resources", {
-        method: "GET",
-        credentials: "include",
-      });
-      if (!response.ok) throw new Error("Failed to fetch resources");
-      const data = await response.json();
-      setResources(Array.isArray(data) ? data : data.resources || []);
+      const data = await apiFetchResources();
+      const list = Array.isArray(data) ? data : data.resources || [];
+      setResources(list);
     } catch (err) {
-      setError(err.message);
       console.error("Error fetching resources:", err);
+      setError(err.message || "Failed to load resources");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredResources = resources.filter(
-    (resource) =>
-      resource.title?.toLowerCase().includes(filter.toLowerCase()) ||
-      resource.description?.toLowerCase().includes(filter.toLowerCase())
-  );
+  useEffect(() => {
+    loadResources();
+  }, []);
+
+  const handleCreateResource = async (e) => {
+    e.preventDefault();
+    setCreateError("");
+
+    if (!newTitle.trim()) {
+      setCreateError("Title is required.");
+      return;
+    }
+
+    const typeUpper = newFiletype.toUpperCase();
+
+    // file upload path (pdf, video, other files)
+    if (typeUpper === "PDF" || typeUpper === "OTHER" || typeUpper === "VIDEO") {
+      if (!uploadFile) {
+        setCreateError("Please choose a file to upload.");
+        return;
+      }
+
+      setCreating(true);
+      try {
+        const formData = new FormData();
+        formData.append("title", newTitle.trim());
+        formData.append("description", newDescription.trim());
+        formData.append("filetype", typeUpper);
+        formData.append("file", uploadFile);
+
+        const created = await apiUploadResourceFile(formData);
+
+        if (created && created.resource_id) {
+          setResources((prev) => [created, ...prev]);
+        } else {
+          await loadResources();
+        }
+
+        setNewTitle("");
+        setNewDescription("");
+        setNewFiletype("LINK");
+        setNewSource("");
+        setUploadFile(null);
+      } catch (err) {
+        console.error("Error uploading resource:", err);
+        setCreateError(err.message || "Failed to upload resource");
+      } finally {
+        setCreating(false);
+      }
+      return;
+    }
+
+    // URL-based path (straight links only)
+    if (!newSource.trim()) {
+      setCreateError("URL is required for links.");
+      return;
+    }
+
+    setCreating(true);
+    try {
+      const created = await apiCreateResource({
+        title: newTitle.trim(),
+        description: newDescription.trim(),
+        url: newSource.trim(),
+        filetype: typeUpper,
+      });
+
+      if (created && created.resource_id) {
+        setResources((prev) => [created, ...prev]);
+      } else {
+        await loadResources();
+      }
+
+      setNewTitle("");
+      setNewDescription("");
+      setNewFiletype("LINK");
+      setNewSource("");
+      setUploadFile(null);
+    } catch (err) {
+      console.error("Error creating resource:", err);
+      setCreateError(err.message || "Failed to create resource");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const filteredResources = resources.filter((r) => {
+    const text = (r.title || "") + " " + (r.description || "");
+    const matchesText = text.toLowerCase().includes(filter.toLowerCase());
+    const ft = (r.filetype || "").toString().trim().toUpperCase();
+    const matchesType =
+      typeFilter === "ALL" || ft === typeFilter.toUpperCase();
+    return matchesText && matchesType;
+  });
+
+  const handleTypeChange = (val) => {
+    setNewFiletype(val);
+    setNewSource("");
+    setUploadFile(null);
+  };
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-      <h2 style={{ color: '#333', marginBottom: '20px' }}>Learning Resources</h2>
+    <div className="app-shell">
+      <h1 className="page-title">Learning Resources</h1>
 
-      {error && (
-        <div style={{
-          backgroundColor: '#ffebee',
-          color: '#c62828',
-          padding: '15px',
-          borderRadius: '4px',
-          marginBottom: '20px'
-        }}>
-          Error: {error}
-        </div>
-      )}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1fr)",
+          gap: "1.5rem",
+          alignItems: "flex-start",
+        }}
+      >
+        {/* left side: search + list */}
+        <section className="section">
+          <div className="card">
+            <div className="card-header" style={{ marginBottom: "0.75rem" }}>
+              <div className="card-title">Browse resources</div>
+            </div>
 
-      <div style={{ marginBottom: '20px' }}>
-        <input
-          type="text"
-          placeholder="Search resources..."
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '12px',
-            fontSize: '16px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            boxSizing: 'border-box'
-          }}
-        />
+            {error && (
+              <p className="error-text" style={{ marginBottom: "0.75rem" }}>
+                {error}
+              </p>
+            )}
+
+            <div
+              className="toolbar-row"
+              style={{ marginBottom: "0.75rem", alignItems: "stretch" }}
+            >
+              <input
+                type="text"
+                placeholder="Search by title or description..."
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              />
+              <div className="tabs">
+                {["ALL", "LINK", "PDF", "VIDEO"].map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    className={
+                      "tab-btn" + (typeFilter === t ? " tab-btn-active" : "")
+                    }
+                    onClick={() => setTypeFilter(t)}
+                  >
+                    {t === "ALL" ? "All" : t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {loading ? (
+              <p style={{ opacity: 0.8 }}>Loading resources…</p>
+            ) : filteredResources.length === 0 ? (
+              <p style={{ opacity: 0.8 }}>No resources found.</p>
+            ) : (
+              <div className="scroll-list" style={{ maxHeight: "420px" }}>
+                <ul className="clean-list">
+                  {filteredResources.map((r) => (
+                    <li key={r.resource_id ?? r.id}>
+                      <ResourceCard resource={r} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* right side: create / upload */}
+        <section className="section">
+          <div className="card">
+            <div className="card-title" style={{ marginBottom: "0.75rem" }}>
+              Share a resource
+            </div>
+            <p
+              style={{
+                fontSize: "0.85rem",
+                opacity: 0.8,
+                marginTop: 0,
+                marginBottom: "0.75rem",
+              }}
+            >
+              Drop helpful resources here for everyone else!
+            </p>
+
+            {createError && (
+              <p className="error-text" style={{ marginBottom: "0.5rem" }}>
+                {createError}
+              </p>
+            )}
+
+            <form
+              onSubmit={handleCreateResource}
+              style={{ display: "grid", gap: "0.75rem" }}
+            >
+              <div>
+                <label>
+                  Title
+                  <input
+                    type="text"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    placeholder="e.g., Arrays in Data Structures"
+                  />
+                </label>
+              </div>
+
+              <div>
+                <label>
+                  Description (optional)
+                  <textarea
+                    value={newDescription}
+                    onChange={(e) => setNewDescription(e.target.value)}
+                    placeholder="Short note on why this is useful…"
+                    rows={3}
+                  />
+                </label>
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1.1fr 0.9fr",
+                  gap: "0.75rem",
+                }}
+              >
+                {newFiletype === "LINK" && (
+                  <label>
+                    URL
+                    <input
+                      type="text"
+                      value={newSource}
+                      onChange={(e) => setNewSource(e.target.value)}
+                      placeholder="https://example.com/article"
+                    />
+                  </label>
+                )}
+
+                {(newFiletype === "PDF" ||
+                  newFiletype === "OTHER" ||
+                  newFiletype === "VIDEO") && (
+                  <label>
+                    File
+                    <input
+                      type="file"
+                      accept={
+                        newFiletype === "PDF"
+                          ? ".pdf"
+                          : newFiletype === "VIDEO"
+                          ? "video/*"
+                          : "*/*"
+                      }
+                      onChange={(e) =>
+                        setUploadFile(e.target.files?.[0] || null)
+                      }
+                      style={{
+                        width: "100%",
+                        borderRadius: "999px",
+                        border: "1px solid rgba(148, 163, 184, 0.5)",
+                        background: "#020617",
+                        color: "#e5e7eb",
+                        padding: "0.35rem 0.7rem",
+                      }}
+                    />
+                  </label>
+                )}
+
+                <label>
+                  Type
+                  <select
+                    value={newFiletype}
+                    onChange={(e) => handleTypeChange(e.target.value)}
+                    style={{
+                      width: "100%",
+                      borderRadius: "999px",
+                      border: "1px solid rgba(148, 163, 184, 0.5)",
+                      background: "#020617",
+                      color: "#e5e7eb",
+                      padding: "0.5rem 0.9rem",
+                      fontSize: "0.95rem",
+                    }}
+                  >
+                    <option value="LINK">Link</option>
+                    <option value="PDF">PDF (upload)</option>
+                    <option value="VIDEO">Video (upload)</option>
+                    <option value="OTHER">Other file</option>
+                  </select>
+                </label>
+              </div>
+
+              <div style={{ marginTop: "0.25rem" }}>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={creating}
+                >
+                  {creating ? "Saving…" : "Add resource"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
       </div>
-
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-          Loading resources... 
-        </div>
-      ) : filteredResources.length === 0 ? (
-        <div style={{
-          backgroundColor: '#f5f5f5',
-          padding: '40px',
-          borderRadius: '4px',
-          textAlign: 'center',
-          color: '#666'
-        }}>
-          <p style={{ fontSize: '18px', marginBottom: '10px' }}>No resources found</p>
-          <p style={{ fontSize: '14px', color: '#999' }}>
-            Try adjusting your search or check back later for more resources.
-          </p>
-        </div>
-      ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '20px'
-        }}>
-          {filteredResources.map((resource) => (
-            <ResourceCard key={resource.resource_id || resource.id} resource={resource} />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
 
 function ResourceCard({ resource }) {
+  let url = resource.source || resource.url;
+
+  if (url && url.startsWith("/uploads")) {
+    url = `${API_BASE}${url}`;
+  }
+  const added =
+    resource.upload_date || resource.created_at || resource.createdAt;
+  const filetype =
+    (resource.filetype || "").toString().trim().toUpperCase() || "LINK";
+
+  const title = resource.title || "Untitled resource";
+  const desc = resource.description || "";
+
   return (
-    <div style={{
-      backgroundColor: '#fff',
-      border: '1px solid #ddd',
-      borderRadius: '8px',
-      padding: '15px',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-      e.currentTarget.style.transform = 'translateY(-2px)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-      e.currentTarget.style.transform = 'translateY(0)';
-    }}>
-      <h3 style={{
-        margin: '0 0 10px 0',
-        color: '#0066cc',
-        fontSize: '16px',
-        fontWeight: '600'
-      }}>
-        {resource.title}
-      </h3>
-      
-      <p style={{
-        margin: '10px 0',
-        color: '#555',
-        fontSize: '14px',
-        lineHeight: '1.5'
-      }}>
-        {resource.description || 'No description available'}
-      </p>
+    <div
+      className="card card-subtle"
+      style={{
+        padding: "0.8rem 1rem",
+        marginBottom: "0.6rem",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.75rem",
+        }}
+      >
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              fontWeight: 600,
+              fontSize: "0.98rem",
+              marginBottom: "0.25rem",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+            title={title}
+          >
+            {title}
+          </div>
+          {desc && (
+            <div
+              style={{
+                fontSize: "0.85rem",
+                color: "var(--text-muted)",
+                maxHeight: "3.5rem",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+              title={desc}
+            >
+              {desc}
+            </div>
+          )}
+        </div>
 
-      {resource.url && (
-        <a
-          href={resource.url}
-          target="_blank"
-          rel="noopener noreferrer"
+        <div
           style={{
-            display: 'inline-block',
-            marginTop: '10px',
-            padding: '8px 12px',
-            backgroundColor: '#0066cc',
-            color: '#fff',
-            textDecoration: 'none',
-            borderRadius: '4px',
-            fontSize: '12px',
-            fontWeight: '600',
-            transition: 'background-color 0.2s'
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: "0.35rem",
+            minWidth: "90px",
           }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#0052a3'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#0066cc'}
         >
-          View Resource →
-        </a>
-      )}
+          {filetype && (
+            <span
+              style={{
+                fontSize: "0.75rem",
+                padding: "0.15rem 0.6rem",
+                borderRadius: "999px",
+                border: "1px solid rgba(148,163,184,0.7)",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+                opacity: 0.9,
+              }}
+            >
+              {filetype}
+            </span>
+          )}
+          {url && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() =>
+                window.open(url, "_blank", "noopener,noreferrer")
+              }
+            >
+              Open
+            </button>
+          )}
+        </div>
+      </div>
 
-      {resource.created_at && (
-        <p style={{
-          margin: '10px 0 0 0',
-          fontSize: '12px',
-          color: '#999'
-        }}>
-          Added: {new Date(resource.created_at).toLocaleDateString()}
-        </p>
+      {added && (
+        <div
+          style={{
+            marginTop: "0.35rem",
+            fontSize: "0.75rem",
+            color: "var(--text-muted)",
+          }}
+        >
+          Added: {new Date(added).toLocaleDateString()}
+        </div>
       )}
     </div>
   );

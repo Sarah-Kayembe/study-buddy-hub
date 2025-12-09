@@ -156,9 +156,8 @@ def main():
         "sql/load/User_Management_Data_Insertion.sql",
         "sql/load/User_Management_Relationship_Testing.sql",
         "sql/load/import_clean_resources.sql",  # Running this creates Users 1001, 1002, etc.
-        "sql/load/TestDataForStudyGroups.sql", # This file needs Users 1001, 1002
-        "sql/load/fake_data_Script.sql",
         "sql/load/import_clean_quiz.sql",
+        "sql/load/fake_data_Script.sql",
     ]  
 
     try:
@@ -229,3 +228,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

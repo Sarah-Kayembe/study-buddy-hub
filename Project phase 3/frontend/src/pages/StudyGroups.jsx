@@ -1,4 +1,4 @@
-// src/pages/StudyGroups.jsx
+//Jacob Craig
 
 import { useEffect, useState } from "react";
 import {
@@ -15,33 +15,39 @@ import {
   kickMember,
   generateInviteCode,
   joinByInviteCode,
+  searchCourses,
 } from "../api/studygroups.js";
 
 import ChatPage from "./ChatPage";
 import CheckJoinIcon from "../assets/CheckJoin.png";
+import { API_BASE } from "../api/base";
 
 export default function StudyGroups() {
-  // temp/dev user switcher
-  const [userId, setUserId] = useState(1005);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
-  // --- chat state ---
+  // chat state 
   const [chatGroup, setChatGroup] = useState(null);
 
-  // --- filters / data ---
-  const [courseId, setCourseId] = useState(420);
+  // filters / data 
+  const [courseId, setCourseId] = useState(null);
   const [publicGroups, setPublicGroups] = useState([]);
   const [myGroups, setMyGroups] = useState([]);
   const [upcomingSessions, setUpcomingSessions] = useState([]);
 
+  const [courseQuery, setCourseQuery] = useState("");
+  const [courseSuggestions, setCourseSuggestions] = useState([]);
+  const [courseSearchLoading, setCourseSearchLoading] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // --- create group form ---
+  // create group form 
   const [newGroupName, setNewGroupName] = useState("");
   const [newMaxMembers, setNewMaxMembers] = useState(5);
   const [newIsPrivate, setNewIsPrivate] = useState(false);
 
-  // --- schedule session modal ---
+  // schedule session 
   const [scheduleGroup, setScheduleGroup] = useState(null); // { id, name } or null
   const [sessionDate, setSessionDate] = useState("");
   const [sessionStart, setSessionStart] = useState("");
@@ -50,7 +56,7 @@ export default function StudyGroups() {
   const [sessionNotes, setSessionNotes] = useState("");
   const [showScheduleModal, setShowScheduleModal] = useState(false);
 
-  // --- calendar modal ---
+  // calendar modal 
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const today = new Date();
@@ -58,7 +64,7 @@ export default function StudyGroups() {
   });
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(null);
 
-  // --- manage members modal ---
+  // manage members 
   const [manageGroup, setManageGroup] = useState(null); // { id, name, role } or null
   const [showManageModal, setShowManageModal] = useState(false);
   const [manageTab, setManageTab] = useState("requests"); // "requests" | "members"
@@ -70,35 +76,74 @@ export default function StudyGroups() {
   const [inviteCodeLoading, setInviteCodeLoading] = useState(false);
   const [inviteCodeError, setInviteCodeError] = useState("");
 
-  // --- toast ---
+  // toast 
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState("success");
   const [showToast, setShowToast] = useState(false);
 
-  // --- tabs (create/search) ---
+  //tabs (create/search) 
   const [activeTab, setActiveTab] = useState("create"); // "create" | "search"
 
   const [inviteCodeInput, setInviteCodeInput] = useState("");
   const [inviteJoinLoading, setInviteJoinLoading] = useState(false);
 
+  // --------------------
+  // 1) Load logged-in user from /user/account
+  // --------------------
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const res = await fetch(`${API_BASE}/user/account`, {
+          method: "GET",
+          credentials: "include",
+        });
 
-  // --------------------
-  // Data loading
-  // --------------------
-  const loadData = async () => {
+        if (res.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+
+        const data = await res.json();
+        if (data && !data.error) {
+          setCurrentUser(data); // should include user_id
+        } else {
+          setError(data.error || "Failed to load account.");
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load account.");
+      } finally {
+        setAuthLoading(false);
+      }
+    }
+
+    loadUser();
+  }, []);
+
+    const loadData = async () => {
+    if (!currentUser || !currentUser.user_id) return;
+
     setLoading(true);
     setError("");
 
     try {
-      const [pub, mine, sessions] = await Promise.all([
-        fetchPublicGroups(courseId),
+      const userId = currentUser.user_id;
+
+      // Always load *my* groups + my upcoming sessions (no course filter)
+      const [mine, sessions] = await Promise.all([
         fetchMyGroups(userId),
         fetchUpcomingSessions(userId),
       ]);
-
-      setPublicGroups(pub);
       setMyGroups(mine);
       setUpcomingSessions(sessions);
+
+      // Only load public groups when a course is selected
+      if (courseId) {
+        const pub = await fetchPublicGroups(courseId);
+        setPublicGroups(pub);
+      } else {
+        setPublicGroups([]); // or keep previous list, your call
+      }
     } catch (err) {
       console.error(err);
       setError(err.message || "Failed to load groups");
@@ -107,14 +152,13 @@ export default function StudyGroups() {
     }
   };
 
-  useEffect(() => {
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [courseId, userId]);
 
-  // --------------------
+  useEffect(() => {
+    if (!currentUser || !currentUser.user_id) return;
+    loadData();
+  }, [courseId, currentUser]);
+
   // Helpers
-  // --------------------
   const showToastMessage = (msg, type = "success") => {
     setToastMessage(msg);
     setToastType(type);
@@ -141,7 +185,7 @@ export default function StudyGroups() {
     return map;
   })();
 
-  // Build calendar cells for current calendarMonth
+  // calendar cells for current calendarMonth
   const calendarCells = (() => {
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth(); // 0–11
@@ -209,36 +253,35 @@ export default function StudyGroups() {
     });
   };
 
-  // --------------------
+
   // Manage members / requests helpers
-  // --------------------
   const loadManageData = async (groupId, tab, groupRole) => {
-  setManageLoading(true);
-  setManageError("");
+    if (!currentUser?.user_id) return;
 
-  try {
-    // owner-only: pending join requests
-    if (tab === "requests" && groupRole === "owner") {
-      const data = await fetchPendingJoinRequests(groupId, userId);
-      setManageRequests(data);
+    setManageLoading(true);
+    setManageError("");
+
+    const userId = currentUser.user_id;
+
+    try {
+      if (tab === "requests" && groupRole === "owner") {
+        const data = await fetchPendingJoinRequests(groupId, userId);
+        setManageRequests(data);
+      }
+
+      if (tab === "members") {
+        const data = await fetchGroupMembers(groupId);
+        setManageMembers(data);
+      }
+    } catch (err) {
+      console.error(err);
+      setManageError(err.message || "Failed to load data");
+    } finally {
+      setManageLoading(false);
     }
-
-    // everyone can see members
-    if (tab === "members") {
-      const data = await fetchGroupMembers(groupId);
-      setManageMembers(data);
-    }
-  } catch (err) {
-    console.error(err);
-    setManageError(err.message || "Failed to load data");
-  } finally {
-    setManageLoading(false);
-  }
-};
-
+  };
 
   const openManageModal = (group) => {
-    // group: { id, name, role }
     const initialTab = group.role === "owner" ? "requests" : "members";
     setManageGroup(group);
     setManageTab(initialTab);
@@ -247,35 +290,39 @@ export default function StudyGroups() {
   };
 
   const handleApproveRequest = async (requestUserId) => {
-  if (!manageGroup) return;
-  try {
-    await approveJoinRequest(manageGroup.id, requestUserId, userId);
-    showToastMessage("Request approved", "success");
-    // reload requests + members 
-    await loadManageData(manageGroup.id, "requests", manageGroup.role);
-    await loadManageData(manageGroup.id, "members", manageGroup.role);
-    await loadData(); // refresh My Groups list / counts
-  } catch (err) {
-    console.error(err);
-    showToastMessage(err.message || "Failed to approve", "error");
-  }
-};
+    if (!manageGroup || !currentUser?.user_id) return;
+    const userId = currentUser.user_id;
 
-const handleRejectRequest = async (requestUserId) => {
-  if (!manageGroup) return;
-  try {
-    await rejectJoinRequest(manageGroup.id, requestUserId, userId);
-    showToastMessage("Request rejected", "success");
-    await loadManageData(manageGroup.id, "requests", manageGroup.role);
-  } catch (err) {
-    console.error(err);
-    showToastMessage(err.message || "Failed to reject", "error");
-  }
-};
+    try {
+      await approveJoinRequest(manageGroup.id, requestUserId, userId);
+      showToastMessage("Request approved", "success");
+      await loadManageData(manageGroup.id, "requests", manageGroup.role);
+      await loadManageData(manageGroup.id, "members", manageGroup.role);
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      showToastMessage(err.message || "Failed to approve", "error");
+    }
+  };
 
+  const handleRejectRequest = async (requestUserId) => {
+    if (!manageGroup || !currentUser?.user_id) return;
+    const userId = currentUser.user_id;
+
+    try {
+      await rejectJoinRequest(manageGroup.id, requestUserId, userId);
+      showToastMessage("Request rejected", "success");
+      await loadManageData(manageGroup.id, "requests", manageGroup.role);
+    } catch (err) {
+      console.error(err);
+      showToastMessage(err.message || "Failed to reject", "error");
+    }
+  };
 
   const handleKickMember = async (memberUserId) => {
-    if (!manageGroup) return;
+    if (!manageGroup || !currentUser?.user_id) return;
+    const userId = currentUser.user_id;
+
     if (!window.confirm("Remove this member from the group?")) return;
 
     try {
@@ -290,12 +337,13 @@ const handleRejectRequest = async (requestUserId) => {
   };
 
   const handleGenerateInviteCode = async () => {
-    if (!manageGroup) return;
+    if (!manageGroup || !currentUser?.user_id) return;
+    const userId = currentUser.user_id;
+
     setInviteCodeLoading(true);
     setInviteCodeError("");
     try {
       const res = await generateInviteCode(manageGroup.id, userId);
-      // expected shape: { invite_code, expires_at }
       setInviteCodeInfo(res);
     } catch (err) {
       console.error(err);
@@ -305,36 +353,50 @@ const handleRejectRequest = async (requestUserId) => {
     }
   };
 
-
   const handleCreateGroup = async (e) => {
-  e.preventDefault();
-  if (!newGroupName.trim()) return;
+    e.preventDefault();
+    if (!newGroupName.trim() || !currentUser?.user_id) return;
 
-  setError("");
-  try {
-    await createGroup({
-      group_name: newGroupName.trim(),
-      max_members: Number(newMaxMembers),
-      course_id: Number(courseId),
-      is_private: newIsPrivate,
-      creator_user_id: userId,
-    });
+    if (!courseId) {
+      setError("Please select a course for this group.");
+      showToastMessage("Pick a course from the search before creating a group.", "error");
+      return;
+    }
 
-    setNewGroupName("");
-    setNewMaxMembers(5);
-    setNewIsPrivate(false);
+    const userId = currentUser.user_id;
 
-    await loadData();
-    showToastMessage("Group created!", "success");
-  } catch (err) {
-    console.error(err);
-    setError(err.message || "Failed to create group");
-    showToastMessage("Failed to create group", "error");
-  }
-};
 
+    setError("");
+    try {
+      await createGroup({
+        group_name: newGroupName.trim(),
+        max_members: Number(newMaxMembers),
+        course_id: Number(courseId),
+        is_private: newIsPrivate,
+        creator_user_id: userId,
+      });
+
+      setNewGroupName("");
+      setNewMaxMembers(5);
+      setNewIsPrivate(false);
+
+      await loadData();
+      showToastMessage("Group created!", "success");
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Failed to create group");
+      showToastMessage("Failed to create group", "error");
+    }
+  };
 
   const handleJoin = async (groupId) => {
+    if (!currentUser?.user_id) {
+      setError("You must be logged in to join a group.");
+      return;
+    }
+
+    const userId = currentUser.user_id;
+
     setError("");
     try {
       const res = await joinGroup(groupId, userId);
@@ -385,19 +447,129 @@ const handleRejectRequest = async (requestUserId) => {
     }
   };
 
+  const handleCourseSearchChange = async (e) => {
+    const value = e.target.value;
+    setCourseQuery(value);
+
+    if (value.trim().length < 2) {
+      setCourseSuggestions([]);
+      return;
+    }
+
+    try {
+      setCourseSearchLoading(true);
+      const results = await searchCourses(value.trim(), 8);
+      setCourseSuggestions(results);
+    } catch (err) {
+      console.error(err);
+      setCourseSuggestions([]);
+    } finally {
+      setCourseSearchLoading(false);
+    }
+  };
+
+  const handleSelectCourseSuggestion = (course) => {
+    setCourseId(course.course_id);
+    setCourseQuery(`${course.course_code} — ${course.course_name}`);
+    setCourseSuggestions([]);
+    loadData();
+  };
+
+  const coursePicker = (
+    <div style={{ position: "relative" }}>
+      <label>
+        Course
+        <input
+          type="text"
+          value={courseQuery}
+          onChange={handleCourseSearchChange}
+          placeholder="e.g., COS 420 or Database Systems"
+        />
+      </label>
+
+      {courseSearchLoading && (
+        <div
+          style={{
+            fontSize: "0.8rem",
+            opacity: 0.7,
+            marginTop: "0.15rem",
+          }}
+        >
+          Searching...
+        </div>
+      )}
+
+      {courseSuggestions.length > 0 && (
+        <ul
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            zIndex: 20,
+            marginTop: "0.25rem",
+            maxHeight: "220px",
+            overflowY: "auto",
+            listStyle: "none",
+            padding: 0,
+            borderRadius: "0.5rem",
+            border: "1px solid rgba(148,163,184,0.5)",
+            background: "#020617",
+            boxShadow: "0 12px 30px rgba(15,23,42,0.7)",
+          }}
+        >
+          {courseSuggestions.map((c) => (
+            <li
+              key={c.course_id}
+              style={{ padding: "0.4rem 0.65rem", cursor: "pointer" }}
+              onClick={() => handleSelectCourseSuggestion(c)}
+            >
+              <div style={{ fontSize: "0.9rem", fontWeight: 500 }}>
+                {c.course_code} — {c.course_name}
+              </div>
+              {c.college_name && (
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    opacity: 0.75,
+                    marginTop: "0.1rem",
+                  }}
+                >
+                  {c.college_name}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {courseId && (
+        <div
+          style={{
+            fontSize: "0.8rem",
+            opacity: 0.7,
+            marginTop: "0.25rem",
+          }}
+        >
+          Search for the course name or code
+        </div>
+      )}
+    </div>
+  );
+
   // Chat mode
   if (chatGroup !== null) {
     return (
       <ChatPage
         groupId={chatGroup.id}
         groupName={chatGroup.name}
-        userId={userId}
+        userId={currentUser?.user_id}
         onBack={() => setChatGroup(null)}
       />
     );
   }
 
-    // Build a quick lookup of groups the current user is already in
+  // Build a quick lookup of groups the current user is already in
   const myGroupIds = new Set(myGroups.map((g) => g.group_id));
 
   // Only show public groups the user is not already a member of
@@ -405,60 +577,46 @@ const handleRejectRequest = async (requestUserId) => {
     (g) => !myGroupIds.has(g.group_id)
   );
 
-const handleJoinByCode = async (e) => {
-  e.preventDefault();
-  const code = inviteCodeInput.trim();
-  if (!code) return;
+  const handleJoinByCode = async (e) => {
+    e.preventDefault();
+    if (!currentUser?.user_id) {
+      showToastMessage("You must be logged in to join with a code", "error");
+      return;
+    }
 
-  setInviteJoinLoading(true);
-  setError("");
+    const userId = currentUser.user_id;
 
-  try {
-    await joinByInviteCode(code, userId);
-    setInviteCodeInput("");
-    showToastMessage("Joined group via invite code!", "success");
-    await loadData();
-  } catch (err) {
-    console.error(err);
-    showToastMessage(err.message || "Failed to join with code", "error");
-  } finally {
-    setInviteJoinLoading(false);
+    const code = inviteCodeInput.trim();
+    if (!code) return;
+
+    setInviteJoinLoading(true);
+    setError("");
+
+    try {
+      await joinByInviteCode(code, userId);
+      setInviteCodeInput("");
+      showToastMessage("Joined group via invite code!", "success");
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      showToastMessage(err.message || "Failed to join with code", "error");
+    } finally {
+      setInviteJoinLoading(false);
+    }
+  };
+
+  // While we’re figuring out who the user is
+  if (authLoading) {
+    return (
+      <div className="app-shell">
+        <p className="group-meta">Loading your account…</p>
+      </div>
+    );
   }
-};
 
   // Render
   return (
     <div className="app-shell">
-      {/* Dev user switcher */}
-      <div
-        style={{
-          marginBottom: "0.75rem",
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: "0.5rem",
-          alignItems: "center",
-          fontSize: "0.85rem",
-          opacity: 0.85,
-        }}
-      >
-        <span style={{ fontWeight: 500 }}>Acting as user:</span>
-        <select
-          value={userId}
-          onChange={(e) => setUserId(Number(e.target.value))}
-          style={{
-            borderRadius: "999px",
-            padding: "0.25rem 0.6rem",
-            border: "1px solid rgba(148,163,184,0.6)",
-            background: "#020617",
-            color: "#e5e7eb",
-          }}
-        >
-          <option value={1005}>1005 (owner demo)</option>
-          <option value={1006}>1006 (student A)</option>
-          <option value={1004}>1004 (student B)</option>
-        </select>
-      </div>
-
       <h1 className="page-title">Study Groups</h1>
 
       {/* Top layout: My Groups + right side panel */}
@@ -485,7 +643,7 @@ const handleJoinByCode = async (e) => {
               </button>
             </div>
             {myGroups.length === 0 ? (
-              <p>You are not in any groups for this course.</p>
+              <p>You are not in any study groups yet.</p>
             ) : (
               <div className="scroll-list">
                 <ul className="clean-list">
@@ -603,18 +761,7 @@ const handleJoinByCode = async (e) => {
                       />
                     </label>
                   </div>
-
-                  <div>
-                    <label>
-                      Course ID
-                      <input
-                        type="number"
-                        value={courseId}
-                        onChange={(e) => setCourseId(Number(e.target.value))}
-                      />
-                    </label>
-                  </div>
-
+                  <div>{coursePicker}</div>
                   <div
                     style={{
                       display: "flex",
@@ -658,7 +805,7 @@ const handleJoinByCode = async (e) => {
             {activeTab === "search" && (
               <div>
                 <div className="card-title" style={{ fontSize: "1.05rem" }}>
-                  Public Groups for Course {courseId}
+                  Search public groups by course
                 </div>
                 <p
                   style={{
@@ -667,85 +814,73 @@ const handleJoinByCode = async (e) => {
                     opacity: 0.75,
                   }}
                 >
-                  Filter and discover public groups by course ID.
+                  Start typing a course code (e.g., COS 420) or course name to
+                  discover groups.
                 </p>
 
-               <div
-                className="toolbar-row"
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: "1rem",
-                  flexWrap: "wrap",
-                  marginBottom: "0.75rem",
-                }}
-              >
                 <div
+                  className="toolbar-row"
                   style={{
                     display: "flex",
-                    alignItems: "center",
-                    gap: "0.75rem",
-                  }}
-                >
-                  <label>
-                    Course ID
-                    <input
-                      type="number"
-                      value={courseId}
-                      onChange={(e) => setCourseId(Number(e.target.value))}
-                    />
-                  </label>
-                  <button
-                    className="btn btn-primary"
-                    onClick={loadData}
-                    type="button"
-                  >
-                    Refresh
-                  </button>
-                </div>
-
-                {/*join-by-code */}
-                <form
-                  onSubmit={handleJoinByCode}
-                  style={{
-                    display: "flex",
-                    gap: "0.5rem",
-                    alignItems: "center",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    gap: "1rem",
                     flexWrap: "wrap",
+                    marginBottom: "0.75rem",
                   }}
                 >
-                  <span style={{ fontSize: "0.85rem", opacity: 0.8 }}>
-                    Or join a private group by code:
-                  </span>
-                  <input
-                    type="text"
-                    value={inviteCodeInput}
-                    onChange={(e) => setInviteCodeInput(e.target.value)}
-                    placeholder="Enter invite code"
-                    style={{ width: "160px" }}
-                  />
-                  <button
-                    type="submit"
-                    className="btn btn-ghost"
-                    disabled={inviteJoinLoading}
-                  >
-                    {inviteJoinLoading ? "Joining..." : "Join with code"}
-                  </button>
-                </form>
-              </div>
+                  {/* smart course picker + refresh */}
+                  <div style={{ flex: "1 1 260px" }}>
+                    {coursePicker}
+                    <button
+                      className="btn btn-primary"
+                      onClick={loadData}
+                      type="button"
+                      style={{ marginTop: "0.5rem" }}
+                    >
+                      Refresh groups for this course
+                    </button>
+                  </div>
 
+                  {/* join-by-code */}
+                  <form
+                    onSubmit={handleJoinByCode}
+                    style={{
+                      display: "flex",
+                      gap: "0.5rem",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <span style={{ fontSize: "0.85rem", opacity: 0.8 }}>
+                      Or join a private group by code:
+                    </span>
+                    <input
+                      type="text"
+                      value={inviteCodeInput}
+                      onChange={(e) => setInviteCodeInput(e.target.value)}
+                      placeholder="Enter invite code"
+                      style={{ width: "160px" }}
+                    />
+                    <button
+                      type="submit"
+                      className="btn btn-ghost"
+                      disabled={inviteJoinLoading}
+                    >
+                      {inviteJoinLoading ? "Joining..." : "Join with code"}
+                    </button>
+                  </form>
+                </div>
 
                 {loading && <p>Loading groups...</p>}
                 {error && <p className="error-text">{error}</p>}
 
-               {visiblePublicGroups.length === 0 ? (
+                {visiblePublicGroups.length === 0 ? (
                   <p>No public groups found.</p>
                 ) : (
                   <div className="scroll-list">
                     <ul className="clean-list">
                       {visiblePublicGroups.map((g) => (
-
                         <li key={g.group_id} className="group-row">
                           <div className="group-main">
                             <span className="group-name">{g.group_name}</span>
@@ -787,7 +922,7 @@ const handleJoinByCode = async (e) => {
               style={{ display: "grid", gap: "0.75rem", marginTop: "0.75rem" }}
             >
               <div>
-                <label>
+                <label className="date-time-label">
                   Date
                   <input
                     type="date"
@@ -804,7 +939,7 @@ const handleJoinByCode = async (e) => {
                   gap: "0.75rem",
                 }}
               >
-                <label>
+                <label className="time-input-label">
                   Start time
                   <input
                     type="time"
@@ -812,7 +947,7 @@ const handleJoinByCode = async (e) => {
                     onChange={(e) => setSessionStart(e.target.value)}
                   />
                 </label>
-                <label>
+                <label className="time-input-label">
                   End time
                   <input
                     type="time"
@@ -889,7 +1024,6 @@ const handleJoinByCode = async (e) => {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Manage members — {manageGroup.name}</h2>
 
-            {/* owner gets Requests + Members, others see just Members */}
             {manageGroup.role === "owner" ? (
               <div className="tabs" style={{ marginBottom: "1rem" }}>
                 <button
@@ -993,7 +1127,6 @@ const handleJoinByCode = async (e) => {
                           </div>
                         </li>
                       ))}
-
                     </ul>
                   )}
                 </div>
@@ -1037,7 +1170,7 @@ const handleJoinByCode = async (e) => {
                         </div>
 
                         {manageGroup.role === "owner" &&
-                          m.user_id !== userId && (
+                          m.user_id !== currentUser?.user_id && (
                             <button
                               type="button"
                               className="btn btn-ghost btn-sm"
@@ -1070,13 +1203,22 @@ const handleJoinByCode = async (e) => {
                 >
                   Private invite code
                 </div>
-                <p style={{ fontSize: "0.85rem", opacity: 0.8, marginBottom: "0.5rem" }}>
-                  Generate a short-lived code you can share with classmates to join this
-                  private group.
+                <p
+                  style={{
+                    fontSize: "0.85rem",
+                    opacity: 0.8,
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  Generate a short-lived code you can share with classmates to
+                  join this private group.
                 </p>
 
                 {inviteCodeError && (
-                  <p className="error-text" style={{ marginBottom: "0.5rem" }}>
+                  <p
+                    className="error-text"
+                    style={{ marginBottom: "0.5rem" }}
+                  >
                     {inviteCodeError}
                   </p>
                 )}
@@ -1103,7 +1245,12 @@ const handleJoinByCode = async (e) => {
                   >
                     <div style={{ fontWeight: 600 }}>
                       Code:{" "}
-                      <span style={{ fontFamily: "monospace", letterSpacing: "0.12em" }}>
+                      <span
+                        style={{
+                          fontFamily: "monospace",
+                          letterSpacing: "0.12em",
+                        }}
+                      >
                         {inviteCodeInfo.invite_code}
                       </span>
                     </div>
@@ -1130,7 +1277,6 @@ const handleJoinByCode = async (e) => {
               >
                 Close
               </button>
-
             </div>
           </div>
         </div>
@@ -1215,17 +1361,22 @@ const handleJoinByCode = async (e) => {
                           Sessions on {selectedCalendarDate}
                         </div>
                         <ul className="clean-list">
-                          {selectedEvents.map((s, i) => (
-                            <li key={i} className="calendar-event-row">
-                              <div className="calendar-event-title">
-                                {s.group_name}
-                              </div>
-                              <div className="calendar-event-meta">
-                                {s.start_time?.slice(0, 5)}–
-                                {s.end_time?.slice(0, 5)} · {s.location}
-                              </div>
-                            </li>
-                          ))}
+                          {selectedEvents.map((s, i) => {
+                            const start = s.start_time?.slice(0, 5);
+                            const end = s.end_time?.slice(0, 5);
+                            const timeLabel =
+                              start && end ? `${start}–${end}` : start || "";
+
+                            return (
+                              <li key={i} className="calendar-event-row">
+                                <div className="calendar-event-title">{s.group_name}</div>
+                                <div className="calendar-event-meta">
+                                  {timeLabel && `${timeLabel} · `}
+                                  {s.location}
+                                </div>
+                              </li>
+                            );
+                          })}
                         </ul>
                       </>
                     ) : (
@@ -1268,5 +1419,3 @@ const handleJoinByCode = async (e) => {
     </div>
   );
 }
-
-

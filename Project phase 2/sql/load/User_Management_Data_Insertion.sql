@@ -13,7 +13,7 @@ IGNORE 1 LINES
 
 -- Inserting data in courses table
 
-LOAD DATA LOCAL INFILE 'data\\Clean_data\\colleges_clean.csv'
+LOAD DATA LOCAL INFILE 'data\\Clean_data\\usm_courses_clean.csv'
 INTO TABLE courses
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
