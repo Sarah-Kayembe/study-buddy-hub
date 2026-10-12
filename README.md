@@ -281,6 +281,5 @@ For issues, questions, or feedback, please refer to the documentation PDFs in `P
 
 **Project Status:** Phase 3 Complete  
 **Last Updated:** December 8, 2025  
-**Author:** Vivek Reddy Bhimavarapu  
 **Course:** Database Systems
 
