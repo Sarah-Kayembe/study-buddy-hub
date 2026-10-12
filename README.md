@@ -1,9 +1,21 @@
 # StudyBuddy - Database Systems Course Project
 
-**Author:** Vivek Reddy Bhimavarapu  
-**Date:** December 8, 2025
+**Team:** Vivek Reddy Bhimavarapu, Jake Craig, Rise Akizaki and Sarah Kayembe  
+**Course:** Database Systems, University of Southern Maine, Fall 2025
 
 StudyBuddy is a comprehensive web application for students to create quizzes, practice flashcards, join study groups, and collaborate with peers. This project spans three phases of development: database design, SQL implementation, and full-stack web application development.
+
+## My contributions
+
+This was a four-person team project. Each of us owned features from the database up through the web app. My part was:
+
+- **Data collection.** Wrote scrapers and cleaning scripts that gathered real college names, quizzes and flashcards and shaped them for loading into SQL.
+- **Study management schema.** Designed the study management tables, the gamification tables, and the stored procedures that run on them.
+- **Query optimization.** Tuned and documented the study management queries for Phase 2.
+- **Design work.** Contributed functional requirements, normal forms and the ER diagram in Phase 1.
+- **Study timer.** Built the study timer dashboard in the Phase 3 React front end and the Flask route behind it.
+
+The full commit history from the original team repo is kept here, so every commit is still credited to the teammate who wrote it.
 
 ## Quick Start
 
