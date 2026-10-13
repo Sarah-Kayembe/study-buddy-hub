@@ -9,7 +9,7 @@ import React, {
 } from "react";
 
 // --- COMPONENTS -----
-import "../styles/studyTools.css";
+import "../styles/focusDen.css";
 import RoomScene from "../components/Dashboard/RoomScene";
 import TopBar from "../components/Dashboard/TopBar";
 import LeftSidebar from "../components/Dashboard/LeftSidebar";

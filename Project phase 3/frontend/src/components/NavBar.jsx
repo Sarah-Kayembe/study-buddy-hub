@@ -3,8 +3,8 @@ import { NavLink, useLocation } from "react-router-dom";
 export default function NavBar() {
   const { pathname } = useLocation();
 
-  // The Study Tools dashboard is full screen with its own controls.
-  if (pathname.startsWith("/study-tools")) return null;
+  // The Focus Den dashboard is full screen with its own controls.
+  if (pathname.startsWith("/focus-den")) return null;
 
   return (
     <header className="navbar">
@@ -62,12 +62,12 @@ export default function NavBar() {
         </NavLink>
 
         <NavLink
-          to="/study-tools"
+          to="/focus-den"
           className={({ isActive }) =>
             "nav-link" + (isActive ? " nav-link-active" : "")
           }
         >
-          Study Tools
+          Focus Den
         </NavLink>
 
         <NavLink
