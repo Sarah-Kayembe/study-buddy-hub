@@ -125,7 +125,7 @@ export function EditAccountPage() {
 
   // Fetch account
   useEffect(() => {
-    fetch("http://127.0.0.1:8001/user/account", {
+    fetch(`${API_BASE}/user/account`, {
       method: "GET",
       credentials: "include"
     })
