@@ -1,0 +1,9 @@
+[run]
+source = .
+omit =
+    tests/*
+    utils/import_quiz_data.py
+
+[report]
+show_missing = true
+skip_empty = true

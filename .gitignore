@@ -22,3 +22,7 @@ backend/uploads/
 
 # Local secrets (copy .env.example to .env)
 .env
+
+# Test coverage output
+.coverage
+htmlcov/
