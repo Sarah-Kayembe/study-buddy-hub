@@ -75,13 +75,13 @@ def get_flashcard_set(set_id):
 
     cursor = conn.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT * FROM flashcardset WHERE set_id = %s", (set_id,))
+        cursor.execute("SELECT * FROM FlashcardSet WHERE set_id = %s", (set_id,))
         flashcard_set = cursor.fetchone()
 
         if not flashcard_set:
             return jsonify({"error": "Set not found"}), 404
 
-        cursor.execute("SELECT * FROM flashcard WHERE set_id = %s", (set_id,))
+        cursor.execute("SELECT * FROM Flashcard WHERE set_id = %s", (set_id,))
         cards = cursor.fetchall()
 
         # Normalize keys for frontend: return `cards` array
@@ -121,7 +121,7 @@ def list_flashcard_sets():
         offset = (page - 1) * limit
 
         cursor.execute(
-            "SELECT set_id AS id, title, description FROM flashcardset ORDER BY set_id DESC LIMIT %s OFFSET %s",
+            "SELECT set_id AS id, title, description FROM FlashcardSet ORDER BY set_id DESC LIMIT %s OFFSET %s",
             (limit, offset),
         )
         rows = cursor.fetchall()
@@ -155,7 +155,7 @@ def update_flashcard_set(set_id):
         title = data.get('title')
         description = data.get('description')
         cursor.execute(
-            "UPDATE flashcardset SET title = %s, description = %s WHERE set_id = %s",
+            "UPDATE FlashcardSet SET title = %s, description = %s WHERE set_id = %s",
             (title, description, set_id)
         )
         conn.commit()
@@ -186,9 +186,9 @@ def delete_flashcard_set(set_id):
     cursor = conn.cursor()
     try:
         # Delete all flashcards in the set first
-        cursor.execute("DELETE FROM flashcard WHERE set_id = %s", (set_id,))
+        cursor.execute("DELETE FROM Flashcard WHERE set_id = %s", (set_id,))
         # Then delete the set
-        cursor.execute("DELETE FROM flashcardset WHERE set_id = %s", (set_id,))
+        cursor.execute("DELETE FROM FlashcardSet WHERE set_id = %s", (set_id,))
         conn.commit()
         return jsonify({"message": "Flashcard set deleted", "set_id": set_id}), 200
     except Exception as e:
@@ -220,7 +220,7 @@ def update_flashcard(card_id):
         front_text = data.get('front_text') or data.get('front')
         back_text = data.get('back_text') or data.get('back')
         cursor.execute(
-            "UPDATE flashcard SET front_text = %s, back_text = %s WHERE flashcard_id = %s",
+            "UPDATE Flashcard SET front_text = %s, back_text = %s WHERE flashcard_id = %s",
             (front_text, back_text, card_id)
         )
         conn.commit()
@@ -250,7 +250,7 @@ def delete_flashcard(card_id):
 
     cursor = conn.cursor()
     try:
-        cursor.execute("DELETE FROM flashcard WHERE flashcard_id = %s", (card_id,))
+        cursor.execute("DELETE FROM Flashcard WHERE flashcard_id = %s", (card_id,))
         conn.commit()
         return jsonify({"message": "Flashcard deleted", "flashcard_id": card_id}), 200
     except Exception as e:
