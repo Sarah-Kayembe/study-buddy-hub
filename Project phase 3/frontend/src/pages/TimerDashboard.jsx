@@ -901,11 +901,11 @@ export default function TimerDashboard() {
                       borderRadius: 10,
                       border:
                         soundTheme === theme.id
-                          ? "2px solid #a855f7"
+                          ? "2px solid #38bdf8"
                           : "1px solid rgba(148,163,184,0.6)",
                       background:
                         soundTheme === theme.id
-                          ? "rgba(88,28,135,0.35)"
+                          ? "rgba(3, 105, 161,0.35)"
                           : "rgba(15,23,42,0.8)",
                       color: "#e5e7eb",
                       fontSize: "0.8rem",
@@ -1170,8 +1170,8 @@ function FloatingTimerBubble({
           borderRadius: "50%",
           background:
             "radial-gradient(circle at 30% 20%, #111827, #020617 70%)",
-          border: "4px solid #7c3aed",
-          boxShadow: "0 0 24px rgba(167,139,250,0.9)",
+          border: "4px solid #0369a1",
+          boxShadow: "0 0 24px rgba(56,189,248,0.9)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

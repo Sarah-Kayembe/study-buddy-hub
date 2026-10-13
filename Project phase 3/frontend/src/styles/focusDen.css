@@ -9,10 +9,10 @@
    1. GLOBAL RESET & BASE THEME
    ========================================= */
 .focus-den {
-  --spirit-dark: #1E1B24;
-  --spirit-darker: #141218;
-  --spirit-purple: #7c7cff;
-  --spirit-glass: rgba(30, 27, 36, 0.85);
+  --spirit-dark: #0b1120;
+  --spirit-darker: #020617;
+  --spirit-purple: #0ea5e9;
+  --spirit-glass: rgba(11, 17, 32, 0.85);
   --spirit-border: rgba(255, 255, 255, 0.15);
   --spirit-text: #E0E0E0;
   --spirit-text-muted: #9CA3AF;
@@ -96,7 +96,7 @@
 }
 
 .focus-den .spirit-date-input {
-  background-color: #141218;
+  background-color: #020617;
   color: #e5e7eb;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 10px;
@@ -112,8 +112,8 @@
 }
 
 .focus-den .spirit-date-input:hover {
-  border-color: #7c7cff;
-  box-shadow: 0 0 0 1px rgba(124,124,255,0.4);
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 1px rgba(14, 165, 233,0.4);
 }
 
 
@@ -167,7 +167,7 @@
   padding: 10px;
   border-radius: 16px;
 
-  background: rgba(30,27,36,0.95);  /* MATCH tooltip */
+  background: rgba(11, 17, 32,0.95);  /* MATCH tooltip */
   border: 1px solid rgba(255,255,255,0.18);
   backdrop-filter: blur(8px);
 
@@ -225,7 +225,7 @@
 .focus-den .circle-btn {
   position: relative; /* needed for magic ring */
   overflow: visible;
-  background: rgba(71, 59, 95, 0.99); 
+  background: rgba(30, 41, 59, 0.99); 
 }
 
 /*
@@ -299,7 +299,7 @@
   left: 50%;
   transform: translateX(-50%) translateY(-5px);
   
-  background: rgba(30,27,36,0.95);
+  background: rgba(11, 17, 32,0.95);
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 0.70rem;
@@ -332,7 +332,7 @@
 .focus-den .quick-btn {
   width: 62px;
   height: 62px;
-  background: rgba(63, 50, 89, 0.92);
+  background: rgba(15, 23, 42, 0.92);
   border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.18);
   backdrop-filter: blur(10px);
@@ -355,8 +355,8 @@
   transform: scale(1.12);
   border-color: rgba(255,255,255,0.45);
   box-shadow:
-    0 0 14px rgba(150,130,255,0.75),
-    0 0 22px rgba(120,100,240,0.55),
+    0 0 14px rgba(56, 189, 248,0.75),
+    0 0 22px rgba(14, 165, 233,0.55),
     inset 0 0 10px rgba(255,255,255,0.1);
 }
 
@@ -501,7 +501,7 @@
 .focus-den .quick-info-panel {
   margin-top: 24px;   /* ← increase this number for more space */
   width: 320px;
-  background: rgba(30, 27, 36, 0.78);
+  background: rgba(11, 17, 32, 0.78);
   border: 2px solid rgba(255,255,255,0.15);
   backdrop-filter: blur(10px);
   border-radius: 12px;
@@ -590,7 +590,7 @@
   position: relative;
 }
 .focus-den .xp-fill {
-  background: linear-gradient(90deg, #4f46e5, #9333ea);
+  background: linear-gradient(90deg, #0369a1, #9333ea);
   height: 100%;
   width: 0%;
   transition: width 0.5s ease-out;
@@ -607,7 +607,7 @@
   width: 52px; height: 52px;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.2);
-  background: rgba(71, 59, 95, 0.99); ;
+  background: rgba(30, 41, 59, 0.99); ;
   backdrop-filter: blur(10px);
   color: white;
   font-size: 1.4rem;
@@ -646,7 +646,7 @@
 .focus-den .sidebar-icon {
   width: 82px;                    /* Bigger */
   height: 82px;                   /* Bigger */
-  background: rgba(63, 50, 89, 0.92);  /* DEEPER Spirit City purple glass */
+  background: rgba(15, 23, 42, 0.92);  /* DEEPER Spirit City purple glass */
   border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.18);
   backdrop-filter: blur(12px);
@@ -687,16 +687,16 @@
 .focus-den .sidebar-btn.active .sidebar-icon {
   border-color: rgba(255,255,255,0.55);
   box-shadow:
-    0 0 20px rgba(160,140,255,0.95),
-    0 0 30px rgba(120,100,255,0.65),
+    0 0 20px rgba(125,211,252,0.95),
+    0 0 30px rgba(14,165,233,0.65),
     inset 0 0 12px rgba(255,255,255,0.12);
 }
 
 .focus-den .sidebar-btn:hover .sidebar-icon {
   border-color: rgba(255,255,255,0.40);
   box-shadow:
-    0 0 14px rgba(150,130,255,0.75),
-    0 0 22px rgba(120,100,240,0.55),
+    0 0 14px rgba(56, 189, 248,0.75),
+    0 0 22px rgba(14, 165, 233,0.55),
     inset 0 0 10px rgba(255,255,255,0.08);
 }
 
@@ -733,7 +733,7 @@
 
 /* --- Encouragement Bar (Bottom Center) --- */
 .focus-den .encouragement-box {
-  background: rgba(71, 59, 95, 0.99);  /* SAME as tooltip */
+  background: rgba(30, 41, 59, 0.99);  /* SAME as tooltip */
   border: 2px solid rgba(255,255,255,0.15);
   border-radius: 14px;
   padding: 16px 32px;
@@ -795,7 +795,7 @@
 
 .focus-den .spirit-window {
   background: #25222a;
-  border: 2px solid #3f3b47;
+  border: 2px solid #1e293b;
   border-radius: 20px;
   box-shadow: 0 25px 50px rgba(0,0,0,0.8);
   overflow: hidden;
@@ -804,9 +804,9 @@
 }
 
 .focus-den .window-header {
-  background: #1E1B24;
+  background: #0b1120;
   padding: 15px 20px;
-  border-bottom: 2px solid #3f3b47;
+  border-bottom: 2px solid #1e293b;
   display: flex; justify-content: space-between; align-items: center;
 }
 .focus-den .window-title {
@@ -826,8 +826,8 @@
 
 /* Inputs */
 .focus-den .spirit-input {
-  background: #141218;
-  border: 1px solid #3f3b47;
+  background: #020617;
+  border: 1px solid #1e293b;
   padding: 12px;
   border-radius: 8px;
   color: white;
@@ -847,7 +847,7 @@
 
 /* Task List */
 .focus-den .task-item {
-  background: #1E1B24;
+  background: #0b1120;
   border: 1px solid transparent;
   padding: 12px;
   border-radius: 10px;
@@ -873,7 +873,7 @@
 .focus-den .task-window-small {
   width: 420px;
   max-height: 560px;
-  background: rgba(19, 14, 32, 0.95);
+  background: rgba(2, 6, 23, 0.95);
   border-radius: 22px;
   border: 2px solid rgba(255, 255, 255, 0.12);
   box-shadow:
@@ -1164,7 +1164,7 @@
   width: 360px;
   max-width: 90vw;
   border-radius: 20px;
-  background: rgba(19, 14, 32, 0.96);
+  background: rgba(2, 6, 23, 0.96);
   border: 2px solid rgba(255,255,255,0.15);
   box-shadow:
     0 30px 60px rgba(0,0,0,0.8),
@@ -1197,7 +1197,7 @@
 .focus-den .giveup-dialog {
   width: 380px;
   max-width: 90vw;
-  background: rgba(19, 14, 32, 0.95);
+  background: rgba(2, 6, 23, 0.95);
   border-radius: 20px;
   border: 2px solid rgba(255,255,255,0.15);
   box-shadow:
@@ -1228,7 +1228,7 @@
 
 .focus-den .calendar-card {
   width: 360px;
-  background: rgba(19, 14, 32, 0.97);
+  background: rgba(2, 6, 23, 0.97);
   border-radius: 20px;
   border: 2px solid rgba(255, 255, 255, 0.18);
   box-shadow:
@@ -1300,14 +1300,14 @@
   cursor: default;
 }
 .focus-den .calendar-day.today {
-  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.9);
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.9);
 }
 .focus-den .calendar-day.selected {
-  background: linear-gradient(135deg, #7c7cff, #c4b5fd);
+  background: linear-gradient(135deg, #0ea5e9, #bae6fd);
   color: #0f172a;
 }
 .focus-den .calendar-day:hover:not(.empty) {
-  background: rgba(129, 140, 248, 0.9);
+  background: rgba(56, 189, 248, 0.9);
 }
 
 .focus-den .calendar-footer {

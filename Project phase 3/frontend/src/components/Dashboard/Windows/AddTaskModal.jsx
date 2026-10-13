@@ -236,7 +236,7 @@ export default function AddTaskModal({ onClose, onTaskCreated }) {
               border: "1px solid rgba(148,163,184,0.6)",
               borderRadius: 10,
               padding: "10px 12px",
-              boxShadow: "0 0 14px rgba(124,124,255,0.25)",
+              boxShadow: "0 0 14px rgba(14, 165, 233,0.25)",
             }}
           >
             <span style={{ opacity: 0.7 }}>📅</span>
