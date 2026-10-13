@@ -75,21 +75,30 @@ def create_app():
     os.makedirs(upload_folder, exist_ok=True)
     app.config["UPLOAD_FOLDER"] = upload_folder
 
-    # Allow vite dev server to talk to the backend
+    # Local Vite dev servers are always allowed. In production, set
+    # FRONTEND_ORIGINS to the deployed frontend URL(s), comma separated.
+    dev_origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5176",
+        "http://127.0.0.1:5176",
+    ]
+    deployed_origins = [
+        origin.strip().rstrip("/")
+        for origin in os.getenv("FRONTEND_ORIGINS", "").split(",")
+        if origin.strip()
+    ]
     CORS(
         app,
-        resources={
-            r"/*": {
-                "origins": [
-                    "http://localhost:5173",
-                    "http://127.0.0.1:5173",
-                    "http://localhost:5176",
-                    "http://127.0.0.1:5176"
-                ],
-            }
-        },
-        supports_credentials=True
+        resources={r"/*": {"origins": dev_origins + deployed_origins}},
+        supports_credentials=True,
     )
+
+    if deployed_origins:
+        # The deployed frontend and API live on different domains, so the
+        # browser only sends the login cookie with SameSite=None, which in
+        # turn requires the cookie to be HTTPS-only.
+        app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=True)
 
     @app.route("/")
     def index():
