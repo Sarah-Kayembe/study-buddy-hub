@@ -155,4 +155,5 @@ if __name__ == "__main__":
     seed_admin_user()
     
     app = create_app()
-    app.run(host="127.0.0.1", port=8001, debug=True)
+    # Local development only; production runs `gunicorn wsgi:app`.
+    app.run(host="127.0.0.1", port=8001, debug=os.getenv("FLASK_DEBUG", "1") == "1")

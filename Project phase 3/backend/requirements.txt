@@ -3,3 +3,4 @@ flask-cors==6.0.5
 mysql-connector-python==26.7.0
 python-dotenv==1.2.4
 bcrypt==5.0.0
+gunicorn==26.2.0
