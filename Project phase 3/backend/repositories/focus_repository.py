@@ -7,6 +7,7 @@ another user's tasks or sessions.
 """
 from datetime import timedelta
 
+import progression
 from db import transaction
 
 
@@ -160,12 +161,21 @@ def _next_streak(current_streak, last_session_at, today):
     return 1
 
 
+def _locked_progress(cursor, user_id):
+    """Return the user's XP and coins, creating the row first if needed, locked for update."""
+    cursor.execute("INSERT IGNORE INTO user_progress (user_id) VALUES (%s)", (user_id,))
+    cursor.execute(
+        "SELECT xp, coins FROM user_progress WHERE user_id = %s FOR UPDATE", (user_id,)
+    )
+    return cursor.fetchone()
+
+
 def record_completed_session(user_id, duration_min, now, topic_id=None,
                              technique_type="pomodoro", short_break_min=None, long_break_min=None):
-    """Save a finished focus session and update the daily log, totals and streak.
+    """Save a finished focus session and update the log, totals, streak, XP and coins.
 
-    All three tables change in one transaction, so a failure leaves none of
-    them half updated. Returns the new timer_id and the user's streak.
+    Everything changes in one transaction, so a failure leaves nothing half
+    updated. Returns the new timer_id, the user's streak and the reward.
     """
     start = now - timedelta(minutes=duration_min)
     with transaction(dictionary=True) as cursor:
@@ -200,7 +210,20 @@ def record_completed_session(user_id, duration_min, now, topic_id=None,
             """,
             (sessions, minutes, round(minutes / sessions, 2), streak, streak, now, user_id),
         )
-    return {"timer_id": timer_id, "current_streak_days": streak}
+
+        progress = _locked_progress(cursor, user_id)
+        reward = progression.session_reward(duration_min, streak, progress["xp"])
+        cursor.execute(
+            "UPDATE user_progress SET xp = xp + %s, coins = coins + %s WHERE user_id = %s",
+            (reward["xp"], reward["coins"], user_id),
+        )
+    return {
+        "timer_id": timer_id,
+        "current_streak_days": streak,
+        "reward": reward,
+        "xp": progress["xp"] + reward["xp"],
+        "coins": progress["coins"] + reward["coins"],
+    }
 
 
 def record_abandoned_session(user_id, minutes_focused, now):
@@ -247,6 +270,14 @@ def get_stats(user_id):
         )
         row = cursor.fetchone()
     return row or dict(EMPTY_STATS)
+
+
+def get_progress(user_id):
+    """The user's XP and coin balance, or zeros before their first session."""
+    with transaction(dictionary=True) as cursor:
+        cursor.execute("SELECT xp, coins FROM user_progress WHERE user_id = %s", (user_id,))
+        row = cursor.fetchone()
+    return row or {"xp": 0, "coins": 0}
 
 
 def mood_level_id(mood):
