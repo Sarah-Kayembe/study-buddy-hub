@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from db import get_db_connection
+from utils.pagination import parse_pagination
 from utils.transactions import create_full_quiz_transaction, submit_quiz_transaction
 
 quiz_bp = Blueprint("quiz", __name__, url_prefix="/quiz")
@@ -108,14 +109,10 @@ def list_quizzes():
 
     cursor = conn.cursor(dictionary=True)
     try:
-        # Pagination: defaults page=1, limit=20, max limit=100
         try:
-            page = max(1, int(request.args.get("page", 1)))
-            limit = int(request.args.get("limit", 20))
+            page, limit, offset = parse_pagination(request.args)
         except ValueError:
             return jsonify({"error": "Invalid pagination parameters"}), 400
-        limit = min(max(limit, 1), 100)
-        offset = (page - 1) * limit
 
         cursor.execute(
             """
