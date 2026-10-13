@@ -51,6 +51,25 @@ Before running the setup script, ensure you have:
 
 When you run the install script, you'll be prompted to enter your MySQL credentials.
 
+## Environment Variables
+
+The backend reads its settings from `Project phase 3/backend/.env`. To set it up by hand, copy the template and fill in your values:
+
+```bash
+cd "Project phase 3/backend"
+cp .env.example .env
+```
+
+| Variable | Purpose |
+| --- | --- |
+| `MYSQL_HOST`, `MYSQL_PORT` | Where your MySQL server runs |
+| `MYSQL_USER`, `MYSQL_PASSWORD` | MySQL login |
+| `MYSQL_DB` | Database name (default `StudyBuddy`) |
+| `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Default admin account seeded on first run |
+| `SECRET_KEY` | Signs login sessions; use a long random string |
+
+`.env` is git-ignored, so your credentials stay on your machine.
+
 ## Project Structure
 
 ```
