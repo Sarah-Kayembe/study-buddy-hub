@@ -1,5 +1,7 @@
 # StudyBuddy - Database Systems Course Project
 
+[![CI](https://github.com/Sarah-Kayembe/study-buddy-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/Sarah-Kayembe/study-buddy-hub/actions/workflows/ci.yml)
+
 **Team:** Vivek Reddy Bhimavarapu, Jake Craig, Rise Akizaki and Sarah Kayembe  
 **Course:** Database Systems, University of Southern Maine, Fall 2025
 
