@@ -189,7 +189,9 @@ export default function TimerDashboard() {
       try {
         audio.currentTime = 0;
         audio.play().catch(() => {});
-      } catch {}
+      } catch {
+        // Browsers can block audio until the user interacts; skip the sound.
+      }
     },
     [soundMuted]
   );
@@ -522,12 +524,6 @@ export default function TimerDashboard() {
       : isBreak
       ? formatSeconds(breakSecondsLeft)
       : formatSeconds(timeLeft);
-
-  // Callback when profile is updated inside ProfileWindow
-  const handleProfileUpdated = (updatedUserFields) => {
-    setUser((prev) => ({ ...prev, ...updatedUserFields }));
-    setShowProfile(false);
-  };
 
   if (isLoading) {
     return (

@@ -5,7 +5,6 @@ export default function TimerWindow({
   timeLeft,
   isTimerRunning,
   flowSeconds,
-  isBreak,
 
   onStartSession,
   onCancelPreStart,
@@ -48,6 +47,33 @@ export default function TimerWindow({
 
   const [sessionTotalSeconds, setSessionTotalSeconds] = useState(null);
 
+  // ------------------------------------------------------------
+  // Build Config
+  // ------------------------------------------------------------
+  const clamp = (v) => Math.max(1, Math.min(120, Number(v) || 1));
+
+  const buildConfig = () => {
+    if (tab === "pomodoro") {
+      return {
+        type: "pomodoro",
+        focusMinutes: clamp(pomoFocus),
+        shortBreakMinutes: clamp(pomoShortBreak),
+        longBreakMinutes: clamp(pomoLongBreak),
+        rounds: Math.max(1, Math.min(8, pomoRounds)),
+      };
+    }
+
+    if (tab === "flowtime")
+      return { type: "flowtime", maxMinutes: MAX_FLOW };
+
+    return {
+      type: "custom",
+      focusMinutes: clamp(customFocus),
+      breakMinutes: clamp(customBreak),
+    };
+  };
+
+
   useEffect(() => {
     if (!isInPreStart || preStartSeconds <= 0) return;
 
@@ -75,32 +101,6 @@ export default function TimerWindow({
 
     return () => clearInterval(id);
   }, [isInPreStart]);
-
-  // ------------------------------------------------------------
-  // Build Config
-  // ------------------------------------------------------------
-  const clamp = (v) => Math.max(1, Math.min(120, Number(v) || 1));
-
-  const buildConfig = () => {
-    if (tab === "pomodoro") {
-      return {
-        type: "pomodoro",
-        focusMinutes: clamp(pomoFocus),
-        shortBreakMinutes: clamp(pomoShortBreak),
-        longBreakMinutes: clamp(pomoLongBreak),
-        rounds: Math.max(1, Math.min(8, pomoRounds)),
-      };
-    }
-
-    if (tab === "flowtime")
-      return { type: "flowtime", maxMinutes: MAX_FLOW };
-
-    return {
-      type: "custom",
-      focusMinutes: clamp(customFocus),
-      breakMinutes: clamp(customBreak),
-    };
-  };
 
   // ------------------------------------------------------------
   // Start / Give Up Button Logic

@@ -1,7 +1,7 @@
 // TaskWindow.jsx
 // Spirit City task panel — UI enhanced with tag visuals
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import AddTaskModal from "./AddTaskModal";
 
 import { API_BASE } from "../../../api/base";
@@ -9,13 +9,15 @@ import { API_BASE } from "../../../api/base";
 const API_BASE_URL = `${API_BASE}/api/focus`;
 
 export default function TaskWindow({ tasks, onClose, onRefreshData }) {
-  const [localTasks, setLocalTasks] = useState([]);
+  const [localTasks, setLocalTasks] = useState(Array.isArray(tasks) ? tasks : []);
+  const [syncedTasks, setSyncedTasks] = useState(tasks);
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // Sync props → local state
-  useEffect(() => {
+  // Sync props → local state whenever the parent passes a new task list
+  if (tasks !== syncedTasks) {
+    setSyncedTasks(tasks);
     setLocalTasks(Array.isArray(tasks) ? tasks : []);
-  }, [tasks]);
+  }
 
   const completedCount = localTasks.filter(
     (t) => t.status === "done"

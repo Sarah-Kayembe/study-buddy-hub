@@ -49,11 +49,7 @@ export default function AddTaskModal({ onClose, onTaskCreated }) {
   // Fetch topics when course selected
   // --------------------------------------------------
   useEffect(() => {
-    if (!courseId) {
-      setTopics([]);
-      setTopicId("");
-      return;
-    }
+    if (!courseId) return;
 
     fetch(`${API_BASE_URL}/topics?course_id=${courseId}`)
       .then((res) => res.json())
@@ -191,7 +187,11 @@ export default function AddTaskModal({ onClose, onTaskCreated }) {
           <select
             className="spirit-input"
             value={courseId}
-            onChange={(e) => setCourseId(e.target.value)}
+            onChange={(e) => {
+              setCourseId(e.target.value);
+              setTopics([]);
+              setTopicId("");
+            }}
           >
             <option value="">— No course —</option>
             {courses.map((c) => (

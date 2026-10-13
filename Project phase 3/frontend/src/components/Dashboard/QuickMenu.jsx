@@ -29,7 +29,6 @@ export default function QuickMenu({
   setActiveQuick,
   onToggleTimer,
   onToggleTasks,
-  onToggleCalendar,
   onToggleStats,
   nextTask,
   timerRunning,

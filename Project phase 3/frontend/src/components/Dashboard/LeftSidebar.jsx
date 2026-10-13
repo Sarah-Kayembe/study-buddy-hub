@@ -26,7 +26,6 @@ const MenuBtn = ({ label, icon, onClick, isActive }) => (
 export default function LeftSidebar({
   activeWindow,
   onOpenStudyVille,
-  onOpenRewards,
   onOpenGroups,
   onOpenLeaderboard
 }) {
