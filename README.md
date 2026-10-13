@@ -70,6 +70,7 @@ cp .env.example .env
 | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Default admin account seeded on first run |
 | `SECRET_KEY` | Signs login sessions; use a long random string |
 | `LOG_LEVEL` | Log verbosity: `DEBUG`, `INFO` (default), `WARNING` or `ERROR` |
+| `MYSQL_POOL_SIZE` | Database connections kept open and reused per server process (default `5`) |
 
 `.env` is git-ignored, so your credentials stay on your machine.
 
