@@ -1,0 +1,111 @@
+"""Shared test fixtures.
+
+Tests run against a real MySQL database called ``studybuddy_test`` so the
+SQL, foreign keys and transactions behave exactly as they do in the app.
+The schema is rebuilt from the Phase 2 SQL files once per test run, and
+every table is emptied before each test so tests never depend on each other.
+
+Connection settings come from the usual MYSQL_* environment variables.
+"""
+import os
+from pathlib import Path
+
+import mysql.connector
+import pytest
+
+TEST_DB = "studybuddy_test"
+
+# Point the app at the test database before any app code is imported.
+os.environ["MYSQL_DB"] = TEST_DB
+os.environ.setdefault("MYSQL_HOST", "127.0.0.1")
+os.environ.setdefault("MYSQL_PORT", "3306")
+os.environ.setdefault("MYSQL_USER", "root")
+os.environ.setdefault("MYSQL_PASSWORD", "")
+os.environ.setdefault("SECRET_KEY", "test-secret-key")
+
+from app import create_app  # noqa: E402  (must come after the env setup)
+
+SCHEMA_DIR = Path(__file__).resolve().parents[3] / "Project phase 2" / "sql" / "schema"
+
+# Order matters: later files reference tables created by earlier ones.
+SCHEMA_FILES = [
+    "User_Management.sql",
+    "Quizzes&Flashcards.sql",
+    "StudyGroupsAndCollaboration.sql",
+    "study_Management_script.sql",
+]
+
+
+def _server_connection(database=None):
+    return mysql.connector.connect(
+        host=os.environ["MYSQL_HOST"],
+        port=int(os.environ["MYSQL_PORT"]),
+        user=os.environ["MYSQL_USER"],
+        password=os.environ["MYSQL_PASSWORD"],
+        database=database,
+        autocommit=True,
+    )
+
+
+def _sql_statements(path):
+    """Yield the statements in a schema file, skipping comments and USE lines."""
+    lines = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("--") or stripped.lower().startswith("use "):
+            continue
+        lines.append(line)
+    for statement in "\n".join(lines).split(";"):
+        if statement.strip():
+            yield statement
+
+
+@pytest.fixture(scope="session", autouse=True)
+def test_database():
+    """Create a fresh test database from the schema files for this run."""
+    conn = _server_connection()
+    cursor = conn.cursor()
+    cursor.execute(f"DROP DATABASE IF EXISTS {TEST_DB}")
+    cursor.execute(f"CREATE DATABASE {TEST_DB}")
+    cursor.execute(f"USE {TEST_DB}")
+    for name in SCHEMA_FILES:
+        for statement in _sql_statements(SCHEMA_DIR / name):
+            cursor.execute(statement)
+    cursor.close()
+    conn.close()
+    yield TEST_DB
+
+
+@pytest.fixture
+def db():
+    """A connection to the test database for setting up and checking data."""
+    conn = _server_connection(TEST_DB)
+    yield conn
+    conn.close()
+
+
+@pytest.fixture(autouse=True)
+def clean_tables(test_database):
+    """Empty every table before each test."""
+    conn = _server_connection(TEST_DB)
+    cursor = conn.cursor()
+    cursor.execute("SHOW TABLES")
+    tables = [row[0] for row in cursor.fetchall()]
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
+    for table in tables:
+        cursor.execute(f"TRUNCATE TABLE `{table}`")
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+    cursor.close()
+    conn.close()
+
+
+@pytest.fixture
+def app():
+    app = create_app()
+    app.config.update(TESTING=True)
+    return app
+
+
+@pytest.fixture
+def client(app):
+    return app.test_client()
