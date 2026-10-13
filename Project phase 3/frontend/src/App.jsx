@@ -1,6 +1,6 @@
 // src/App.jsx
 import { lazy, Suspense, useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import StudyGroups from "./pages/StudyGroups";
 import FlashcardsPage from "./pages/FlashcardsPage";
@@ -16,14 +16,14 @@ import RootRoute from "./components/RootRoute";
 import RequireLogin from "./components/RequireLogin";
 import StudyBuddyMatch from "./pages/StuddyBuddyMatch";
 
-// The Study Tools dashboard is large (images, sounds), so it only loads
+// The Focus Den dashboard is large (images, sounds), so it only loads
 // when someone opens it instead of slowing down every page.
 const loadTimerDashboard = () => import("./pages/TimerDashboard");
 const TimerDashboard = lazy(loadTimerDashboard);
 
 function App() {
   // Download the dashboard in the background once the first page is up,
-  // so opening Study Tools later is instant instead of waiting for it.
+  // so opening Focus Den later is instant instead of waiting for it.
   useEffect(() => {
     const timer = setTimeout(loadTimerDashboard, 1500);
     return () => clearTimeout(timer);
@@ -52,12 +52,14 @@ function App() {
         <Route path="/user/account" element={<AccountPage />} />
         <Route path="/user/account/edit" element={<EditAccountPage />} />
         <Route path="/resources" element={<ResourcesPage />} />
+        {/* Old address from before the rename */}
+        <Route path="/study-tools" element={<Navigate to="/focus-den" replace />} />
         <Route
-          path="/study-tools"
+          path="/focus-den"
           element={
             <RequireLogin>
-              <div className="study-tools">
-                <Suspense fallback={<div className="study-tools-backdrop" />}>
+              <div className="focus-den">
+                <Suspense fallback={<div className="focus-den-backdrop" />}>
                   <TimerDashboard />
                 </Suspense>
               </div>

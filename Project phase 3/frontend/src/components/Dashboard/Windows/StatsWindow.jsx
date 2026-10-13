@@ -60,15 +60,15 @@ export default function StatsWindow({ onClose }) {
           <section style={{ marginBottom: "22px" }}>
             <h3 style={{ color: "white", marginBottom: 10 }}>Overall</h3>
 
-            <p style={{ color: "#a5b4fc" }}>
+            <p style={{ color: "#7dd3fc" }}>
               Total Focus Time: {totalMinutes} minutes
             </p>
 
-            <p style={{ color: "#a5b4fc" }}>
+            <p style={{ color: "#7dd3fc" }}>
               Total Sessions: {totalSessions}
             </p>
 
-            <p style={{ color: "#a5b4fc" }}>
+            <p style={{ color: "#7dd3fc" }}>
               Average Duration: {avgDuration} minutes
             </p>
           </section>
@@ -77,11 +77,11 @@ export default function StatsWindow({ onClose }) {
           <section style={{ marginBottom: "22px" }}>
             <h3 style={{ color: "white", marginBottom: 10 }}>Streaks</h3>
 
-            <p style={{ color: "#a5b4fc" }}>
+            <p style={{ color: "#7dd3fc" }}>
               Current Streak: {currentStreak} days
             </p>
 
-            <p style={{ color: "#a5b4fc" }}>
+            <p style={{ color: "#7dd3fc" }}>
               Longest Streak: {longestStreak} days
             </p>
           </section>
@@ -90,7 +90,7 @@ export default function StatsWindow({ onClose }) {
           <section style={{ marginBottom: "22px" }}>
             <h3 style={{ color: "white", marginBottom: 10 }}>Last Activity</h3>
 
-            <p style={{ color: "#a5b4fc" }}>
+            <p style={{ color: "#7dd3fc" }}>
               Last Session: {stats.last_session_at || "No sessions yet"}
             </p>
           </section>
@@ -99,15 +99,15 @@ export default function StatsWindow({ onClose }) {
           <section style={{ marginBottom: "22px" }}>
             <h3 style={{ color: "white", marginBottom: 10 }}>Favorites</h3>
 
-            <p style={{ color: "#a5b4fc" }}>
+            <p style={{ color: "#7dd3fc" }}>
               Favorite Item Type: {stats.favorite_item_type || "None"}
             </p>
 
-            <p style={{ color: "#a5b4fc" }}>
+            <p style={{ color: "#7dd3fc" }}>
               Favorite Item Name: {stats.favorite_item_name || "None"}
             </p>
 
-            <p style={{ color: "#a5b4fc" }}>
+            <p style={{ color: "#7dd3fc" }}>
               Most Frequent Topic: {stats.most_frequent_topic || "None"}
             </p>
           </section>

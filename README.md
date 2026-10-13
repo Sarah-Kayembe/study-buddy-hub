@@ -233,7 +233,7 @@ These credentials are automatically seeded when the backend starts for the first
 - `PUT /flashcards/cards/<card_id>` - Update individual flashcard
 - `DELETE /flashcards/cards/<card_id>` - Delete individual flashcard
 
-### Study Tools (focus timer)
+### Focus Den (focus timer)
 All of these act on the logged-in user and return `401` otherwise, except the three lookup lists.
 - `GET /api/focus/dashboard` - Tasks, totals, streak, coins and level for the dashboard
 - `GET /api/focus/tags`, `/courses`, `/topics?course_id=` - Task categories (with colors), courses and topics
