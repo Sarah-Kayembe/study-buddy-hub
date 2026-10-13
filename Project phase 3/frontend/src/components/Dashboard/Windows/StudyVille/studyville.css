@@ -1,0 +1,50 @@
+/* --- ISOMETRIC GRID CONTAINER --- */
+.iso-grid {
+  position: relative;
+  width: 800px;      /* full grid width */
+  height: 500px;     /* full grid height */
+
+  /* ⭐ Center the grid perfectly inside StudyVille window */
+  left: 72%;
+  top: 0;
+  transform: translateX(-35%);
+}
+
+/* --- ISOMETRIC TILE (diamond shape) --- */
+.iso-tile {
+  position: absolute;
+  width: 128px;       /* TWICE the height → correct ISO diamond */
+  height: 64px;
+  background: #9ad66e;
+  clip-path: polygon(
+      50% 0%,     /* top */
+      100% 50%,   /* right */
+      50% 100%,   /* bottom */
+      0% 50%      /* left */
+  );
+  border: 1px solid rgba(80, 120, 60, 0.5);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  z-index: 1;      /* tiles stay behind objects */
+}
+
+/* Hover effect */
+.iso-tile:hover {
+  transform: scale(1.05);
+  filter: brightness(1.15);
+}
+
+/* --- OBJECTS (houses, shops, trees) --- */
+.iso-object {
+  position: absolute;
+  pointer-events: auto;
+  user-select: none;
+  transform-origin: bottom center;  /* anchors object to tile */
+  z-index: 50;   /* ALWAYS above tiles */
+  image-rendering: auto;
+}
+
+/* Optional: slight pop effect when selecting an object */
+.iso-object:hover {
+  transform: scale(1.03);
+}
