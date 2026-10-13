@@ -3,7 +3,6 @@ from flask_cors import CORS
 import os
 import secrets
 import bcrypt
-import mysql.connector
 from dotenv import load_dotenv
 
 from routes.studygroup_routes import bp as studygroup_bp
@@ -19,6 +18,7 @@ from routes.flashcard_routes import flashcard_bp
 
 from routes.resource_routes import bp as resources_bp
 from db import get_db_connection as get_db, transaction
+from errors import register_error_handlers
 
 # Load environment variables
 load_dotenv()
@@ -134,12 +134,7 @@ def create_app():
     #Resources
     app.register_blueprint(resources_bp)
 
-    @app.errorhandler(mysql.connector.Error)
-    def database_error(error):
-        # Any database failure that a route doesn't handle itself ends up
-        # here, so the client always gets JSON instead of an HTML error page.
-        app.logger.error("Database error: %s", error)
-        return jsonify({"error": "Database error"}), 500
+    register_error_handlers(app)
 
     return app
 
