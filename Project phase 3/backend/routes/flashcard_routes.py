@@ -5,6 +5,35 @@ from utils.transactions import create_flashcard_set_transaction
 flashcard_bp = Blueprint("flashcards", __name__, url_prefix="/flashcards")
 
 
+def _owner_error(owner_id, missing_message):
+    """Return an error response unless the logged-in user owns the item."""
+    if owner_id is None:
+        return jsonify({"error": missing_message}), 404
+    if owner_id != session["user"]["user_id"]:
+        return jsonify({"error": "You can only change your own flashcards"}), 403
+    return None
+
+
+def _set_owner(cursor, set_id):
+    cursor.execute("SELECT creator_id FROM FlashcardSet WHERE set_id = %s", (set_id,))
+    row = cursor.fetchone()
+    return row[0] if row else None
+
+
+def _card_owner(cursor, card_id):
+    cursor.execute(
+        """
+        SELECT fs.creator_id
+        FROM Flashcard f
+        JOIN FlashcardSet fs ON fs.set_id = f.set_id
+        WHERE f.flashcard_id = %s
+        """,
+        (card_id,),
+    )
+    row = cursor.fetchone()
+    return row[0] if row else None
+
+
 # ------------------------------
 # Create Flashcard Set (ACID)
 # ------------------------------
@@ -154,6 +183,10 @@ def update_flashcard_set(set_id):
 
     cursor = conn.cursor()
     try:
+        error = _owner_error(_set_owner(cursor, set_id), "Set not found")
+        if error:
+            return error
+
         # Update set details (title, description)
         title = data.get('title')
         description = data.get('description')
@@ -191,6 +224,10 @@ def delete_flashcard_set(set_id):
 
     cursor = conn.cursor()
     try:
+        error = _owner_error(_set_owner(cursor, set_id), "Set not found")
+        if error:
+            return error
+
         # Delete all flashcards in the set first
         cursor.execute("DELETE FROM Flashcard WHERE set_id = %s", (set_id,))
         # Then delete the set
@@ -226,6 +263,10 @@ def update_flashcard(card_id):
 
     cursor = conn.cursor()
     try:
+        error = _owner_error(_card_owner(cursor, card_id), "Flashcard not found")
+        if error:
+            return error
+
         front_text = data.get('front_text') or data.get('front')
         back_text = data.get('back_text') or data.get('back')
         cursor.execute(
@@ -262,6 +303,10 @@ def delete_flashcard(card_id):
 
     cursor = conn.cursor()
     try:
+        error = _owner_error(_card_owner(cursor, card_id), "Flashcard not found")
+        if error:
+            return error
+
         cursor.execute("DELETE FROM Flashcard WHERE flashcard_id = %s", (card_id,))
         conn.commit()
         return jsonify({"message": "Flashcard deleted", "flashcard_id": card_id}), 200

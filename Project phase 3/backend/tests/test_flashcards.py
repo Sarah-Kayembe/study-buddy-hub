@@ -1,3 +1,6 @@
+from tests.conftest import login, register
+
+
 SAMPLE_SET = {
     "title": "Big-O Notation",
     "description": "Common time complexities",
@@ -145,3 +148,33 @@ def test_changing_flashcards_requires_login(logged_in_client, app):
     assert [r.status_code for r in responses] == [401, 401, 401, 401]
     assert get_set(logged_in_client, set_id).get_json()["title"] == SAMPLE_SET["title"]
     assert len(card_ids(logged_in_client, set_id)) == 3
+
+
+def test_only_the_creator_can_change_a_set(logged_in_client, app):
+    set_id = create_set(logged_in_client)
+    card_id = card_ids(logged_in_client, set_id)[0]
+    other = app.test_client()
+    register(other, email="grace@example.com")
+    login(other, email="grace@example.com")
+
+    responses = [
+        other.put(f"/flashcards/sets/{set_id}", json={"title": "Hijacked"}),
+        other.delete(f"/flashcards/sets/{set_id}"),
+        other.put(f"/flashcards/cards/{card_id}", json={"front": "x", "back": "y"}),
+        other.delete(f"/flashcards/cards/{card_id}"),
+    ]
+
+    assert [r.status_code for r in responses] == [403, 403, 403, 403]
+    assert get_set(logged_in_client, set_id).get_json()["title"] == SAMPLE_SET["title"]
+    assert len(card_ids(logged_in_client, set_id)) == 3
+
+
+def test_changing_missing_flashcards_returns_404(logged_in_client):
+    responses = [
+        logged_in_client.put("/flashcards/sets/9999", json={"title": "Nope"}),
+        logged_in_client.delete("/flashcards/sets/9999"),
+        logged_in_client.put("/flashcards/cards/9999", json={"front": "x", "back": "y"}),
+        logged_in_client.delete("/flashcards/cards/9999"),
+    ]
+
+    assert [r.status_code for r in responses] == [404, 404, 404, 404]
