@@ -23,7 +23,7 @@ os.environ.setdefault("MYSQL_PASSWORD", "")
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
 
 from app import create_app  # noqa: E402  (must come after the env setup)
-from schema import load_schema  # noqa: E402
+from schema import LOOKUP_DATA, load_schema, seed_lookup_data  # noqa: E402
 
 
 def _server_connection(database=None):
@@ -61,15 +61,17 @@ def db():
 
 @pytest.fixture(autouse=True)
 def clean_tables(test_database):
-    """Empty every table before each test."""
+    """Empty every table before each test, then restore the lookup rows."""
     conn = _server_connection(TEST_DB)
     cursor = conn.cursor()
     cursor.execute("SHOW TABLES")
     tables = [row[0] for row in cursor.fetchall()]
     cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
     for table in tables:
-        cursor.execute(f"TRUNCATE TABLE `{table}`")
+        if table not in LOOKUP_DATA:
+            cursor.execute(f"TRUNCATE TABLE `{table}`")
     cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+    seed_lookup_data(cursor)
     cursor.close()
     conn.close()
 

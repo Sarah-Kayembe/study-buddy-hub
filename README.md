@@ -232,6 +232,19 @@ These credentials are automatically seeded when the backend starts for the first
 - `PUT /flashcards/cards/<card_id>` - Update individual flashcard
 - `DELETE /flashcards/cards/<card_id>` - Delete individual flashcard
 
+### Study Tools (focus timer)
+All of these act on the logged-in user and return `401` otherwise, except the three lookup lists.
+- `GET /api/focus/dashboard` - Tasks, totals, streak, coins and level for the dashboard
+- `GET /api/focus/tags`, `/courses`, `/topics?course_id=` - Task categories (with colors), courses and topics
+- `GET/POST /api/focus/tasks`, `PUT/DELETE /api/focus/tasks/<task_id>` - The user's own tasks
+- `POST /api/focus/session/complete` - Save a finished session; updates the daily log, totals and streak in one transaction
+- `POST /api/focus/session/giveup` - Count the minutes from an abandoned session without counting a session
+- `GET /api/focus/stats` - Totals, average length, current and longest streak
+- `POST /api/focus/mood` - Log a mood by id (1-6) or name
+- `GET /api/focus/calendar` - Minutes, topics and mood per day
+- `GET /api/focus/city` - StudyVille layout
+- `GET /api/focus/leaderboard?period=daily|weekly|monthly|all_time` - Top users by focused minutes
+
 Complete API documentation with request/response examples is in `Project phase 3/API_DOCUMENTATION.pdf`.
 
 ## Database Setup

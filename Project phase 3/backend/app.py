@@ -15,6 +15,7 @@ from routes.auth_routes import auth_bp
 from routes.user_routes import user_bp
 from routes.quiz_routes import quiz_bp
 from routes.flashcard_routes import flashcard_bp
+from routes.focus_routes import bp as focus_bp
 
 from routes.resource_routes import bp as resources_bp
 from db import get_db_connection as get_db, transaction
@@ -144,6 +145,9 @@ def create_app():
 
     #Resources
     app.register_blueprint(resources_bp)
+
+    # Study tools: focus timer, tasks, stats, StudyVille
+    app.register_blueprint(focus_bp)
 
     register_error_handlers(app)
     register_request_logging(app)
