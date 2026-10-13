@@ -198,3 +198,71 @@ def delete_task(task_id):
     if not repo.delete_task(user_id, task_id):
         return jsonify({"error": "Task not found"}), 404
     return jsonify({"success": True})
+
+
+# ------------------------------------------------------------------
+# Focus sessions
+# ------------------------------------------------------------------
+
+TECHNIQUES = ("pomodoro", "flowtime", "custom")
+MAX_SESSION_MIN = 600
+
+
+def _utc_now():
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+def _minutes(value, default):
+    """Parse a minute count, returning None if it isn't a sensible number."""
+    try:
+        minutes = int(value if value is not None else default)
+    except (TypeError, ValueError):
+        return None
+    return minutes if 0 <= minutes <= MAX_SESSION_MIN else None
+
+
+@bp.post("/session/complete")
+def complete_session():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+
+    data = request.get_json() or {}
+    duration = _minutes(data.get("duration_min"), 25)
+    if not duration:
+        return jsonify({"error": f"duration_min must be between 1 and {MAX_SESSION_MIN}"}), 400
+    technique = data.get("technique_type") or "pomodoro"
+    if technique not in TECHNIQUES:
+        return jsonify({"error": "Invalid technique_type"}), 400
+
+    result = repo.record_completed_session(
+        user_id=user_id,
+        duration_min=duration,
+        now=_utc_now(),
+        topic_id=data.get("topic_id"),
+        technique_type=technique,
+        short_break_min=data.get("short_break_min"),
+        long_break_min=data.get("long_break_min"),
+    )
+    # One coin per focused minute and two XP per minute, as in the original timer.
+    return jsonify({
+        "success": True,
+        "timer_id": result["timer_id"],
+        "current_streak_days": result["current_streak_days"],
+        "reward": {"coins": duration, "xp": duration * 2},
+    })
+
+
+@bp.post("/session/giveup")
+def give_up_session():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+
+    data = request.get_json() or {}
+    minutes = _minutes(data.get("duration_min"), 0)
+    if minutes is None:
+        return jsonify({"error": f"duration_min must be between 0 and {MAX_SESSION_MIN}"}), 400
+
+    repo.record_abandoned_session(user_id, minutes, _utc_now())
+    return jsonify({"success": True, "message": "Session recorded as incomplete."})
