@@ -156,3 +156,18 @@ def test_submit_quiz_requires_answers(logged_in_client):
     response = logged_in_client.post("/quiz/submit", json={"quiz_id": 1})
 
     assert response.status_code == 400
+
+
+def test_submit_quiz_ignores_unknown_questions(logged_in_client):
+    quiz_id = create_quiz(logged_in_client)
+    question = logged_in_client.get(f"/quiz/{quiz_id}").get_json()["questions"][0]
+    right = next(a for a in question["answers"] if a["is_correct"])
+
+    response = logged_in_client.post("/quiz/submit", json={
+        "quiz_id": quiz_id,
+        "answers": {str(question["question_id"]): right["answer_id"], "9999": right["answer_id"]},
+    })
+
+    assert response.status_code == 200
+    assert response.get_json()["score"] == 2
+    assert response.get_json()["max_score"] == 2
