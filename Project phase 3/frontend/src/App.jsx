@@ -11,6 +11,7 @@ import { RegisterPage, LoginPage } from "./pages/Auth";
 import { AccountPage, EditAccountPage } from "./pages/User"; 
 
 import NavBar from "./components/NavBar";
+import RootRoute from "./components/RootRoute";
 import StudyBuddyMatch from "./pages/StuddyBuddyMatch";
 
 function App() {
@@ -20,8 +21,8 @@ function App() {
 
       {/* Page content */}
             <Routes>
-        {/* Default entry now points to Login page */}
-        <Route path="/" element={<LoginPage />} />
+        {/* Logged-in users land on /home; everyone else sees login */}
+        <Route path="/" element={<RootRoute />} />
         <Route path="/groups" element={<StudyGroups />} />
         <Route path="/match" element={<StudyBuddyMatch />} />
 
