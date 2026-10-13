@@ -1,37 +1,38 @@
 from flask import Blueprint, request, jsonify, session
-from db import get_db_connection
-from utils.transactions import create_flashcard_set_transaction
+
+from repositories import flashcard_repository as repo
+from utils.pagination import parse_pagination
 
 flashcard_bp = Blueprint("flashcards", __name__, url_prefix="/flashcards")
+
+
+def _current_user_id():
+    user = session.get("user")
+    return user["user_id"] if user else None
 
 
 def _owner_error(owner_id, missing_message):
     """Return an error response unless the logged-in user owns the item."""
     if owner_id is None:
         return jsonify({"error": missing_message}), 404
-    if owner_id != session["user"]["user_id"]:
+    if owner_id != _current_user_id():
         return jsonify({"error": "You can only change your own flashcards"}), 403
     return None
 
 
-def _set_owner(cursor, set_id):
-    cursor.execute("SELECT creator_id FROM FlashcardSet WHERE set_id = %s", (set_id,))
-    row = cursor.fetchone()
-    return row[0] if row else None
+def _not_logged_in():
+    return jsonify({"error": "Not logged in"}), 401
 
 
-def _card_owner(cursor, card_id):
-    cursor.execute(
-        """
-        SELECT fs.creator_id
-        FROM Flashcard f
-        JOIN FlashcardSet fs ON fs.set_id = f.set_id
-        WHERE f.flashcard_id = %s
-        """,
-        (card_id,),
-    )
-    row = cursor.fetchone()
-    return row[0] if row else None
+def _normalize_cards(raw_cards):
+    """Accept the card shapes the frontend sends and drop cards missing a side."""
+    cards = []
+    for c in raw_cards:
+        front_text = c.get("front_text") or c.get("front") or c.get("question")
+        back_text = c.get("back_text") or c.get("back") or c.get("answer")
+        if front_text and back_text:
+            cards.append({"front_text": front_text, "back_text": back_text})
+    return cards
 
 
 # ------------------------------
@@ -39,57 +40,22 @@ def _card_owner(cursor, card_id):
 # ------------------------------
 @flashcard_bp.route("/create", methods=["POST"])
 def create_set():
-    # Require logged-in user (same pattern as quizzes)
-    user = session.get("user")
-    if not user:
-        return jsonify({"error": "Not logged in"}), 401
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
 
     data = request.get_json() or {}
-
     title = data.get("title")
     if not title:
         return jsonify({"error": "Title is required"}), 400
 
-    # Normalize flashcards from frontend
-    raw_cards = data.get("flashcards") or data.get("cards") or []
-    normalized_cards = []
-
-    for idx, c in enumerate(raw_cards):
-        # Try multiple possible keys for front/back, but your frontend uses front/back
-        front_text = (
-            c.get("front_text")
-            or c.get("front")
-            or c.get("question")
-        )
-        back_text = (
-            c.get("back_text")
-            or c.get("back")
-            or c.get("answer")
-        )
-
-        # Skip cards that don't have both sides
-        if not front_text or not back_text:
-            continue
-
-        normalized_cards.append({
-            "front_text": front_text,
-            "back_text": back_text,
-        })
-
-    payload = {
-        "title": title,
-        "description": data.get("description"),
-        "course_id": data.get("course_id"),
-        "creator_id": user["user_id"],
-        "flashcards": normalized_cards,
-    }
-
-    set_id, error = create_flashcard_set_transaction(payload)
-
-    if error:
-        print("FLASHCARD_SET CREATE ERROR:", error)
-        return jsonify({"error": error}), 500
-
+    set_id = repo.create_set(
+        title=title,
+        description=data.get("description"),
+        course_id=data.get("course_id"),
+        creator_id=user_id,
+        cards=_normalize_cards(data.get("flashcards") or data.get("cards") or []),
+    )
     return jsonify({"message": "Flashcard set created", "set_id": set_id}), 201
 
 
@@ -98,35 +64,10 @@ def create_set():
 # ------------------------------
 @flashcard_bp.route("/sets/<int:set_id>", methods=["GET"])
 def get_flashcard_set(set_id):
-    conn = get_db_connection()
-    if not conn:
-        return jsonify({"error": "Database connection failed"}), 500
-
-    cursor = conn.cursor(dictionary=True)
-    try:
-        cursor.execute("SELECT * FROM FlashcardSet WHERE set_id = %s", (set_id,))
-        flashcard_set = cursor.fetchone()
-
-        if not flashcard_set:
-            return jsonify({"error": "Set not found"}), 404
-
-        cursor.execute("SELECT * FROM Flashcard WHERE set_id = %s", (set_id,))
-        cards = cursor.fetchall()
-
-        # Normalize keys for frontend: return `cards` array
-        flashcard_set["cards"] = cards
-        return jsonify(flashcard_set)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    finally:
-        try:
-            cursor.close()
-        except Exception:
-            pass
-        try:
-            conn.close()
-        except Exception:
-            pass
+    flashcard_set = repo.get_set(set_id)
+    if flashcard_set is None:
+        return jsonify({"error": "Set not found"}), 404
+    return jsonify(flashcard_set)
 
 
 # ------------------------------
@@ -134,38 +75,12 @@ def get_flashcard_set(set_id):
 # ------------------------------
 @flashcard_bp.route("/sets", methods=["GET"])
 def list_flashcard_sets():
-    conn = get_db_connection()
-    if not conn:
-        return jsonify({"error": "Database connection failed"}), 500
-
-    cursor = conn.cursor(dictionary=True)
     try:
-        # Pagination: defaults page=1, limit=20, max limit=100
-        try:
-            page = max(1, int(request.args.get("page", 1)))
-            limit = int(request.args.get("limit", 20))
-        except ValueError:
-            return jsonify({"error": "Invalid pagination parameters"}), 400
-        limit = min(max(limit, 1), 100)
-        offset = (page - 1) * limit
+        page, limit, offset = parse_pagination(request.args)
+    except ValueError:
+        return jsonify({"error": "Invalid pagination parameters"}), 400
 
-        cursor.execute(
-            "SELECT set_id AS id, title, description FROM FlashcardSet ORDER BY set_id DESC LIMIT %s OFFSET %s",
-            (limit, offset),
-        )
-        rows = cursor.fetchall()
-        return jsonify({"page": page, "limit": limit, "items": rows})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    finally:
-        try:
-            cursor.close()
-        except Exception:
-            pass
-        try:
-            conn.close()
-        except Exception:
-            pass
+    return jsonify({"page": page, "limit": limit, "items": repo.list_sets(limit, offset)})
 
 
 # ------------------------------
@@ -173,41 +88,15 @@ def list_flashcard_sets():
 # ------------------------------
 @flashcard_bp.route("/sets/<int:set_id>", methods=["PUT"])
 def update_flashcard_set(set_id):
-    if not session.get("user"):
-        return jsonify({"error": "Not logged in"}), 401
+    if not _current_user_id():
+        return _not_logged_in()
+    error = _owner_error(repo.get_set_owner(set_id), "Set not found")
+    if error:
+        return error
 
-    data = request.json
-    conn = get_db_connection()
-    if not conn:
-        return jsonify({"error": "Database connection failed"}), 500
-
-    cursor = conn.cursor()
-    try:
-        error = _owner_error(_set_owner(cursor, set_id), "Set not found")
-        if error:
-            return error
-
-        # Update set details (title, description)
-        title = data.get('title')
-        description = data.get('description')
-        cursor.execute(
-            "UPDATE FlashcardSet SET title = %s, description = %s WHERE set_id = %s",
-            (title, description, set_id)
-        )
-        conn.commit()
-        return jsonify({"message": "Flashcard set updated", "set_id": set_id}), 200
-    except Exception as e:
-        conn.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
-        try:
-            cursor.close()
-        except Exception:
-            pass
-        try:
-            conn.close()
-        except Exception:
-            pass
+    data = request.get_json() or {}
+    repo.update_set(set_id, data.get("title"), data.get("description"))
+    return jsonify({"message": "Flashcard set updated", "set_id": set_id}), 200
 
 
 # ------------------------------
@@ -215,37 +104,14 @@ def update_flashcard_set(set_id):
 # ------------------------------
 @flashcard_bp.route("/sets/<int:set_id>", methods=["DELETE"])
 def delete_flashcard_set(set_id):
-    if not session.get("user"):
-        return jsonify({"error": "Not logged in"}), 401
+    if not _current_user_id():
+        return _not_logged_in()
+    error = _owner_error(repo.get_set_owner(set_id), "Set not found")
+    if error:
+        return error
 
-    conn = get_db_connection()
-    if not conn:
-        return jsonify({"error": "Database connection failed"}), 500
-
-    cursor = conn.cursor()
-    try:
-        error = _owner_error(_set_owner(cursor, set_id), "Set not found")
-        if error:
-            return error
-
-        # Delete all flashcards in the set first
-        cursor.execute("DELETE FROM Flashcard WHERE set_id = %s", (set_id,))
-        # Then delete the set
-        cursor.execute("DELETE FROM FlashcardSet WHERE set_id = %s", (set_id,))
-        conn.commit()
-        return jsonify({"message": "Flashcard set deleted", "set_id": set_id}), 200
-    except Exception as e:
-        conn.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
-        try:
-            cursor.close()
-        except Exception:
-            pass
-        try:
-            conn.close()
-        except Exception:
-            pass
+    repo.delete_set(set_id)
+    return jsonify({"message": "Flashcard set deleted", "set_id": set_id}), 200
 
 
 # ------------------------------
@@ -253,40 +119,17 @@ def delete_flashcard_set(set_id):
 # ------------------------------
 @flashcard_bp.route("/cards/<int:card_id>", methods=["PUT"])
 def update_flashcard(card_id):
-    if not session.get("user"):
-        return jsonify({"error": "Not logged in"}), 401
+    if not _current_user_id():
+        return _not_logged_in()
+    error = _owner_error(repo.get_card_owner(card_id), "Flashcard not found")
+    if error:
+        return error
 
-    data = request.json
-    conn = get_db_connection()
-    if not conn:
-        return jsonify({"error": "Database connection failed"}), 500
-
-    cursor = conn.cursor()
-    try:
-        error = _owner_error(_card_owner(cursor, card_id), "Flashcard not found")
-        if error:
-            return error
-
-        front_text = data.get('front_text') or data.get('front')
-        back_text = data.get('back_text') or data.get('back')
-        cursor.execute(
-            "UPDATE Flashcard SET front_text = %s, back_text = %s WHERE flashcard_id = %s",
-            (front_text, back_text, card_id)
-        )
-        conn.commit()
-        return jsonify({"message": "Flashcard updated", "flashcard_id": card_id}), 200
-    except Exception as e:
-        conn.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
-        try:
-            cursor.close()
-        except Exception:
-            pass
-        try:
-            conn.close()
-        except Exception:
-            pass
+    data = request.get_json() or {}
+    front_text = data.get("front_text") or data.get("front")
+    back_text = data.get("back_text") or data.get("back")
+    repo.update_card(card_id, front_text, back_text)
+    return jsonify({"message": "Flashcard updated", "flashcard_id": card_id}), 200
 
 
 # ------------------------------
@@ -294,31 +137,11 @@ def update_flashcard(card_id):
 # ------------------------------
 @flashcard_bp.route("/cards/<int:card_id>", methods=["DELETE"])
 def delete_flashcard(card_id):
-    if not session.get("user"):
-        return jsonify({"error": "Not logged in"}), 401
+    if not _current_user_id():
+        return _not_logged_in()
+    error = _owner_error(repo.get_card_owner(card_id), "Flashcard not found")
+    if error:
+        return error
 
-    conn = get_db_connection()
-    if not conn:
-        return jsonify({"error": "Database connection failed"}), 500
-
-    cursor = conn.cursor()
-    try:
-        error = _owner_error(_card_owner(cursor, card_id), "Flashcard not found")
-        if error:
-            return error
-
-        cursor.execute("DELETE FROM Flashcard WHERE flashcard_id = %s", (card_id,))
-        conn.commit()
-        return jsonify({"message": "Flashcard deleted", "flashcard_id": card_id}), 200
-    except Exception as e:
-        conn.rollback()
-        return jsonify({"error": str(e)}), 500
-    finally:
-        try:
-            cursor.close()
-        except Exception:
-            pass
-        try:
-            conn.close()
-        except Exception:
-            pass
+    repo.delete_card(card_id)
+    return jsonify({"message": "Flashcard deleted", "flashcard_id": card_id}), 200
