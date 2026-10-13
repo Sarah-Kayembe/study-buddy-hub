@@ -1,5 +1,5 @@
 import React from 'react';
-import chillBG from "../../assets/chill_background.webp"; 
+import chillBG from "../../assets/Chill_background.webp"; 
 import focusBG from "../../assets/focus_background.webp"; 
 // adjust the path if RoomScene.jsx is in a different folder level
 
