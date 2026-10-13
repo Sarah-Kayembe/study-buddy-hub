@@ -1,5 +1,5 @@
 // src/App.jsx
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import StudyGroups from "./pages/StudyGroups";
@@ -18,9 +18,17 @@ import StudyBuddyMatch from "./pages/StuddyBuddyMatch";
 
 // The Study Tools dashboard is large (images, sounds), so it only loads
 // when someone opens it instead of slowing down every page.
-const TimerDashboard = lazy(() => import("./pages/TimerDashboard"));
+const loadTimerDashboard = () => import("./pages/TimerDashboard");
+const TimerDashboard = lazy(loadTimerDashboard);
 
 function App() {
+  // Download the dashboard in the background once the first page is up,
+  // so opening Study Tools later is instant instead of waiting for it.
+  useEffect(() => {
+    const timer = setTimeout(loadTimerDashboard, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <BrowserRouter>
       <NavBar />
@@ -49,7 +57,7 @@ function App() {
           element={
             <RequireLogin>
               <div className="study-tools">
-                <Suspense fallback={null}>
+                <Suspense fallback={<div className="study-tools-backdrop" />}>
                   <TimerDashboard />
                 </Suspense>
               </div>
