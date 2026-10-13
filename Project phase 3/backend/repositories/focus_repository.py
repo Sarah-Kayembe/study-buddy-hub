@@ -7,6 +7,7 @@ another user's tasks or sessions.
 """
 from datetime import timedelta
 
+import progression
 from db import transaction
 
 
@@ -160,12 +161,21 @@ def _next_streak(current_streak, last_session_at, today):
     return 1
 
 
+def _locked_progress(cursor, user_id):
+    """Return the user's XP and coins, creating the row first if needed, locked for update."""
+    cursor.execute("INSERT IGNORE INTO user_progress (user_id) VALUES (%s)", (user_id,))
+    cursor.execute(
+        "SELECT xp, coins FROM user_progress WHERE user_id = %s FOR UPDATE", (user_id,)
+    )
+    return cursor.fetchone()
+
+
 def record_completed_session(user_id, duration_min, now, topic_id=None,
                              technique_type="pomodoro", short_break_min=None, long_break_min=None):
-    """Save a finished focus session and update the daily log, totals and streak.
+    """Save a finished focus session and update the log, totals, streak, XP and coins.
 
-    All three tables change in one transaction, so a failure leaves none of
-    them half updated. Returns the new timer_id and the user's streak.
+    Everything changes in one transaction, so a failure leaves nothing half
+    updated. Returns the new timer_id, the user's streak and the reward.
     """
     start = now - timedelta(minutes=duration_min)
     with transaction(dictionary=True) as cursor:
@@ -200,7 +210,20 @@ def record_completed_session(user_id, duration_min, now, topic_id=None,
             """,
             (sessions, minutes, round(minutes / sessions, 2), streak, streak, now, user_id),
         )
-    return {"timer_id": timer_id, "current_streak_days": streak}
+
+        progress = _locked_progress(cursor, user_id)
+        reward = progression.session_reward(duration_min, streak, progress["xp"])
+        cursor.execute(
+            "UPDATE user_progress SET xp = xp + %s, coins = coins + %s WHERE user_id = %s",
+            (reward["xp"], reward["coins"], user_id),
+        )
+    return {
+        "timer_id": timer_id,
+        "current_streak_days": streak,
+        "reward": reward,
+        "xp": progress["xp"] + reward["xp"],
+        "coins": progress["coins"] + reward["coins"],
+    }
 
 
 def record_abandoned_session(user_id, minutes_focused, now):
@@ -247,6 +270,14 @@ def get_stats(user_id):
         )
         row = cursor.fetchone()
     return row or dict(EMPTY_STATS)
+
+
+def get_progress(user_id):
+    """The user's XP and coin balance, or zeros before their first session."""
+    with transaction(dictionary=True) as cursor:
+        cursor.execute("SELECT xp, coins FROM user_progress WHERE user_id = %s", (user_id,))
+        row = cursor.fetchone()
+    return row or {"xp": 0, "coins": 0}
 
 
 def mood_level_id(mood):
@@ -355,3 +386,79 @@ def leaderboard(period, now, limit=10):
     for row in rows:
         row["total_focus_min"] = int(row["total_focus_min"])
     return rows
+
+
+# ------------------------------------------------------------------
+# Shop and inventory
+# ------------------------------------------------------------------
+
+class NotEnoughCoins(Exception):
+    def __init__(self, price, coins):
+        super().__init__(f"Costs {price} coins, you have {coins}")
+        self.price = price
+        self.coins = coins
+
+
+def list_shop_items():
+    with transaction(dictionary=True) as cursor:
+        cursor.execute(
+            """
+            SELECT f.item_id, f.item_name, f.rarity_level, f.focus_cost_min AS price,
+                   f.description, t.type_name AS item_type
+            FROM focusitems f
+            JOIN item_types t ON t.item_type_id = f.item_type_id
+            ORDER BY f.focus_cost_min, f.item_id
+            """
+        )
+        return cursor.fetchall()
+
+
+def inventory(user_id):
+    """Items the user owns, with how many of each."""
+    with transaction(dictionary=True) as cursor:
+        cursor.execute(
+            """
+            SELECT f.item_id, f.item_name, f.rarity_level, u.quantity, u.last_earned_at
+            FROM userfocusitems u
+            JOIN focusitems f ON f.item_id = u.item_id
+            WHERE u.user_id = %s AND u.quantity > 0
+            ORDER BY u.last_earned_at DESC, f.item_id
+            """,
+            (user_id,),
+        )
+        return cursor.fetchall()
+
+
+def buy_item(user_id, item_id, now):
+    """Spend coins on a shop item.
+
+    Returns None if the item doesn't exist and raises NotEnoughCoins if the
+    user can't afford it. The balance is locked while it is checked and
+    charged, so two purchases at once can't spend the same coins twice.
+    """
+    with transaction(dictionary=True) as cursor:
+        cursor.execute("SELECT focus_cost_min AS price FROM focusitems WHERE item_id = %s", (item_id,))
+        item = cursor.fetchone()
+        if item is None:
+            return None
+        wallet = _locked_progress(cursor, user_id)
+        if wallet["coins"] < item["price"]:
+            raise NotEnoughCoins(item["price"], wallet["coins"])
+
+        cursor.execute(
+            "UPDATE user_progress SET coins = coins - %s WHERE user_id = %s", (item["price"], user_id)
+        )
+        cursor.execute(
+            """
+            INSERT INTO userfocusitems (user_id, item_id, quantity, last_earned_at)
+            VALUES (%s, %s, 1, %s)
+            ON DUPLICATE KEY UPDATE quantity = quantity + 1, last_earned_at = %s
+            """,
+            (user_id, item_id, now, now),
+        )
+        cursor.execute(
+            "SELECT quantity FROM userfocusitems WHERE user_id = %s AND item_id = %s", (user_id, item_id)
+        )
+        quantity = cursor.fetchone()["quantity"]
+    return {"coins": wallet["coins"] - item["price"], "quantity": quantity}
+
