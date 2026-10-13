@@ -8,7 +8,6 @@ every table is emptied before each test so tests never depend on each other.
 Connection settings come from the usual MYSQL_* environment variables.
 """
 import os
-from pathlib import Path
 
 import mysql.connector
 import pytest
@@ -24,16 +23,7 @@ os.environ.setdefault("MYSQL_PASSWORD", "")
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
 
 from app import create_app  # noqa: E402  (must come after the env setup)
-
-SCHEMA_DIR = Path(__file__).resolve().parents[3] / "Project phase 2" / "sql" / "schema"
-
-# Order matters: later files reference tables created by earlier ones.
-SCHEMA_FILES = [
-    "User_Management.sql",
-    "Quizzes&Flashcards.sql",
-    "StudyGroupsAndCollaboration.sql",
-    "study_Management_script.sql",
-]
+from schema import load_schema  # noqa: E402
 
 
 def _server_connection(database=None):
@@ -47,19 +37,6 @@ def _server_connection(database=None):
     )
 
 
-def _sql_statements(path):
-    """Yield the statements in a schema file, skipping comments and USE lines."""
-    lines = []
-    for line in path.read_text(encoding="utf-8").splitlines():
-        stripped = line.strip()
-        if stripped.startswith("--") or stripped.lower().startswith("use "):
-            continue
-        lines.append(line)
-    for statement in "\n".join(lines).split(";"):
-        if statement.strip():
-            yield statement
-
-
 @pytest.fixture(scope="session", autouse=True)
 def test_database():
     """Create a fresh test database from the schema files for this run."""
@@ -68,9 +45,7 @@ def test_database():
     cursor.execute(f"DROP DATABASE IF EXISTS {TEST_DB}")
     cursor.execute(f"CREATE DATABASE {TEST_DB}")
     cursor.execute(f"USE {TEST_DB}")
-    for name in SCHEMA_FILES:
-        for statement in _sql_statements(SCHEMA_DIR / name):
-            cursor.execute(statement)
+    load_schema(cursor)
     cursor.close()
     conn.close()
     yield TEST_DB

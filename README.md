@@ -166,6 +166,42 @@ MYSQL_PASSWORD=your-mysql-password pytest
 
 To see test coverage, run `pytest --cov`.
 
+## Deployment
+
+The live app runs on three free services, each of which can be upgraded to a paid plan in place:
+
+| Part | Host | Config in this repo |
+| --- | --- | --- |
+| Frontend (React) | Vercel | `Project phase 3/frontend/vercel.json` |
+| Backend (Flask) | Render | `render.yaml` |
+| Database (MySQL) | Aiven | created by `init_db.py` on first start |
+
+### 1. Database (Aiven)
+Create a MySQL service on the free plan and note its host, port, user, password and database name.
+
+### 2. Backend (Render)
+Create the service from `render.yaml` (New > Blueprint), then fill in the variables marked `sync: false`:
+
+| Variable | Value |
+| --- | --- |
+| `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DB` | From the Aiven service page |
+| `FRONTEND_ORIGINS` | The Vercel URL, e.g. `https://your-app.vercel.app` |
+
+On start, `init_db.py` creates the tables if the database is empty and does nothing otherwise, then gunicorn serves the API. Render checks `/health` to know the service is up.
+
+### 3. Frontend (Vercel)
+Import the repo with **Root Directory** set to `Project phase 3/frontend` and add one environment variable:
+
+| Variable | Value |
+| --- | --- |
+| `VITE_API_BASE` | The Render URL, e.g. `https://studybuddy-api.onrender.com` |
+
+### Known limitations of the free setup
+- The backend sleeps after 15 minutes without traffic; the next request takes about a minute while it wakes up.
+- Aiven may power off a free database after a long idle period; it can be powered back on from the Aiven console.
+- Uploaded files (profile pictures, resources) are stored on the server's disk, which free Render services don't keep across restarts. Moving uploads to object storage is a planned follow-up.
+- Production does not create the default admin account; register a normal account instead.
+
 ## Monitoring
 
 - `GET /health` returns `200` with `{"status": "ok"}` when the API can reach the database, and `503` when it can't. Point an uptime monitor or your host's health check at it.
