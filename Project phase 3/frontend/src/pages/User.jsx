@@ -1,6 +1,7 @@
 // By Rise Akizaki
 
 import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { fetchColleges, fetchMajors, logoutUser} from "../api/auth.js"; // all methods from the api go here
 import { API_BASE } from "../api/base";
 
@@ -38,8 +39,7 @@ export function AccountPage() {
   }
 
   if (!user) {
-    window.location.href = "/login"; // redirect to login screen if not logged in
-    return null;
+    return <Navigate to="/login" replace />; // redirect to login screen if not logged in
   }
 
   return (

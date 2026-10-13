@@ -1,5 +1,5 @@
 // src/pages/HomePage.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import CardsIcon from "../assets/Cards.png";
@@ -10,6 +10,51 @@ import MatcherIcon from "../assets/matcher.png";
 import useCurrentUser from "../hooks/useCurrentUser";
 import { fetchMyGroups, fetchUpcomingSessions } from "../api/studygroups.js";
 
+// Records today's visit for this user and returns their current streak.
+// Safe to call more than once a day: the same day always gives the same count.
+function recordVisitAndGetStreak(userId) {
+  try {
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10); // YYYY-MM-DD
+    const key = `sb_streak_${userId}`;
+    const raw = window.localStorage.getItem(key);
+
+    let newCount = 1;
+    let payload = { lastDate: todayStr, count: 1 };
+
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const lastDate = parsed.lastDate;
+      const prevCount = parsed.count || 1;
+
+      if (lastDate === todayStr) {
+        // already counted today; keep existing streak
+        newCount = prevCount;
+      } else {
+        const last = new Date(lastDate);
+        const diffMs = today - last;
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          // consecutive day
+          newCount = prevCount + 1;
+        } else {
+          // gap -> reset streak
+          newCount = 1;
+        }
+      }
+
+      payload = { lastDate: todayStr, count: newCount };
+    }
+
+    window.localStorage.setItem(key, JSON.stringify(payload));
+    return newCount;
+  } catch (err) {
+    console.error("Failed to update streak", err);
+    return 0;
+  }
+}
+
 export default function HomePage() {
   const navigate = useNavigate();
   const { user, loading: userLoading } = useCurrentUser();
@@ -18,63 +63,16 @@ export default function HomePage() {
 
   const [activeGroups, setActiveGroups] = useState(0);
   const [nextSession, setNextSession] = useState(null);
-  const [streakDays, setStreakDays] = useState(0);
 
   // ---- simple streak tracker (per user, stored in localStorage) ----
-  useEffect(() => {
-    if (!userId) {
-      setStreakDays(0);
-      return;
-    }
-
-    try {
-      const today = new Date();
-      const todayStr = today.toISOString().slice(0, 10); // YYYY-MM-DD
-      const key = `sb_streak_${userId}`;
-      const raw = window.localStorage.getItem(key);
-
-      let newCount = 1;
-      let payload = { lastDate: todayStr, count: 1 };
-
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        const lastDate = parsed.lastDate;
-        const prevCount = parsed.count || 1;
-
-        if (lastDate === todayStr) {
-          // already counted today; keep existing streak
-          newCount = prevCount;
-        } else {
-          const last = new Date(lastDate);
-          const diffMs = today - last;
-          const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-          if (diffDays === 1) {
-            // consecutive day
-            newCount = prevCount + 1;
-          } else {
-            // gap -> reset streak
-            newCount = 1;
-          }
-        }
-
-        payload = { lastDate: todayStr, count: newCount };
-      }
-
-      window.localStorage.setItem(key, JSON.stringify(payload));
-      setStreakDays(newCount);
-    } catch (err) {
-      console.error("Failed to update streak", err);
-    }
-  }, [userId]);
+  const streakDays = useMemo(
+    () => (userId ? recordVisitAndGetStreak(userId) : 0),
+    [userId]
+  );
 
   // ---- load active groups + next upcoming session ----
   useEffect(() => {
-    if (!userId) {
-      setActiveGroups(0);
-      setNextSession(null);
-      return;
-    }
+    if (!userId) return;
 
     async function loadDashboard() {
       try {
@@ -102,10 +100,11 @@ export default function HomePage() {
   const activeGroupsLabel =
     userLoading || !userId ? "--" : String(activeGroups);
 
-  const hasSession = !!nextSession;
+  const session = userId ? nextSession : null;
+  const hasSession = !!session;
 
   const sessionTitle = hasSession
-    ? nextSession.group_name || "Study session"
+    ? session.group_name || "Study session"
     : "No upcoming study sessions";
 
   // Helper so we never show undefined and format like 12/9 · 7:58–8:58
@@ -138,11 +137,11 @@ export default function HomePage() {
   };
 
   const sessionTime = hasSession
-    ? formatSessionTime(nextSession)
+    ? formatSessionTime(session)
     : "Use Study Groups to schedule your next session.";
 
   const sessionLocation = hasSession
-    ? nextSession.location || "Location TBD"
+    ? session.location || "Location TBD"
     : "Search for or create a study group!";
 
   return (
