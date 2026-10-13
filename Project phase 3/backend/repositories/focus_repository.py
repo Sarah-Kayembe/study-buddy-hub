@@ -218,3 +218,140 @@ def record_abandoned_session(user_id, minutes_focused, now):
             "UPDATE studystats SET total_focus_time_min = total_focus_time_min + %s WHERE user_id = %s",
             (minutes_focused, user_id),
         )
+
+
+# ------------------------------------------------------------------
+# Stats, moods, calendar, StudyVille and leaderboard
+# ------------------------------------------------------------------
+
+EMPTY_STATS = {
+    "total_sessions": 0,
+    "total_focus_time_min": 0,
+    "avg_duration_min": None,
+    "current_streak_days": 0,
+    "longest_streak_days": 0,
+    "last_session_at": None,
+}
+
+
+def get_stats(user_id):
+    """The user's totals, or zeros if they haven't finished a session yet."""
+    with transaction(dictionary=True) as cursor:
+        cursor.execute(
+            """
+            SELECT total_sessions, total_focus_time_min, avg_duration_min,
+                   current_streak_days, longest_streak_days, last_session_at
+            FROM studystats WHERE user_id = %s
+            """,
+            (user_id,),
+        )
+        row = cursor.fetchone()
+    return row or dict(EMPTY_STATS)
+
+
+def mood_level_id(mood):
+    """Accept a mood id (1-6) or a name such as 'happy'; return the id or None."""
+    with transaction() as cursor:
+        if isinstance(mood, int) or str(mood).isdigit():
+            cursor.execute("SELECT mood_level_id FROM mood_levels WHERE mood_level_id = %s", (int(mood),))
+        else:
+            cursor.execute("SELECT mood_level_id FROM mood_levels WHERE LOWER(level_name) = LOWER(%s)", (str(mood),))
+        row = cursor.fetchone()
+    return row[0] if row else None
+
+
+def log_mood(user_id, level_id, note=None, timer_id=None):
+    with transaction() as cursor:
+        if timer_id:
+            # Only link the mood to a session that belongs to this user.
+            cursor.execute(
+                "SELECT 1 FROM timersessions WHERE timer_id = %s AND host_id = %s", (timer_id, user_id)
+            )
+            if cursor.fetchone() is None:
+                timer_id = None
+        cursor.execute(
+            "INSERT INTO moodtracking (user_id, timer_id, mood_level_id, note) VALUES (%s, %s, %s, %s)",
+            (user_id, timer_id or None, level_id, note),
+        )
+        return cursor.lastrowid
+
+
+def calendar(user_id):
+    """Per day: minutes focused, topics studied and the last mood logged that day."""
+    with transaction(dictionary=True) as cursor:
+        cursor.execute(
+            """
+            SELECT DATE(ts.start_time) AS day,
+                   SUM(ts.duration_min) AS total_focus_min,
+                   GROUP_CONCAT(DISTINCT t.topic_name ORDER BY t.topic_name SEPARATOR '||') AS topics
+            FROM timersessions ts
+            LEFT JOIN topics t ON t.topic_id = ts.topic_id
+            WHERE ts.host_id = %s
+            GROUP BY DATE(ts.start_time)
+            ORDER BY day DESC
+            """,
+            (user_id,),
+        )
+        days = cursor.fetchall()
+
+        cursor.execute(
+            """
+            SELECT DATE(m.recorded_at) AS day, ml.level_name
+            FROM moodtracking m
+            JOIN mood_levels ml ON ml.mood_level_id = m.mood_level_id
+            WHERE m.user_id = %s
+            ORDER BY m.recorded_at, m.mood_id
+            """,
+            (user_id,),
+        )
+        last_mood_by_day = {row["day"]: row["level_name"].lower() for row in cursor.fetchall()}
+
+    for day in days:
+        day["total_focus_min"] = int(day["total_focus_min"] or 0)
+        day["topics"] = day["topics"].split("||") if day["topics"] else []
+        day["mood"] = last_mood_by_day.get(day["day"], "none")
+    return days
+
+
+def city_layout(user_id):
+    with transaction(dictionary=True) as cursor:
+        cursor.execute(
+            """
+            SELECT u.layout_id, u.item_id, u.position_x, u.position_y, u.placed_at,
+                   f.item_name, f.image_url, f.rarity_level
+            FROM usercitylayout u
+            JOIN focusitems f ON f.item_id = u.item_id
+            WHERE u.user_id = %s
+            ORDER BY u.placed_at
+            """,
+            (user_id,),
+        )
+        return cursor.fetchall()
+
+
+LEADERBOARD_DAYS = {"daily": 1, "weekly": 7, "monthly": 30, "all_time": None}
+
+
+def leaderboard(period, now, limit=10):
+    """Top users by minutes focused in completed sessions during the period."""
+    days = LEADERBOARD_DAYS[period]
+    since = None if days is None else now - timedelta(days=days)
+    with transaction(dictionary=True) as cursor:
+        cursor.execute(
+            """
+            SELECT CONCAT(u.first_name, ' ', LEFT(u.last_name, 1), '.') AS username,
+                   COUNT(*) AS total_sessions,
+                   SUM(ts.duration_min) AS total_focus_min
+            FROM timersessions ts
+            JOIN Users u ON u.user_id = ts.host_id
+            WHERE %s IS NULL OR ts.end_time >= %s
+            GROUP BY u.user_id, u.first_name, u.last_name
+            ORDER BY total_focus_min DESC, total_sessions DESC
+            LIMIT %s
+            """,
+            (since, since, limit),
+        )
+        rows = cursor.fetchall()
+    for row in rows:
+        row["total_focus_min"] = int(row["total_focus_min"])
+    return rows

@@ -266,3 +266,86 @@ def give_up_session():
 
     repo.record_abandoned_session(user_id, minutes, _utc_now())
     return jsonify({"success": True, "message": "Session recorded as incomplete."})
+
+
+# ------------------------------------------------------------------
+# Stats, dashboard, moods, calendar, StudyVille and leaderboard
+# ------------------------------------------------------------------
+
+MINUTES_PER_LEVEL = 60
+
+
+@bp.get("/stats")
+def get_stats():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    return jsonify(_plain(repo.get_stats(user_id)))
+
+
+@bp.get("/dashboard")
+def get_dashboard():
+    """Everything the dashboard shows on load, from the user's real data.
+
+    Coins match the session reward (one per focused minute) and the user
+    gains a level every MINUTES_PER_LEVEL minutes of focus.
+    """
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+
+    stats = _plain(repo.get_stats(user_id))
+    total_min = stats["total_focus_time_min"] or 0
+    return jsonify({
+        "tasks": [_task_for_client(t) for t in repo.list_tasks(user_id)],
+        "stats": stats,
+        "money": total_min,
+        "level": 1 + total_min // MINUTES_PER_LEVEL,
+        "next_level_progress": round(100 * (total_min % MINUTES_PER_LEVEL) / MINUTES_PER_LEVEL),
+    })
+
+
+@bp.post("/mood")
+def log_mood():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+
+    data = request.get_json() or {}
+    mood = data.get("mood_id") or (data.get("mood") or "").strip()
+    if not mood:
+        return jsonify({"error": "mood_id or mood is required"}), 400
+    level_id = repo.mood_level_id(mood)
+    if level_id is None:
+        return jsonify({"error": "Unknown mood"}), 400
+
+    note = (data.get("note") or "").strip()[:255] or None
+    mood_id = repo.log_mood(user_id, level_id, note, data.get("timer_id"))
+    return jsonify({"success": True, "mood_id": mood_id}), 201
+
+
+@bp.get("/calendar")
+def get_calendar():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    return jsonify([_plain(day) for day in repo.calendar(user_id)])
+
+
+@bp.get("/city")
+def get_city():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    return jsonify([_plain(item) for item in repo.city_layout(user_id)])
+
+
+@bp.get("/leaderboard")
+def get_leaderboard():
+    if not _current_user_id():
+        return _not_logged_in()
+
+    period = request.args.get("period", "weekly")
+    if period not in repo.LEADERBOARD_DAYS:
+        return jsonify({"error": "period must be daily, weekly, monthly or all_time"}), 400
+    return jsonify(repo.leaderboard(period, _utc_now()))
