@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-
-const ICONS = {
-  focus: "https://img.icons8.com/ios-filled/50/ffffff/brain.png",
-  break: "https://img.icons8.com/ios-filled/50/ffffff/coffee.png",
-  chill: "https://img.icons8.com/ios-filled/50/ffffff/sleeping.png",
-  mood: "https://img.icons8.com/ios-filled/50/ffffff/happy.png",
-};
+import Icon from "./Icon";
 
 const ACTIVE_MESSAGES = [
   "Well done for studying — you're doing amazing!",
@@ -68,7 +62,7 @@ export default function EncouragementBar({
                   setShowModeMenu(false);
                 }}
               >
-                <img src={ICONS[m]} alt={m} style={{ width: "20px" }} />
+                <Icon name={m} size={20} />
                 {m.toUpperCase()}
               </button>
             ))}
@@ -81,11 +75,7 @@ export default function EncouragementBar({
           className="circle-btn"
           title="Switch Mode"
         >
-          <img
-            src={ICONS[safeMode]}
-            alt={safeMode}
-            style={{ width: "26px" }}
-          />
+          <Icon name={safeMode} size={26} title={safeMode} />
         </button>
       </div>
 
@@ -104,7 +94,7 @@ export default function EncouragementBar({
         title="Log Mood"
         type="button"
       >
-        <img src={ICONS.mood} alt="mood" style={{ width: "26px" }} />
+        <Icon name="mood" size={26} title="mood" />
       </button>
     </>
   );
