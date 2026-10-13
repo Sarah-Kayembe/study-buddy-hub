@@ -362,3 +362,55 @@ def get_leaderboard():
     if period not in repo.LEADERBOARD_DAYS:
         return jsonify({"error": "period must be daily, weekly, monthly or all_time"}), 400
     return jsonify(repo.leaderboard(period, _utc_now()))
+
+
+# ------------------------------------------------------------------
+# Shop and inventory
+# ------------------------------------------------------------------
+
+# Display icons for shop items, keyed by item_id (placeholders until there is art).
+ITEM_ICONS = {1: "🧱", 2: "🌸", 3: "🪑", 4: "💡", 5: "⛲", 6: "🌳", 7: "📚", 8: "☕"}
+
+
+def _with_icon(item):
+    item = _plain(item)
+    item["icon"] = ITEM_ICONS.get(item["item_id"], "🎁")
+    return item
+
+
+@bp.get("/shop")
+def get_shop():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    return jsonify({
+        "coins": repo.get_progress(user_id)["coins"],
+        "items": [_with_icon(item) for item in repo.list_shop_items()],
+    })
+
+
+@bp.get("/inventory")
+def get_inventory():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    return jsonify([_with_icon(item) for item in repo.inventory(user_id)])
+
+
+@bp.post("/shop/<int:item_id>/buy")
+def buy_item(item_id):
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    try:
+        result = repo.buy_item(user_id, item_id, _utc_now())
+    except repo.NotEnoughCoins as error:
+        return jsonify({
+            "error": "Not enough coins",
+            "price": error.price,
+            "coins": error.coins,
+        }), 400
+    if result is None:
+        return jsonify({"error": "Item not found"}), 404
+    return jsonify({"success": True, **result})
+

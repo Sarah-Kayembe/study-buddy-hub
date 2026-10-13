@@ -386,3 +386,79 @@ def leaderboard(period, now, limit=10):
     for row in rows:
         row["total_focus_min"] = int(row["total_focus_min"])
     return rows
+
+
+# ------------------------------------------------------------------
+# Shop and inventory
+# ------------------------------------------------------------------
+
+class NotEnoughCoins(Exception):
+    def __init__(self, price, coins):
+        super().__init__(f"Costs {price} coins, you have {coins}")
+        self.price = price
+        self.coins = coins
+
+
+def list_shop_items():
+    with transaction(dictionary=True) as cursor:
+        cursor.execute(
+            """
+            SELECT f.item_id, f.item_name, f.rarity_level, f.focus_cost_min AS price,
+                   f.description, t.type_name AS item_type
+            FROM focusitems f
+            JOIN item_types t ON t.item_type_id = f.item_type_id
+            ORDER BY f.focus_cost_min, f.item_id
+            """
+        )
+        return cursor.fetchall()
+
+
+def inventory(user_id):
+    """Items the user owns, with how many of each."""
+    with transaction(dictionary=True) as cursor:
+        cursor.execute(
+            """
+            SELECT f.item_id, f.item_name, f.rarity_level, u.quantity, u.last_earned_at
+            FROM userfocusitems u
+            JOIN focusitems f ON f.item_id = u.item_id
+            WHERE u.user_id = %s AND u.quantity > 0
+            ORDER BY u.last_earned_at DESC, f.item_id
+            """,
+            (user_id,),
+        )
+        return cursor.fetchall()
+
+
+def buy_item(user_id, item_id, now):
+    """Spend coins on a shop item.
+
+    Returns None if the item doesn't exist and raises NotEnoughCoins if the
+    user can't afford it. The balance is locked while it is checked and
+    charged, so two purchases at once can't spend the same coins twice.
+    """
+    with transaction(dictionary=True) as cursor:
+        cursor.execute("SELECT focus_cost_min AS price FROM focusitems WHERE item_id = %s", (item_id,))
+        item = cursor.fetchone()
+        if item is None:
+            return None
+        wallet = _locked_progress(cursor, user_id)
+        if wallet["coins"] < item["price"]:
+            raise NotEnoughCoins(item["price"], wallet["coins"])
+
+        cursor.execute(
+            "UPDATE user_progress SET coins = coins - %s WHERE user_id = %s", (item["price"], user_id)
+        )
+        cursor.execute(
+            """
+            INSERT INTO userfocusitems (user_id, item_id, quantity, last_earned_at)
+            VALUES (%s, %s, 1, %s)
+            ON DUPLICATE KEY UPDATE quantity = quantity + 1, last_earned_at = %s
+            """,
+            (user_id, item_id, now, now),
+        )
+        cursor.execute(
+            "SELECT quantity FROM userfocusitems WHERE user_id = %s AND item_id = %s", (user_id, item_id)
+        )
+        quantity = cursor.fetchone()["quantity"]
+    return {"coins": wallet["coins"] - item["price"], "quantity": quantity}
+
