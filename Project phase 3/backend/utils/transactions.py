@@ -76,7 +76,7 @@ def create_flashcard_set_transaction(data):
         # Allow missing course_id and be tolerant of payload shapes from the frontend
         course_id = data.get('course_id')
         cursor.execute(
-            "INSERT INTO flashcardset (title, description, course_id, creator_id) VALUES (%s, %s, %s, %s)",
+            "INSERT INTO FlashcardSet (title, description, course_id, creator_id) VALUES (%s, %s, %s, %s)",
             (data['title'], data.get('description'), course_id, data['creator_id'])
         )
         set_id = cursor.lastrowid
@@ -88,7 +88,7 @@ def create_flashcard_set_transaction(data):
             front = card.get('front_text') or card.get('front')
             back = card.get('back_text') or card.get('back')
             cursor.execute(
-                "INSERT INTO flashcard (set_id, front_text, back_text) VALUES (%s, %s, %s)",
+                "INSERT INTO Flashcard (set_id, front_text, back_text) VALUES (%s, %s, %s)",
                 (set_id, front, back)
             )
 
