@@ -1,0 +1,33 @@
+# Render Blueprint for the StudyBuddy API.
+# Render reads this file when you create the service with "New > Blueprint",
+# so the settings live in the repo instead of only in the dashboard.
+services:
+  - type: web
+    name: studybuddy-api
+    runtime: python
+    plan: free
+    rootDir: Project phase 3/backend
+    buildCommand: pip install -r requirements.txt
+    # Create the tables on first start (no-op afterwards), then serve.
+    startCommand: python init_db.py && gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.0"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: LOG_LEVEL
+        value: INFO
+      # Filled in by hand in the Render dashboard, never committed:
+      - key: MYSQL_HOST
+        sync: false
+      - key: MYSQL_PORT
+        sync: false
+      - key: MYSQL_USER
+        sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: MYSQL_DB
+        sync: false
+      - key: FRONTEND_ORIGINS
+        sync: false
