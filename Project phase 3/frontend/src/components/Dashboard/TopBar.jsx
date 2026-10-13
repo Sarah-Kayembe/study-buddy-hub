@@ -2,6 +2,7 @@
 // frontend/src/components/Dashboard/TopBar.jsx
 
 import React, { useEffect, useRef } from "react";
+import { API_BASE } from "../../api/base";
 
 export default function TopBar({
   exp,
@@ -163,7 +164,7 @@ export default function TopBar({
               <img
                 src={
                   profileImage
-                    ? `http://127.0.0.1:8001/${profileImage}`
+                    ? `${API_BASE}/${profileImage}`
                     : "https://img.icons8.com/ios-filled/50/ffffff/user.png"
                 }
                 alt="profile"

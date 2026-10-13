@@ -34,7 +34,7 @@ export default function ProfileWindow({ user, onClose, onProfileUpdated }) {
   }
 
   const profileSrc = user?.profile_image
-    ? `http://127.0.0.1:8001/${user.profile_image}`
+    ? `${API_BASE}/${user.profile_image}`
     : "https://placehold.co/120x120?text=Avatar";
 
   return (

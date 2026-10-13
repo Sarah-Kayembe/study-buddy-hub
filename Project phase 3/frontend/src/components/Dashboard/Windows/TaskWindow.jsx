@@ -4,7 +4,9 @@
 import React, { useState, useEffect } from "react";
 import AddTaskModal from "./AddTaskModal";
 
-const API_BASE_URL = "http://127.0.0.1:8001/api/focus";
+import { API_BASE } from "../../../api/base";
+
+const API_BASE_URL = `${API_BASE}/api/focus`;
 
 export default function TaskWindow({ tasks, onClose, onRefreshData }) {
   const [localTasks, setLocalTasks] = useState([]);

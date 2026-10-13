@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 
-const API_BASE_URL = "http://127.0.0.1:8001/api/focus";
+import { API_BASE } from "../../../api/base";
+
+const API_BASE_URL = `${API_BASE}/api/focus`;
 
 // Map emojis to your Database IDs (1-6)
 const MOOD_OPTIONS = [
@@ -20,6 +22,7 @@ export default function MoodWindow({ onClose }) {
     try {
         const res = await fetch(`${API_BASE_URL}/mood`, {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ mood_id: moodId, note: "Quick Check-in" })
         });

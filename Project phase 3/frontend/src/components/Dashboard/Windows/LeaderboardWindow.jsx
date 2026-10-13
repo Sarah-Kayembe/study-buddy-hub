@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-const API_BASE_URL = "http://127.0.0.1:8001/api/focus";
+import { API_BASE } from "../../../api/base";
+
+const API_BASE_URL = `${API_BASE}/api/focus`;
 
 export default function LeaderboardWindow({ onClose }) {
   const [leaders, setLeaders] = useState([]);
@@ -12,7 +14,7 @@ export default function LeaderboardWindow({ onClose }) {
     const fetchLeaderboard = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`${API_BASE_URL}/leaderboard?period=${period}`);
+        const res = await fetch(`${API_BASE_URL}/leaderboard?period=${period}`, { credentials: "include" });
         if (res.ok) {
             const data = await res.json();
             setLeaders(data || []);

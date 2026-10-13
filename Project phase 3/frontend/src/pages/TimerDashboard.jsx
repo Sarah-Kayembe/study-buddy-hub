@@ -53,7 +53,9 @@ import road1Img from "../assets/studyville/Road1.webp";
 import tileImg from "../assets/studyville/Tile.webp";
 
 // API Configuration
-const API_BASE_URL = "http://127.0.0.1:8001/api/focus";
+import { API_BASE } from "../api/base";
+
+const API_BASE_URL = `${API_BASE}/api/focus`;
 
 // Format seconds -> MM:SS
 function formatSeconds(s) {
@@ -166,7 +168,7 @@ export default function TimerDashboard() {
 
   // Fetch logged-in user account data
   useEffect(() => {
-    fetch("http://127.0.0.1:8001/user/account", {
+    fetch(`${API_BASE}/user/account`, {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -301,7 +303,7 @@ export default function TimerDashboard() {
   // Fetch dashboard data
   const fetchDashboardData = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/dashboard`);
+      const res = await fetch(`${API_BASE_URL}/dashboard`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         setTasks(data.tasks || []);
@@ -318,7 +320,7 @@ export default function TimerDashboard() {
 
   const loadTasks = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/tasks`);
+      const res = await fetch(`${API_BASE_URL}/tasks`, { credentials: "include" });
       const data = await res.json();
 
       if (Array.isArray(data)) {
@@ -347,6 +349,7 @@ export default function TimerDashboard() {
       try {
         const res = await fetch(`${API_BASE_URL}/session/complete`, {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             duration_min: durationMin,
@@ -584,7 +587,7 @@ export default function TimerDashboard() {
               }}
 
               onLogout={async () => {
-                await fetch("http://127.0.0.1:8001/auth/logout", {
+                await fetch(`${API_BASE}/auth/logout`, {
                   method: "POST",
                   credentials: "include",
                 });
