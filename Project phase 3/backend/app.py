@@ -36,7 +36,7 @@ def seed_admin_user():
     cursor = conn.cursor(dictionary=True)
     try:
         # Check if admin user exists
-        cursor.execute("SELECT user_id FROM users WHERE email = %s", (admin_username,))
+        cursor.execute("SELECT user_id FROM Users WHERE email = %s", (admin_username,))
         existing = cursor.fetchone()
         
         if not existing:
@@ -44,7 +44,7 @@ def seed_admin_user():
             password_hash = bcrypt.hashpw(admin_password.encode(), bcrypt.gensalt()).decode()
             cursor.execute(
                 """
-                INSERT INTO users (first_name, last_name, email, password_hash, bio)
+                INSERT INTO Users (first_name, last_name, email, password_hash, bio)
                 VALUES (%s, %s, %s, %s, %s)
                 """,
                 ("Admin", "User", admin_username, password_hash, "Default admin account")
