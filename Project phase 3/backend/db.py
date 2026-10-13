@@ -1,5 +1,6 @@
 import mysql.connector
 import os
+from contextlib import contextmanager
 from dotenv import load_dotenv
 
 # Load .env if present
@@ -16,4 +17,26 @@ def get_db_connection():
     )
 
 
-#feel free to change this -- putting this here for my routes as of right now. Also feel free to delete this comment!
+
+@contextmanager
+def transaction(dictionary=False):
+    """Run a block of queries as one transaction.
+
+    Commits when the block finishes, rolls back if anything inside it
+    raises, and always closes the cursor and connection.
+
+        with transaction() as cursor:
+            cursor.execute(...)
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=dictionary)
+    try:
+        conn.start_transaction()
+        yield cursor
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        cursor.close()
+        conn.close()
