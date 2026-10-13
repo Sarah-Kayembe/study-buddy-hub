@@ -109,3 +109,29 @@ def app():
 @pytest.fixture
 def client(app):
     return app.test_client()
+
+
+DEFAULT_USER = {
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "email": "ada@example.com",
+    "password": "correct-horse",
+}
+
+
+def register(client, **overrides):
+    return client.post("/auth/register", json={**DEFAULT_USER, **overrides})
+
+
+def login(client, email=DEFAULT_USER["email"], password=DEFAULT_USER["password"]):
+    return client.post("/auth/login", json={"email": email, "password": password})
+
+
+@pytest.fixture
+def logged_in_client(client):
+    """A test client with a registered user already logged in."""
+    assert register(client).status_code == 200
+    response = login(client)
+    assert response.status_code == 200
+    client.user = response.get_json()["user"]
+    return client
