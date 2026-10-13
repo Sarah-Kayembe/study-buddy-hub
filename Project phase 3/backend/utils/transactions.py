@@ -58,51 +58,6 @@ def create_full_quiz_transaction(data):
         conn.close()
 
 # ==========================================
-# FLASHCARD CREATION (ACID)
-# ==========================================
-def create_flashcard_set_transaction(data):
-    """
-    Creates a Flashcard Set and all cards in one transaction.
-    """
-    conn = get_db_connection()
-    if not conn:
-        return None, "Database connection failed"
-    
-    cursor = conn.cursor()
-    
-    try:
-        conn.start_transaction()
-
-        # Allow missing course_id and be tolerant of payload shapes from the frontend
-        course_id = data.get('course_id')
-        cursor.execute(
-            "INSERT INTO FlashcardSet (title, description, course_id, creator_id) VALUES (%s, %s, %s, %s)",
-            (data['title'], data.get('description'), course_id, data['creator_id'])
-        )
-        set_id = cursor.lastrowid
-
-        # Frontend may send `cards` with keys `front_text`/`back_text` or
-        # `flashcards` with `front`/`back`. Normalize both.
-        raw_cards = data.get('cards') if data.get('cards') is not None else data.get('flashcards', [])
-        for card in raw_cards:
-            front = card.get('front_text') or card.get('front')
-            back = card.get('back_text') or card.get('back')
-            cursor.execute(
-                "INSERT INTO Flashcard (set_id, front_text, back_text) VALUES (%s, %s, %s)",
-                (set_id, front, back)
-            )
-
-        conn.commit()
-        return set_id, None
-
-    except mysql.connector.Error as err:
-        conn.rollback()
-        return None, str(err)
-    finally:
-        cursor.close()
-        conn.close()
-
-# ==========================================
 # QUIZ SUBMISSION (Keep existing)
 # ==========================================
 def submit_quiz_transaction(user_id, quiz_id, answers_dict):
