@@ -19,6 +19,7 @@ from routes.flashcard_routes import flashcard_bp
 from routes.resource_routes import bp as resources_bp
 from db import get_db_connection as get_db, transaction
 from errors import register_error_handlers
+from request_logging import configure_logging, register_request_logging
 
 # Load environment variables
 load_dotenv()
@@ -62,6 +63,7 @@ def seed_admin_user():
                   
 
 def create_app():
+    configure_logging()
     app = Flask(__name__)
     # Sessions are signed with this key. Set SECRET_KEY in .env so sessions
     # survive restarts; a random key is generated for local runs otherwise.
@@ -135,6 +137,7 @@ def create_app():
     app.register_blueprint(resources_bp)
 
     register_error_handlers(app)
+    register_request_logging(app)
 
     return app
 
