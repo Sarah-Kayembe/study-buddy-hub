@@ -1270,9 +1270,9 @@ ul.clean-list {
 
 
 
-/* Same dark backdrop as the Study Tools dashboard, shown for the moment
+/* Same dark backdrop as the Focus Den dashboard, shown for the moment
    its code is still downloading so the screen doesn't flash white. */
-.study-tools-backdrop {
+.focus-den-backdrop {
   position: fixed;
   inset: 0;
   background: #000;

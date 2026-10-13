@@ -228,7 +228,7 @@ export default function TimerWindow({
               flex: 1,
               padding: "10px 0",
               background:
-                tab === t ? "rgba(124,124,255,0.18)" : "transparent",
+                tab === t ? "rgba(14, 165, 233,0.18)" : "transparent",
               color: tab === t ? "white" : "#9ca3af",
               border: "none",
             }}
@@ -266,7 +266,7 @@ export default function TimerWindow({
                 inset: 0,
                 borderRadius: "50%",
                 background: isTimerRunning
-                  ? "radial-gradient(circle at 30% 20%, rgba(168,85,247,0.45), transparent)"
+                  ? "radial-gradient(circle at 30% 20%, rgba(56, 189, 248,0.45), transparent)"
                   : "radial-gradient(circle at 30% 20%, rgba(15,23,42,0.6), transparent)",
                 filter: isTimerRunning ? "blur(12px)" : "blur(8px)",
                 pointerEvents: "none",
@@ -295,7 +295,7 @@ export default function TimerWindow({
                 cx="60"
                 cy="60"
                 r={radius}
-                stroke="#a855f7"
+                stroke="#38bdf8"
                 strokeWidth="6"
                 strokeLinecap="round"
                 fill="none"
@@ -303,7 +303,7 @@ export default function TimerWindow({
                 strokeDashoffset={dashOffset}
                 style={{
                   transition: "stroke-dashoffset 0.3s linear",
-                  filter: "drop-shadow(0 0 10px rgba(168,85,247,1))",
+                  filter: "drop-shadow(0 0 10px rgba(56, 189, 248,1))",
                 }}
               />
             </svg>

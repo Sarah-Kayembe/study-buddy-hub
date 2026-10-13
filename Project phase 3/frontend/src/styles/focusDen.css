@@ -1,5 +1,5 @@
-/* Study Tools dashboard styles (Sarah Kayembe).
-   Every rule is scoped under .study-tools so these styles only apply
+/* Focus Den dashboard styles (Sarah Kayembe).
+   Every rule is scoped under .focus-den so these styles only apply
    inside the dashboard and never change the rest of the site. */
 /* Sarah Kayembe */
 
@@ -8,19 +8,19 @@
 /* =========================================
    1. GLOBAL RESET & BASE THEME
    ========================================= */
-.study-tools {
-  --spirit-dark: #1E1B24;
-  --spirit-darker: #141218;
-  --spirit-purple: #7c7cff;
-  --spirit-glass: rgba(30, 27, 36, 0.85);
+.focus-den {
+  --spirit-dark: #0b1120;
+  --spirit-darker: #020617;
+  --spirit-purple: #0ea5e9;
+  --spirit-glass: rgba(11, 17, 32, 0.85);
   --spirit-border: rgba(255, 255, 255, 0.15);
   --spirit-text: #E0E0E0;
   --spirit-text-muted: #9CA3AF;
 }
 
-.study-tools, .study-tools * { box-sizing: border-box; }
+.focus-den, .focus-den * { box-sizing: border-box; }
 
-.study-tools {
+.focus-den {
   margin: 0; padding: 0;
   background-color: #000;
   color: var(--spirit-text);
@@ -32,7 +32,7 @@
 /* =========================================
    2. GAME CONTAINER (The Stage)
    ========================================= */
-.study-tools .spirit-dashboard {
+.focus-den .spirit-dashboard {
   position: fixed; 
   top: 0; 
   left: 0;
@@ -45,16 +45,16 @@
 }
 
 /* LAYER 0: Room Background */
-.study-tools .spirit-room-layer {
+.focus-den .spirit-room-layer {
   position: absolute; inset: 0; z-index: 0;
 }
-.study-tools .spirit-room-image {
+.focus-den .spirit-room-image {
   width: 100%; height: 100%; object-fit: cover;
   transition: opacity 1s ease;
 }
 
 /* LAYER 1: Avatar */
-.study-tools .spirit-avatar-layer {
+.focus-den .spirit-avatar-layer {
   position: absolute;
   bottom: 18%; 
   left: 50%;
@@ -62,41 +62,41 @@
   z-index: 10;
   pointer-events: none; 
 }
-.study-tools .spirit-avatar-img {
+.focus-den .spirit-avatar-img {
   width: 280px; height: auto;
   filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6));
 }
 
 /* LAYER 2: UI Container (Click-through) */
-.study-tools .spirit-ui-layer {
+.focus-den .spirit-ui-layer {
   position: absolute; inset: 0; z-index: 20;
   pointer-events: none; 
 }
 
-.study-tools .spirit-ui-layer button,
-.study-tools .spirit-ui-layer .spirit-window,
-.study-tools .spirit-ui-layer .spirit-window *,
-.study-tools .spirit-ui-layer .hud-active-panel,
-.study-tools .spirit-ui-layer .hud-center-bar div {
+.focus-den .spirit-ui-layer button,
+.focus-den .spirit-ui-layer .spirit-window,
+.focus-den .spirit-ui-layer .spirit-window *,
+.focus-den .spirit-ui-layer .hud-active-panel,
+.focus-den .spirit-ui-layer .hud-center-bar div {
   pointer-events: auto;
 }
 
 /* ENABLE CLICKING ON TOP BAR (PROFILE, SETTINGS, SOUND) */
-.study-tools .hud-top-right,
-.study-tools .hud-top-right *,
-.study-tools .hud-top-left,
-.study-tools .hud-top-left * {
+.focus-den .hud-top-right,
+.focus-den .hud-top-right *,
+.focus-den .hud-top-left,
+.focus-den .hud-top-left * {
   pointer-events: auto;
 }
 
-.study-tools .hud-top-right [role="button"],
-.study-tools .hud-top-right div[onclick],
-.study-tools .hud-top-right img {
+.focus-den .hud-top-right [role="button"],
+.focus-den .hud-top-right div[onclick],
+.focus-den .hud-top-right img {
   cursor: pointer;
 }
 
-.study-tools .spirit-date-input {
-  background-color: #141218;
+.focus-den .spirit-date-input {
+  background-color: #020617;
   color: #e5e7eb;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 10px;
@@ -105,15 +105,15 @@
   letter-spacing: 0.04em;
 }
 
-.study-tools .spirit-date-input::-webkit-calendar-picker-indicator {
+.focus-den .spirit-date-input::-webkit-calendar-picker-indicator {
   filter: invert(1) brightness(1.4);
   cursor: pointer;
   opacity: 0.85;
 }
 
-.study-tools .spirit-date-input:hover {
-  border-color: #7c7cff;
-  box-shadow: 0 0 0 1px rgba(124,124,255,0.4);
+.focus-den .spirit-date-input:hover {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 1px rgba(14, 165, 233,0.4);
 }
 
 
@@ -123,7 +123,7 @@
    ========================================= */
 
 /* TOP LEFT: XP BAR */
-.study-tools .hud-top-left {
+.focus-den .hud-top-left {
   position: absolute; top: 30px; left: 30px;
   width: auto;         
   min-width: 400px;
@@ -131,13 +131,13 @@
 }
 
 /* TOP RIGHT: SYSTEM MENU */
-.study-tools .hud-top-right {
+.focus-den .hud-top-right {
   position: absolute; top: 30px; right: 30px;
   display: flex; gap: 15px;
 }
 
 /* LEFT SIDEBAR */
-.study-tools .hud-left-sidebar {
+.focus-den .hud-left-sidebar {
   position: absolute; top: 50%; left: 30px;
   transform: translateY(-50%);
   display: flex; flex-direction: column; gap: 25px;
@@ -145,7 +145,7 @@
 }
 
 /*  SARAH'S BOTTOM CENTER: ENCOURAGEMENT */
-.study-tools .hud-center-bar {
+.focus-den .hud-center-bar {
   position: absolute;
   bottom: 40px;
   left: 50%;
@@ -162,12 +162,12 @@
    SARAH — MODE POPUP (SPIRIT CITY GLASS STYLE)
    ============================================================ */
 
-.study-tools .mode-popup {
+.focus-den .mode-popup {
   width: 160px;
   padding: 10px;
   border-radius: 16px;
 
-  background: rgba(30,27,36,0.95);  /* MATCH tooltip */
+  background: rgba(11, 17, 32,0.95);  /* MATCH tooltip */
   border: 1px solid rgba(255,255,255,0.18);
   backdrop-filter: blur(8px);
 
@@ -182,7 +182,7 @@
 }
 
 /* Buttons in popup */
-.study-tools .mode-popup button {
+.focus-den .mode-popup button {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -203,17 +203,17 @@
 }
 
 /* Hover effect */
-.study-tools .mode-popup button:hover {
+.focus-den .mode-popup button:hover {
   background: rgba(255,255,255,0.06);
   color: white;
 }
 
-.study-tools .mode-popup button:hover {
+.focus-den .mode-popup button:hover {
   background: rgba(255,255,255,0.08);
   color: white;
 }
 
-.study-tools .mode-popup button.active-mode {
+.focus-den .mode-popup button.active-mode {
   background: rgba(255,255,255,0.15);
   color: white;
 }
@@ -222,10 +222,10 @@
    SARAH — MOOD & MODE BUTTON MAGIC CIRCLE
    ============================================================ */
 
-.study-tools .circle-btn {
+.focus-den .circle-btn {
   position: relative; /* needed for magic ring */
   overflow: visible;
-  background: rgba(71, 59, 95, 0.99); 
+  background: rgba(30, 41, 59, 0.99); 
 }
 
 /*
@@ -268,7 +268,7 @@
    ============================================================ */
 
 /* Container inherits bottom-right position from .hud-quick-menu */
-.study-tools .hud-quick-menu {
+.focus-den .hud-quick-menu {
   position: absolute;
   bottom: 40px;
   right: 40px;
@@ -279,13 +279,13 @@
 }
 
 /* Icons stay in a horizontal line */
-.study-tools .quick-icons-row {
+.focus-den .quick-icons-row {
   display: flex;
   gap: 15px;
 }
 
 /* Quick Menu Button wrapper for tooltip support */
-.study-tools .quick-btn-wrapper {
+.focus-den .quick-btn-wrapper {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -293,13 +293,13 @@
 }
 
 /* Tooltip ABOVE the icon */
-.study-tools .quick-tooltip {
+.focus-den .quick-tooltip {
   position: absolute;
   top: -20px;                        /* moved above icon */
   left: 50%;
   transform: translateX(-50%) translateY(-5px);
   
-  background: rgba(30,27,36,0.95);
+  background: rgba(11, 17, 32,0.95);
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 0.70rem;
@@ -323,16 +323,16 @@
 }
 
 /* Show tooltip on hover */
-.study-tools .quick-btn-wrapper:hover .quick-tooltip {
+.focus-den .quick-btn-wrapper:hover .quick-tooltip {
   opacity: 1;
   transform: translateX(-50%) translateY(-12px);
 }
 
 /* Quick Menu Buttons (same glass look as sidebar, smaller size) */
-.study-tools .quick-btn {
+.focus-den .quick-btn {
   width: 62px;
   height: 62px;
-  background: rgba(63, 50, 89, 0.92);
+  background: rgba(15, 23, 42, 0.92);
   border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.18);
   backdrop-filter: blur(10px);
@@ -351,21 +351,21 @@
   transition: all 0.25s ease;
 }
 
-.study-tools .quick-btn:hover {
+.focus-den .quick-btn:hover {
   transform: scale(1.12);
   border-color: rgba(255,255,255,0.45);
   box-shadow:
-    0 0 14px rgba(150,130,255,0.75),
-    0 0 22px rgba(120,100,240,0.55),
+    0 0 14px rgba(56, 189, 248,0.75),
+    0 0 22px rgba(14, 165, 233,0.55),
     inset 0 0 10px rgba(255,255,255,0.1);
 }
 
-.study-tools .quick-btn.active {
+.focus-den .quick-btn.active {
   transform: scale(1.18);
 }
 
 /* Icon image inside the circle */
-.study-tools .quick-btn-img {
+.focus-den .quick-btn-img {
   width: 34px;
   height: 34px;
   object-fit: contain;
@@ -402,7 +402,7 @@
    SARAH — STREAK + EXP BAR (Spirit City Style)
    ============================================================ */
 
-.study-tools .streak-exp-container {
+.focus-den .streak-exp-container {
   display: flex;
   align-items: center;
   gap: -6px;
@@ -414,7 +414,7 @@
 
 
 /* 🔥 FIRE ICON + number in center */
-.study-tools .streak-icon-wrapper {
+.focus-den .streak-icon-wrapper {
   position: relative;
   flex-shrink: 0;
   width: 88px;
@@ -424,14 +424,14 @@
   align-items: center;
 }
 
-.study-tools .streak-icon-img {
+.focus-den .streak-icon-img {
   width: 80px;             
   height: 80px;
   object-fit: contain;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
 }
 
-.study-tools .streak-count {
+.focus-den .streak-count {
   position: absolute;
   top: 50%;                 
   left: 50%;                
@@ -444,7 +444,7 @@
 }
 
 /* ─────────── EXP BAR ─────────── */
-.study-tools .exp-bar {
+.focus-den .exp-bar {
   position: relative;
   flex: 1;
   max-width: 360px;
@@ -459,7 +459,7 @@
     inset 0 0 8px rgba(255,255,255,0.08);
 }
 
-.study-tools .exp-bar-fill {
+.focus-den .exp-bar-fill {
   height: 100%;
   background: linear-gradient(90deg, #7c5cff, #c5a3ff); /* matches your purple buttons */
   border-radius: 24px;
@@ -469,7 +469,7 @@
 /* EXP label inside bar */
 
 
-.study-tools .exp-total {
+.focus-den .exp-total {
   display: flex;               /* ✅ put number + word in one row */
   align-items: center;         /* ✅ align vertically */
   gap: 4px;                    /* small space between 0 and EXP */
@@ -483,13 +483,13 @@
 }
 
 /* Number can stay big & strong */
-.study-tools .exp-total-value {
+.focus-den .exp-total-value {
   font-size: 1.1rem;
   font-weight: 800;
 }
 
 /* EXP word – slightly smaller if you want */
-.study-tools .exp-total-label {
+.focus-den .exp-total-label {
   font-size: 0.9rem;
   font-weight: 700;
   opacity: 0.9;
@@ -498,10 +498,10 @@
 
 
 /* MINI INFO PANEL (under icons, same placement Spirit City uses) */
-.study-tools .quick-info-panel {
+.focus-den .quick-info-panel {
   margin-top: 24px;   /* ← increase this number for more space */
   width: 320px;
-  background: rgba(30, 27, 36, 0.78);
+  background: rgba(11, 17, 32, 0.78);
   border: 2px solid rgba(255,255,255,0.15);
   backdrop-filter: blur(10px);
   border-radius: 12px;
@@ -516,7 +516,7 @@
   color: white;
 }
 
-.study-tools .quick-panel-clock {
+.focus-den .quick-panel-clock {
   font-size: 1.4rem;     /* ← THIS controls the size */
   font-weight: 800;       /* ← THIS makes it bold */
   letter-spacing: 1px;
@@ -527,7 +527,7 @@
 }
 
 /* Task title text */
-.study-tools .quick-panel-task {
+.focus-den .quick-panel-task {
   font-size: 0.82rem;                /* similar size to sidebar */
   font-weight: 700;                  /* bold like sidebar labels */
   letter-spacing: 0.5px;             /* sidebar letter spacing */
@@ -537,7 +537,7 @@
 }
 
 /* Timer status text */
-.study-tools .quick-panel-status {
+.focus-den .quick-panel-status {
   font-size: 0.70rem;                /* slightly smaller than task */
   font-weight: 600;
   letter-spacing: 0.4px;
@@ -548,19 +548,19 @@
 
 
 
-.study-tools .quick-task {
+.focus-den .quick-task {
   flex: 1;
   text-align: left;
 }
 
-.study-tools .quick-timer-status {
+.focus-den .quick-timer-status {
   flex: 1;
   text-align: center;
   color: #b07cff;
   font-weight: bold;
 }
 
-.study-tools .quick-clock {
+.focus-den .quick-clock {
   flex: 1;
   text-align: right;
   opacity: 0.75;
@@ -570,7 +570,7 @@
 
 
 /* MIDDLE RIGHT: ACTIVE TASK PANEL */
-.study-tools .hud-active-panel {
+.focus-den .hud-active-panel {
   position: absolute; top: 50%; right: 0;
   transform: translateY(-50%);
 }
@@ -580,7 +580,7 @@
    ========================================= */
 
 /* XP Bar Styling */
-.study-tools .xp-container {
+.focus-den .xp-container {
   background: rgba(0, 0, 0, 0.6);
   border: 2px solid rgba(255, 255, 255, 0.3);
   height: 24px;
@@ -589,13 +589,13 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.5);
   position: relative;
 }
-.study-tools .xp-fill {
-  background: linear-gradient(90deg, #4f46e5, #9333ea);
+.focus-den .xp-fill {
+  background: linear-gradient(90deg, #0369a1, #9333ea);
   height: 100%;
   width: 0%;
   transition: width 0.5s ease-out;
 }
-.study-tools .xp-text {
+.focus-den .xp-text {
   position: absolute; top: -25px; left: 5px;
   font-weight: 800; font-size: 1.2rem;
   text-shadow: 0 2px 4px rgba(0,0,0,0.8);
@@ -603,11 +603,11 @@
 }
 
 /* --- Circle Buttons (Quick Menu) --- */
-.study-tools .circle-btn {
+.focus-den .circle-btn {
   width: 52px; height: 52px;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.2);
-  background: rgba(71, 59, 95, 0.99); ;
+  background: rgba(30, 41, 59, 0.99); ;
   backdrop-filter: blur(10px);
   color: white;
   font-size: 1.4rem;
@@ -616,7 +616,7 @@
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
-.study-tools .circle-btn:hover {
+.focus-den .circle-btn:hover {
   background: #3a3544;
   border-color: #fff;
   transform: scale(1.15);
@@ -627,7 +627,7 @@
    ============================================================ */
 
 /* MAIN BUTTON WRAPPER */
-.study-tools .sidebar-btn {
+.focus-den .sidebar-btn {
   background: none;               /* Not transparent circle — only wrapper is transparent */
   border: none;
   display: flex;
@@ -638,15 +638,15 @@
   transition: transform 0.2s ease;
 }
 
-.study-tools .sidebar-btn:hover {
+.focus-den .sidebar-btn:hover {
   transform: scale(1.10);         /* Bigger hover like Spirit City */
 }
 
 /* ICON CIRCLE — NOW BIGGER + SOLID GLASS PURPLE */
-.study-tools .sidebar-icon {
+.focus-den .sidebar-icon {
   width: 82px;                    /* Bigger */
   height: 82px;                   /* Bigger */
-  background: rgba(63, 50, 89, 0.92);  /* DEEPER Spirit City purple glass */
+  background: rgba(15, 23, 42, 0.92);  /* DEEPER Spirit City purple glass */
   border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.18);
   backdrop-filter: blur(12px);
@@ -666,7 +666,7 @@
 }
 
 /* PNG IMAGE INSIDE ICON */
-.study-tools .sidebar-img {
+.focus-den .sidebar-img {
   width: 50px;        /* Bigger image */
   height: 50px;
   object-fit: contain;
@@ -674,7 +674,7 @@
 }
 
 /* LABEL */
-.study-tools .sidebar-label {
+.focus-den .sidebar-label {
   margin-top: 4px;
   font-size: 0.82rem;
   letter-spacing: 1px;
@@ -684,24 +684,24 @@
 }
 
 /* PROPER ACTIVE + HOVER GLOW — NO LONGER OVERWRITES MAGIC CIRCLE */
-.study-tools .sidebar-btn.active .sidebar-icon {
+.focus-den .sidebar-btn.active .sidebar-icon {
   border-color: rgba(255,255,255,0.55);
   box-shadow:
-    0 0 20px rgba(160,140,255,0.95),
-    0 0 30px rgba(120,100,255,0.65),
+    0 0 20px rgba(125,211,252,0.95),
+    0 0 30px rgba(14,165,233,0.65),
     inset 0 0 12px rgba(255,255,255,0.12);
 }
 
-.study-tools .sidebar-btn:hover .sidebar-icon {
+.focus-den .sidebar-btn:hover .sidebar-icon {
   border-color: rgba(255,255,255,0.40);
   box-shadow:
-    0 0 14px rgba(150,130,255,0.75),
-    0 0 22px rgba(120,100,240,0.55),
+    0 0 14px rgba(56, 189, 248,0.75),
+    0 0 22px rgba(14, 165, 233,0.55),
     inset 0 0 10px rgba(255,255,255,0.08);
 }
 
 /* MAGIC ORBITING RING — NOW VISIBLE & NOT OVERRIDDEN */
-.study-tools .magic-ring {
+.focus-den .magic-ring {
   position: absolute;
   width: 60px;     
   height: 60px;
@@ -732,8 +732,8 @@
    ============================================================ */
 
 /* --- Encouragement Bar (Bottom Center) --- */
-.study-tools .encouragement-box {
-  background: rgba(71, 59, 95, 0.99);  /* SAME as tooltip */
+.focus-den .encouragement-box {
+  background: rgba(30, 41, 59, 0.99);  /* SAME as tooltip */
   border: 2px solid rgba(255,255,255,0.15);
   border-radius: 14px;
   padding: 16px 32px;
@@ -748,8 +748,8 @@
   position: relative;
 }
 
-.study-tools .encouragement-box::before,
-.study-tools .encouragement-box::after {
+.focus-den .encouragement-box::before,
+.focus-den .encouragement-box::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -760,10 +760,10 @@
   border-radius: 3px;
 }
 
-.study-tools .encouragement-box::before { left: 10px; }
-.study-tools .encouragement-box::after { right: 10px; }
+.focus-den .encouragement-box::before { left: 10px; }
+.focus-den .encouragement-box::after { right: 10px; }
 
-.study-tools .mode-title {
+.focus-den .mode-title {
   font-size: 0.75rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -772,7 +772,7 @@
   margin-bottom: 6px;
 }
 
-.study-tools .quote-text {
+.focus-den .quote-text {
   font-size: 1.1rem;
   font-weight: 600;
   color: #fff;
@@ -784,7 +784,7 @@
 /* =========================================
    5. WINDOWS & MODALS
    ========================================= */
-.study-tools .spirit-window-overlay {
+.focus-den .spirit-window-overlay {
   position: absolute; inset: 0; z-index: 50;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
@@ -793,9 +793,9 @@
   animation: fadeIn 0.2s ease-out;
 }
 
-.study-tools .spirit-window {
+.focus-den .spirit-window {
   background: #25222a;
-  border: 2px solid #3f3b47;
+  border: 2px solid #1e293b;
   border-radius: 20px;
   box-shadow: 0 25px 50px rgba(0,0,0,0.8);
   overflow: hidden;
@@ -803,39 +803,39 @@
   animation: zoomIn 0.2s ease-out;
 }
 
-.study-tools .window-header {
-  background: #1E1B24;
+.focus-den .window-header {
+  background: #0b1120;
   padding: 15px 20px;
-  border-bottom: 2px solid #3f3b47;
+  border-bottom: 2px solid #1e293b;
   display: flex; justify-content: space-between; align-items: center;
 }
-.study-tools .window-title {
+.focus-den .window-title {
   font-weight: 700; text-transform: uppercase;
   letter-spacing: 1px; color: var(--spirit-text);
 }
-.study-tools .close-btn {
+.focus-den .close-btn {
   background: none; border: none;
   color: #666; font-size: 1.2rem; cursor: pointer;
 }
-.study-tools .close-btn:hover { color: white; }
+.focus-den .close-btn:hover { color: white; }
 
-.study-tools .window-content {
+.focus-den .window-content {
   padding: 20px;
   overflow-y: auto;
 }
 
 /* Inputs */
-.study-tools .spirit-input {
-  background: #141218;
-  border: 1px solid #3f3b47;
+.focus-den .spirit-input {
+  background: #020617;
+  border: 1px solid #1e293b;
   padding: 12px;
   border-radius: 8px;
   color: white;
   width: 100%;
 }
-.study-tools .spirit-input:focus { border-color: var(--spirit-purple); }
+.focus-den .spirit-input:focus { border-color: var(--spirit-purple); }
 
-.study-tools .spirit-btn-primary {
+.focus-den .spirit-btn-primary {
   width: 100%;
   padding: 12px;
   background: #fff; color: #000;
@@ -843,11 +843,11 @@
   font-weight: bold; cursor: pointer;
   transition: transform 0.1s;
 }
-.study-tools .spirit-btn-primary:active { transform: scale(0.98); }
+.focus-den .spirit-btn-primary:active { transform: scale(0.98); }
 
 /* Task List */
-.study-tools .task-item {
-  background: #1E1B24;
+.focus-den .task-item {
+  background: #0b1120;
   border: 1px solid transparent;
   padding: 12px;
   border-radius: 10px;
@@ -856,24 +856,24 @@
   cursor: pointer;
   transition: all 0.2s;
 }
-.study-tools .task-item:hover { background: #302b3a; border-color: #555; }
+.focus-den .task-item:hover { background: #302b3a; border-color: #555; }
 
-.study-tools .checkbox {
+.focus-den .checkbox {
   width: 20px; height: 20px; border-radius: 50%;
   border: 2px solid #666;
   display: flex; align-items: center; justify-content: center;
 }
-.study-tools .task-item.done .checkbox { background: #4ade80; border-color: #4ade80; }
-.study-tools .task-item.done .task-title { text-decoration: line-through; color: #666; }
+.focus-den .task-item.done .checkbox { background: #4ade80; border-color: #4ade80; }
+.focus-den .task-item.done .task-title { text-decoration: line-through; color: #666; }
 
 /* =========================================
    TASK WINDOW (SMALL RIGHT PANEL)
    ========================================= */
 
-.study-tools .task-window-small {
+.focus-den .task-window-small {
   width: 420px;
   max-height: 560px;
-  background: rgba(19, 14, 32, 0.95);
+  background: rgba(2, 6, 23, 0.95);
   border-radius: 22px;
   border: 2px solid rgba(255, 255, 255, 0.12);
   box-shadow:
@@ -883,12 +883,12 @@
   flex-direction: column;
 }
 
-.study-tools .task-list-content {
+.focus-den .task-list-content {
   padding-top: 14px;
 }
 
 /* Empty state */
-.study-tools .task-empty-state {
+.focus-den .task-empty-state {
   height: 100%;
   min-height: 220px;
   display: flex;
@@ -897,30 +897,30 @@
   justify-content: center;
   opacity: 0.6;
 }
-.study-tools .task-empty-emoji {
+.focus-den .task-empty-emoji {
   font-size: 3rem;
   margin-bottom: 8px;
 }
 
 /* Task rows */
-.study-tools .task-row {
+.focus-den .task-row {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 4px 10px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-.study-tools .task-row:last-child {
+.focus-den .task-row:last-child {
   border-bottom: none;
 }
 
-.study-tools .task-row.done .task-title-text {
+.focus-den .task-row.done .task-title-text {
   text-decoration: line-through;
   color: #6b7280;
 }
 
 /* drag handle (⋮⋮) */
-.study-tools .task-drag-handle {
+.focus-den .task-drag-handle {
   width: 18px;
   text-align: center;
   cursor: grab;
@@ -930,7 +930,7 @@
 }
 
 /* checkbox */
-.study-tools .task-checkbox {
+.focus-den .task-checkbox {
   width: 26px;
   height: 26px;
   border-radius: 6px;
@@ -941,19 +941,19 @@
   justify-content: center;
   cursor: pointer;
 }
-.study-tools .task-checkbox-tick {
+.focus-den .task-checkbox-tick {
   font-size: 0.9rem;
   color: #0f172a;
 }
 
 /* main text */
-.study-tools .task-main {
+.focus-den .task-main {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
-.study-tools .task-title-text {
+.focus-den .task-title-text {
   margin: 0;
   font-size: 0.95rem;
   color: #f9fafb;
@@ -961,7 +961,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.study-tools .task-subtext {
+.focus-den .task-subtext {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -969,7 +969,7 @@
 }
 
 /* delete button */
-.study-tools .task-delete-btn {
+.focus-den .task-delete-btn {
   border: none;
   background: rgba(31, 24, 56, 0.9);
   width: 26px;
@@ -981,17 +981,17 @@
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
   transition: background 0.15s, transform 0.1s;
 }
-.study-tools .task-delete-btn:hover {
+.focus-den .task-delete-btn:hover {
   background: #b91c1c;
   transform: scale(1.05);
 }
 
 /* Add new task button area */
-.study-tools .task-add-footer {
+.focus-den .task-add-footer {
   padding: 12px 18px 18px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
-.study-tools .task-add-button {
+.focus-den .task-add-button {
   width: 100%;
   padding: 12px 18px;
   border-radius: 12px;
@@ -1006,10 +1006,10 @@
   font-size: 0.9rem;
   font-weight: 600;
 }
-.study-tools .task-add-button:hover {
+.focus-den .task-add-button:hover {
   background: rgba(249, 250, 251, 0.05);
 }
-.study-tools .task-add-plus {
+.focus-den .task-add-plus {
   font-size: 1.1rem;
 }
 
@@ -1017,7 +1017,7 @@
    ADD TASK – BIG CENTERED MODAL
    ========================================= */
 
-.study-tools .add-task-overlay {
+.focus-den .add-task-overlay {
   position: fixed;
   inset: 0;
   z-index: 120;
@@ -1027,26 +1027,26 @@
   justify-content: center;
 }
 
-.study-tools .add-task-modal {
+.focus-den .add-task-modal {
   width: 560px;
   max-width: 92vw;
   display: flex;
   flex-direction: column;
 }
 
-.study-tools .add-task-body {
+.focus-den .add-task-body {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.study-tools .add-task-field {
+.focus-den .add-task-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.study-tools .add-task-label {
+.focus-den .add-task-label {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.11em;
@@ -1054,13 +1054,13 @@
   font-weight: 700;
 }
 
-.study-tools .add-task-helper {
+.focus-den .add-task-helper {
   font-size: 0.75rem;
   color: #9ca3af;
 }
 
 /* footer buttons */
-.study-tools .add-task-footer {
+.focus-den .add-task-footer {
   padding: 16px 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
@@ -1069,7 +1069,7 @@
 }
 
 /* secondary button style */
-.study-tools .spirit-btn-secondary {
+.focus-den .spirit-btn-secondary {
   padding: 10px 18px;
   border-radius: 10px;
   border: 1px solid rgba(156, 163, 175, 0.7);
@@ -1080,7 +1080,7 @@
 }
 
 /* small clear "x" */
-.study-tools .course-clear-btn {
+.focus-den .course-clear-btn {
   position: absolute;
   right: 10px;
   top: 50%;
@@ -1092,12 +1092,12 @@
   font-size: 0.8rem;
 }
 
-.study-tools .course-search-wrapper {
+.focus-den .course-search-wrapper {
   position: relative;
 }
 
 /* results list */
-.study-tools .course-results {
+.focus-den .course-results {
   margin-top: 6px;
   max-height: 180px;
   overflow-y: auto;
@@ -1106,13 +1106,13 @@
   border: 1px solid rgba(148, 163, 184, 0.6);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.8);
 }
-.study-tools .course-results-loading {
+.focus-den .course-results-loading {
   padding: 8px 10px;
   font-size: 0.8rem;
   color: #9ca3af;
 }
 
-.study-tools .course-result-item {
+.focus-den .course-result-item {
   width: 100%;
   text-align: left;
   padding: 8px 10px;
@@ -1123,27 +1123,27 @@
   background: transparent;
   cursor: pointer;
 }
-.study-tools .course-result-item:hover {
+.focus-den .course-result-item:hover {
   background: rgba(55, 65, 81, 0.9);
 }
-.study-tools .course-code {
+.focus-den .course-code {
   font-size: 0.75rem;
   font-weight: 700;
   color: #e5e7eb;
 }
-.study-tools .course-name {
+.focus-den .course-name {
   font-size: 0.8rem;
   color: #cbd5f5;
 }
 
 /* due date row */
-.study-tools .due-date-row {
+.focus-den .due-date-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.study-tools .add-task-error {
+.focus-den .add-task-error {
   margin-top: 6px;
   font-size: 0.78rem;
   color: #fecaca;
@@ -1154,31 +1154,31 @@
    Same Spirit City aesthetic
    ========================================= */
 
-.study-tools .break-dialog-overlay,
-.study-tools .flow-dialog-overlay {
+.focus-den .break-dialog-overlay,
+.focus-den .flow-dialog-overlay {
   z-index: 120; /* Above timer & HUD */
 }
 
-.study-tools .break-dialog,
-.study-tools .flow-dialog {
+.focus-den .break-dialog,
+.focus-den .flow-dialog {
   width: 360px;
   max-width: 90vw;
   border-radius: 20px;
-  background: rgba(19, 14, 32, 0.96);
+  background: rgba(2, 6, 23, 0.96);
   border: 2px solid rgba(255,255,255,0.15);
   box-shadow:
     0 30px 60px rgba(0,0,0,0.8),
     inset 0 0 18px rgba(255,255,255,0.05);
 }
 
-.study-tools .dialog-message {
+.focus-den .dialog-message {
   color: #e5e7eb;
   font-size: 1rem;
   margin-bottom: 14px;
   line-height: 1.4;
 }
 
-.study-tools .dialog-buttons {
+.focus-den .dialog-buttons {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1190,14 +1190,14 @@
    GIVE UP DIALOG (Forest-style)
    ========================================= */
 
-.study-tools .giveup-dialog-overlay {
+.focus-den .giveup-dialog-overlay {
   z-index: 125;
 }
 
-.study-tools .giveup-dialog {
+.focus-den .giveup-dialog {
   width: 380px;
   max-width: 90vw;
-  background: rgba(19, 14, 32, 0.95);
+  background: rgba(2, 6, 23, 0.95);
   border-radius: 20px;
   border: 2px solid rgba(255,255,255,0.15);
   box-shadow:
@@ -1205,7 +1205,7 @@
     inset 0 0 16px rgba(255,255,255,0.05);
 }
 
-.study-tools .dialog-submessage {
+.focus-den .dialog-submessage {
   font-size: 0.9rem;
   color: #cbd5e1;
   opacity: 0.9;
@@ -1217,7 +1217,7 @@
    CALENDAR (SPIRIT CITY STYLE)
    ========================================= */
 
-.study-tools .calendar-overlay {
+.focus-den .calendar-overlay {
   position: fixed;
   inset: 0;
   z-index: 130;
@@ -1226,9 +1226,9 @@
   justify-content: center;
 }
 
-.study-tools .calendar-card {
+.focus-den .calendar-card {
   width: 360px;
-  background: rgba(19, 14, 32, 0.97);
+  background: rgba(2, 6, 23, 0.97);
   border-radius: 20px;
   border: 2px solid rgba(255, 255, 255, 0.18);
   box-shadow:
@@ -1237,14 +1237,14 @@
   padding: 14px 14px 16px;
 }
 
-.study-tools .calendar-header {
+.focus-den .calendar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
 }
 
-.study-tools .calendar-title {
+.focus-den .calendar-title {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1252,7 +1252,7 @@
   color: #e5e7eb;
 }
 
-.study-tools .calendar-nav-btn {
+.focus-den .calendar-nav-btn {
   width: 28px;
   height: 28px;
   border-radius: 999px;
@@ -1262,31 +1262,31 @@
   cursor: pointer;
 }
 
-.study-tools .calendar-weekdays {
+.focus-den .calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   margin-bottom: 4px;
 }
-.study-tools .calendar-weekday {
+.focus-den .calendar-weekday {
   text-align: center;
   font-size: 0.7rem;
   color: #9ca3af;
   text-transform: uppercase;
 }
 
-.study-tools .calendar-grid {
+.focus-den .calendar-grid {
   display: flex;
   flex-direction: column;
   gap: 4px;
   margin-bottom: 10px;
 }
-.study-tools .calendar-week-row {
+.focus-den .calendar-week-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
 }
 
-.study-tools .calendar-day {
+.focus-den .calendar-day {
   height: 34px;
   border-radius: 10px;
   border: none;
@@ -1295,22 +1295,22 @@
   background: rgba(31, 41, 55, 0.8);
   cursor: pointer;
 }
-.study-tools .calendar-day.empty {
+.focus-den .calendar-day.empty {
   background: transparent;
   cursor: default;
 }
-.study-tools .calendar-day.today {
-  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.9);
+.focus-den .calendar-day.today {
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.9);
 }
-.study-tools .calendar-day.selected {
-  background: linear-gradient(135deg, #7c7cff, #c4b5fd);
+.focus-den .calendar-day.selected {
+  background: linear-gradient(135deg, #0ea5e9, #bae6fd);
   color: #0f172a;
 }
-.study-tools .calendar-day:hover:not(.empty) {
-  background: rgba(129, 140, 248, 0.9);
+.focus-den .calendar-day:hover:not(.empty) {
+  background: rgba(56, 189, 248, 0.9);
 }
 
-.study-tools .calendar-footer {
+.focus-den .calendar-footer {
   display: flex;
   justify-content: flex-end;
 }

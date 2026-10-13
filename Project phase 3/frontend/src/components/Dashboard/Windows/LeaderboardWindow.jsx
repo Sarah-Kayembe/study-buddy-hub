@@ -39,7 +39,7 @@ export default function LeaderboardWindow({ onClose }) {
         </div>
 
         {/* Filter Tabs */}
-        <div style={{ display: 'flex', gap: '8px', padding: '10px', background: '#141218', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ display: 'flex', gap: '8px', padding: '10px', background: '#020617', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
             {['daily', 'weekly', 'all_time'].map((p) => (
                 <button
                     key={p}
@@ -107,7 +107,7 @@ export default function LeaderboardWindow({ onClose }) {
 
                         {/* Score */}
                         <div style={{ textAlign: 'right' }}>
-                            <div style={{ color: '#818cf8', fontFamily: 'monospace', fontWeight: 'bold', fontSize: '1rem' }}>
+                            <div style={{ color: '#38bdf8', fontFamily: 'monospace', fontWeight: 'bold', fontSize: '1rem' }}>
                                 {user.total_focus_min}m
                             </div>
                         </div>
