@@ -1269,3 +1269,11 @@ ul.clean-list {
 
 
 
+
+/* Same dark backdrop as the Study Tools dashboard, shown for the moment
+   its code is still downloading so the screen doesn't flash white. */
+.study-tools-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #000;
+}
