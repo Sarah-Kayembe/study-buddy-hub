@@ -69,6 +69,7 @@ cp .env.example .env
 | `MYSQL_DB` | Database name (default `StudyBuddy`) |
 | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Default admin account seeded on first run |
 | `SECRET_KEY` | Signs login sessions; use a long random string |
+| `LOG_LEVEL` | Log verbosity: `DEBUG`, `INFO` (default), `WARNING` or `ERROR` |
 
 `.env` is git-ignored, so your credentials stay on your machine.
 
@@ -164,6 +165,12 @@ MYSQL_PASSWORD=your-mysql-password pytest
 ```
 
 To see test coverage, run `pytest --cov`.
+
+## Monitoring
+
+- `GET /health` returns `200` with `{"status": "ok"}` when the API can reach the database, and `503` when it can't. Point an uptime monitor or your host's health check at it.
+- Every request is logged as one line, for example `method=GET path=/quiz/quizzes status=200 duration_ms=12.4 request_id=3f9c1a2b7d4e`. The same id comes back in the `X-Request-ID` response header, so a reported error can be matched to its log line.
+- All errors come back as JSON with an `error` key. Unexpected errors are logged with a full traceback but the client only sees a generic message.
 
 ## Default Login Credentials
 
