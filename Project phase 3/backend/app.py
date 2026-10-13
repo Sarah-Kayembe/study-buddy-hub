@@ -18,7 +18,7 @@ from routes.quiz_routes import quiz_bp
 from routes.flashcard_routes import flashcard_bp
 
 from routes.resource_routes import bp as resources_bp
-from db import get_db_connection as get_db
+from db import get_db_connection as get_db, transaction
 
 # Load environment variables
 load_dotenv()
@@ -90,8 +90,24 @@ def create_app():
     )
 
     @app.route("/")
-    def health():
+    def index():
         return jsonify({"status": "backend running"})
+
+    @app.route("/health")
+    def health():
+        """Liveness check for hosting platforms and uptime monitors.
+
+        Returns 200 when the app can reach the database and 503 when it
+        can't, so a monitor can tell "running" apart from "working".
+        """
+        try:
+            with transaction() as cursor:
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+        except Exception:
+            app.logger.exception("Health check failed: database unreachable")
+            return jsonify({"status": "unhealthy", "database": "unreachable"}), 503
+        return jsonify({"status": "ok", "database": "ok"})
 
     # serve uploaded files (profile pics, resources, etc.)
     @app.route("/uploads/<path:filename>")
