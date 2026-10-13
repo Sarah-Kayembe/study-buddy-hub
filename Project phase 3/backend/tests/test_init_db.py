@@ -48,3 +48,21 @@ def test_init_db_leaves_existing_data_alone(fresh_database):
     assert cursor.fetchone()[0] == 1
     cursor.close()
     conn.close()
+
+
+def test_init_db_seeds_lookup_rows_and_is_repeatable(fresh_database):
+    init_db.main()
+    init_db.main()
+
+    conn = _server_connection(FRESH_DB)
+    cursor = conn.cursor()
+    cursor.execute("SELECT category_id, category_name FROM task_categories ORDER BY category_id")
+    categories = cursor.fetchall()
+    cursor.execute("SELECT COUNT(*) FROM mood_levels")
+    mood_count = cursor.fetchone()[0]
+    cursor.close()
+    conn.close()
+
+    assert categories[0] == (1, "Homework")
+    assert len(categories) == 5
+    assert mood_count == 6

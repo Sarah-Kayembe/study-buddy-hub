@@ -37,3 +37,49 @@ def load_schema(cursor):
     for name in SCHEMA_FILES:
         for statement in sql_statements(SCHEMA_DIR / name):
             cursor.execute(statement)
+
+
+# Fixed values the study tools depend on. Ids are explicit because other
+# tables default to them (tasks.category_id and topics.topic_type_id
+# default to 1) and the timer frontend sends mood ids 1-6.
+LOOKUP_DATA = {
+    "task_categories": ("category_id", "category_name", [
+        (1, "Homework"),
+        (2, "Exam Prep"),
+        (3, "Reading"),
+        (4, "Project"),
+        (5, "Quick Task"),
+    ]),
+    "mood_levels": ("mood_level_id", "level_name", [
+        (1, "Happy"),
+        (2, "Neutral"),
+        (3, "Sad"),
+        (4, "Angry"),
+        (5, "Tired"),
+        (6, "Stressed"),
+    ]),
+    "topic_types": ("topic_type_id", "type_name", [
+        (1, "General"),
+        (2, "Exam"),
+        (3, "Assignment"),
+    ]),
+    "item_types": ("item_type_id", "type_name", [
+        (1, "Building"),
+        (2, "Decoration"),
+        (3, "Nature"),
+        (4, "Pet"),
+    ]),
+}
+
+
+def seed_lookup_data(cursor):
+    """Insert the lookup rows, skipping any that already exist.
+
+    Safe to run on every start, so new values added here reach existing
+    databases without touching rows users created.
+    """
+    for table, (id_column, name_column, rows) in LOOKUP_DATA.items():
+        cursor.executemany(
+            f"INSERT IGNORE INTO {table} ({id_column}, {name_column}) VALUES (%s, %s)",
+            rows,
+        )
