@@ -2,12 +2,13 @@
 // Updated by Sarah Kayembe
 
 import React, { useEffect, useState } from "react";
+import { API_BASE } from "../../../api/base";
 
 export default function StatsWindow({ onClose }) {
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8001/api/focus/stats", { credentials: "include" })
+    fetch(`${API_BASE}/api/focus/stats`, { credentials: "include" })
       .then((res) => res.json())
       .then((data) => setStats(data))
       .catch(() => {});
