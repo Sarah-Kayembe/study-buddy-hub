@@ -144,9 +144,11 @@ export default function TimerDashboard() {
 
   const [showSoundSettings, setShowSoundSettings] = useState(false);
 
-  const startSound = useRef(new Audio(startSoundFile));
-  const finishSound = useRef(new Audio(finishSoundFile));
-  const breakSound = useRef(new Audio(breakSoundFile));
+  // Create each sound player once. useRef(new Audio(...)) built three new
+  // players on every render, which happens every second while the timer runs.
+  const [startSound] = useState(() => ({ current: new Audio(startSoundFile) }));
+  const [finishSound] = useState(() => ({ current: new Audio(finishSoundFile) }));
+  const [breakSound] = useState(() => ({ current: new Audio(breakSoundFile) }));
 
   const ambientAudioRef = useRef(null);
 
@@ -196,11 +198,11 @@ export default function TimerDashboard() {
     [soundMuted]
   );
 
-  const playStartSound = useCallback(() => playSound(startSound), [playSound]);
-  const playBreakSound = useCallback(() => playSound(breakSound), [playSound]);
+  const playStartSound = useCallback(() => playSound(startSound), [playSound, startSound]);
+  const playBreakSound = useCallback(() => playSound(breakSound), [playSound, breakSound]);
   const playFinishSound = useCallback(
     () => playSound(finishSound),
-    [playSound]
+    [playSound, finishSound]
   );
 
   // Persist sound settings
