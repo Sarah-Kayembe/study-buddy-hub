@@ -202,7 +202,7 @@ export default function TopBar({
               {email && (
                 <div
                   style={{
-                    color: "#a5b4fc",
+                    color: "#7dd3fc",
                     fontSize: "0.8rem",
                     marginBottom: "10px",
                     wordBreak: "break-word",
@@ -217,7 +217,7 @@ export default function TopBar({
                 style={{
                   width: "100%",
                   padding: "6px 0",
-                  background: "#4f46e5",
+                  background: "#0369a1",
                   color: "white",
                   border: "none",
                   borderRadius: "6px",

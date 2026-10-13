@@ -53,8 +53,8 @@ export default function InventoryWindow({ onClose, onSelectItem }) {
                             color: 'white'
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(99, 102, 241, 0.2)'; // Indigo hover
-                            e.currentTarget.style.borderColor = '#6366f1';
+                            e.currentTarget.style.background = 'rgba(14, 165, 233, 0.2)'; // Indigo hover
+                            e.currentTarget.style.borderColor = '#0284c7';
                             e.currentTarget.style.transform = 'translateY(-2px)';
                         }}
                         onMouseLeave={(e) => {
@@ -80,7 +80,7 @@ export default function InventoryWindow({ onClose, onSelectItem }) {
         </div>
         
         {/* Footer Hint */}
-        <div style={{ padding: '15px', background: '#141218', borderTop: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
+        <div style={{ padding: '15px', background: '#020617', borderTop: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
             <span style={{ fontSize: '0.75rem', color: '#666' }}>
                 Select an item to place it in StudyVille.
             </span>
