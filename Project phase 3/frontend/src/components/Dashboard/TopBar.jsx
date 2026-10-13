@@ -3,6 +3,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { API_BASE } from "../../api/base";
+import { useNavigate } from "react-router-dom";
 
 export default function TopBar({
   exp,
@@ -30,6 +31,8 @@ export default function TopBar({
   onViewProfile,
   onLogout,
 }) {
+  const navigate = useNavigate();
+
   const menuRef = useRef(null);
 
   const displayName =
@@ -223,6 +226,22 @@ export default function TopBar({
                 }}
               >
                 View Profile
+              </button>
+
+              <button
+                onClick={() => navigate("/home")}
+                style={{
+                  width: "100%",
+                  padding: "6px 0",
+                  background: "#334155",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  marginBottom: "6px",
+                  cursor: "pointer",
+                }}
+              >
+                Back to StudyBuddy
               </button>
 
               <button
