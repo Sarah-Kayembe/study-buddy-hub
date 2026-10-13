@@ -43,14 +43,14 @@ import lofiMp3 from "../assets/sounds/ambience/lofi.mp3";
 import forestMp3 from "../assets/sounds/ambience/forest.mp3";
 import celestialMp3 from "../assets/sounds/ambience/celestial.mp3";
 
-// StudyVille reward images
-import treehouseImg from "../assets/studyville/treehouse.webp";
-import bhouseImg from "../assets/studyville/bhouse.webp";
-import bookstoreImg from "../assets/studyville/booksstore.webp";
-import coffeeshopImg from "../assets/studyville/coffeeshop.webp";
-import roadImg from "../assets/studyville/Road.webp";
-import road1Img from "../assets/studyville/Road1.webp";
-import tileImg from "../assets/studyville/Tile.webp";
+// StudyVille reward images (original SVG drawings)
+import treehouseImg from "../assets/studyville/treehouse.svg";
+import houseImg from "../assets/studyville/house.svg";
+import bookstoreImg from "../assets/studyville/bookstore.svg";
+import coffeeshopImg from "../assets/studyville/coffeeshop.svg";
+import roadImg from "../assets/studyville/road.svg";
+import road2Img from "../assets/studyville/road2.svg";
+import tileImg from "../assets/studyville/tile.svg";
 
 // API Configuration
 import { API_BASE } from "../api/base";
@@ -76,14 +76,15 @@ const AMBIENT_THEMES = {
 };
 
 // Static reward options
+// offsetY lifts taller drawings so their base sits on the tile.
 const REWARD_OPTIONS = [
-  { id: "treehouse", label: "Treehouse", image: treehouseImg },
-  { id: "bhouse", label: "Big House", image: bhouseImg },
-  { id: "bookstore", label: "Bookstore", image: bookstoreImg },
-  { id: "coffeeshop", label: "Coffee Shop", image: coffeeshopImg },
+  { id: "treehouse", label: "Treehouse", image: treehouseImg, offsetY: 106 },
+  { id: "bhouse", label: "House", image: houseImg, offsetY: 86 },
+  { id: "bookstore", label: "Bookstore", image: bookstoreImg, offsetY: 76 },
+  { id: "coffeeshop", label: "Coffee Shop", image: coffeeshopImg, offsetY: 76 },
   { id: "road", label: "Road Tile 1", image: roadImg },
-  { id: "road2", label: "Road Tile 2", image: road1Img },
-  { id: "tile", label: "Base Tile", image: tileImg },
+  { id: "road2", label: "Road Tile 2", image: road2Img },
+  { id: "tile", label: "Grass Tile", image: tileImg },
 ];
 
 export default function TimerDashboard() {
