@@ -4,14 +4,13 @@ import { listQuizzes, getQuiz, submitQuiz } from "../../api/quizzes";
 export default function TakeQuiz() {
   const [quizzes, setQuizzes] = useState([]);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(null);
 
   useEffect(() => {
-    setLoading(true);
     listQuizzes()
       .then(setQuizzes)
       .catch((err) => {
