@@ -4,6 +4,7 @@
 import React, { useEffect, useRef } from "react";
 import { API_BASE } from "../../api/base";
 import { useNavigate } from "react-router-dom";
+import Icon from "./Icon";
 
 export default function TopBar({
   exp,
@@ -106,11 +107,7 @@ export default function TopBar({
             opacity: soundMuted ? 0.4 : 1,
           }}
         >
-          <img
-            src="https://img.icons8.com/ios-filled/30/ffffff/medium-volume.png"
-            alt="sound"
-            style={{ width: "22px", height: "22px" }}
-          />
+          <Icon name="sound" title="sound" />
         </button>
 
         <button
@@ -119,11 +116,7 @@ export default function TopBar({
           title="Toggle UI"
           style={{ width: "40px", height: "40px" }}
         >
-          <img
-            src="https://img.icons8.com/ios-filled/50/ffffff/visible.png"
-            alt="toggle-ui"
-            style={{ width: "22px", height: "22px" }}
-          />
+          <Icon name="eye" title="toggle interface" />
         </button>
 
         <button
@@ -131,11 +124,7 @@ export default function TopBar({
           title="Settings"
           style={{ width: "40px", height: "40px" }}
         >
-          <img
-            src="https://img.icons8.com/ios-filled/50/ffffff/settings.png"
-            alt="settings"
-            style={{ width: "22px", height: "22px" }}
-          />
+          <Icon name="settings" title="settings" />
         </button>
 
         <div style={{ position: "relative" }} ref={menuRef}>
@@ -164,15 +153,15 @@ export default function TopBar({
                 background: "rgba(15,23,42,0.9)",
               }}
             >
-              <img
-                src={
-                  profileImage
-                    ? `${API_BASE}/${profileImage}`
-                    : "https://img.icons8.com/ios-filled/50/ffffff/user.png"
-                }
-                alt="profile"
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
+              {profileImage ? (
+                <img
+                  src={`${API_BASE}/${profileImage}`}
+                  alt="profile"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <Icon name="user" title="profile" />
+              )}
 
             </div>
 

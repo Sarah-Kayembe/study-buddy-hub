@@ -30,30 +30,20 @@ import BreakDialog from "../components/Dashboard/Windows/BreakDialog";
 import ProfileWindow from "../components/Dashboard/Windows/ProfileWindow";
 
 //----- SOUND (timer sounds) -----
-import startSoundFile from "../assets/sounds/start.mp3";
-import finishSoundFile from "../assets/sounds/finish.mp3";
-import breakSoundFile from "../assets/sounds/break.mp3";
+import { AMBIENCE_THEMES, playChime, startAmbience } from "../utils/focusSounds";
 
-// Ambient sounds
-import pianoMp3 from "../assets/sounds/ambience/piano.mp3";
-import rainMp3 from "../assets/sounds/ambience/rain.mp3";
-import cafeMp3 from "../assets/sounds/ambience/cafe.mp3";
-import fireplaceMp3 from "../assets/sounds/ambience/fireplace.mp3";
-import lofiMp3 from "../assets/sounds/ambience/lofi.mp3";
-import forestMp3 from "../assets/sounds/ambience/forest.mp3";
-import celestialMp3 from "../assets/sounds/ambience/celestial.mp3";
-
-// StudyVille reward images
-import treehouseImg from "../assets/studyville/treehouse.webp";
-import bhouseImg from "../assets/studyville/bhouse.webp";
-import bookstoreImg from "../assets/studyville/booksstore.webp";
-import coffeeshopImg from "../assets/studyville/coffeeshop.webp";
-import roadImg from "../assets/studyville/Road.webp";
-import road1Img from "../assets/studyville/Road1.webp";
-import tileImg from "../assets/studyville/Tile.webp";
+// StudyVille reward images (original SVG drawings)
+import treehouseImg from "../assets/studyville/treehouse.svg";
+import houseImg from "../assets/studyville/house.svg";
+import bookstoreImg from "../assets/studyville/bookstore.svg";
+import coffeeshopImg from "../assets/studyville/coffeeshop.svg";
+import roadImg from "../assets/studyville/road.svg";
+import road2Img from "../assets/studyville/road2.svg";
+import tileImg from "../assets/studyville/tile.svg";
 
 // API Configuration
 import { API_BASE } from "../api/base";
+import Icon from "../components/Dashboard/Icon";
 
 const API_BASE_URL = `${API_BASE}/api/focus`;
 
@@ -64,26 +54,17 @@ function formatSeconds(s) {
   return `${m}:${sec}`;
 }
 
-// Ambient themes
-const AMBIENT_THEMES = {
-  piano: pianoMp3,
-  rain: rainMp3,
-  cafe: cafeMp3,
-  fireplace: fireplaceMp3,
-  lofi: lofiMp3,
-  forest: forestMp3,
-  celestial: celestialMp3,
-};
 
 // Static reward options
+// offsetY lifts taller drawings so their base sits on the tile.
 const REWARD_OPTIONS = [
-  { id: "treehouse", label: "Treehouse", image: treehouseImg },
-  { id: "bhouse", label: "Big House", image: bhouseImg },
-  { id: "bookstore", label: "Bookstore", image: bookstoreImg },
-  { id: "coffeeshop", label: "Coffee Shop", image: coffeeshopImg },
+  { id: "treehouse", label: "Treehouse", image: treehouseImg, offsetY: 106 },
+  { id: "bhouse", label: "House", image: houseImg, offsetY: 86 },
+  { id: "bookstore", label: "Bookstore", image: bookstoreImg, offsetY: 76 },
+  { id: "coffeeshop", label: "Coffee Shop", image: coffeeshopImg, offsetY: 76 },
   { id: "road", label: "Road Tile 1", image: roadImg },
-  { id: "road2", label: "Road Tile 2", image: road1Img },
-  { id: "tile", label: "Base Tile", image: tileImg },
+  { id: "road2", label: "Road Tile 2", image: road2Img },
+  { id: "tile", label: "Grass Tile", image: tileImg },
 ];
 
 export default function TimerDashboard() {
@@ -143,13 +124,6 @@ export default function TimerDashboard() {
 
   const [showSoundSettings, setShowSoundSettings] = useState(false);
 
-  // Create each sound player once. useRef(new Audio(...)) built three new
-  // players on every render, which happens every second while the timer runs.
-  const [startSound] = useState(() => ({ current: new Audio(startSoundFile) }));
-  const [finishSound] = useState(() => ({ current: new Audio(finishSoundFile) }));
-  const [breakSound] = useState(() => ({ current: new Audio(breakSoundFile) }));
-
-  const ambientAudioRef = useRef(null);
 
   // Real-time clock
   const [currentTime, setCurrentTime] = useState("");
@@ -181,28 +155,16 @@ export default function TimerDashboard() {
       .catch(() => {});
   }, []);
 
-  // Audio helper
-  const playSound = useCallback(
-    (audioRef) => {
-      if (soundMuted) return;
-      const audio = audioRef.current;
-      if (!audio) return;
-      try {
-        audio.currentTime = 0;
-        audio.play().catch(() => {});
-      } catch {
-        // Browsers can block audio until the user interacts; skip the sound.
-      }
-    },
-    [soundMuted]
-  );
-
-  const playStartSound = useCallback(() => playSound(startSound), [playSound, startSound]);
-  const playBreakSound = useCallback(() => playSound(breakSound), [playSound, breakSound]);
-  const playFinishSound = useCallback(
-    () => playSound(finishSound),
-    [playSound, finishSound]
-  );
+  // Chimes are generated in the browser (see utils/focusSounds).
+  const playStartSound = useCallback(() => {
+    if (!soundMuted) playChime("start");
+  }, [soundMuted]);
+  const playBreakSound = useCallback(() => {
+    if (!soundMuted) playChime("break");
+  }, [soundMuted]);
+  const playFinishSound = useCallback(() => {
+    if (!soundMuted) playChime("finish");
+  }, [soundMuted]);
 
   // Persist sound settings
   useEffect(() => {
@@ -213,25 +175,10 @@ export default function TimerDashboard() {
     localStorage.setItem("sb_sound_theme", soundTheme);
   }, [soundTheme]);
 
-  // Ambient background audio engine
+  // Ambient background sound, generated in the browser
   useEffect(() => {
-    const audioEl = ambientAudioRef.current;
-    if (!audioEl) return;
-
-    audioEl.loop = true;
-    audioEl.src = AMBIENT_THEMES[soundTheme];
-
-    if (soundMuted) {
-      audioEl.pause();
-      return;
-    }
-
-    const play = () => {
-      audioEl.play().catch(() => {});
-    };
-    play();
-
-    return () => audioEl.pause();
+    if (soundMuted) return undefined;
+    return startAmbience(soundTheme);
   }, [soundTheme, soundMuted]);
 
   // Reset timer state
@@ -533,7 +480,6 @@ export default function TimerDashboard() {
 
   return (
     <div className="spirit-dashboard">
-      <audio ref={ambientAudioRef} />
 
       <div className="spirit-room-layer">
         <RoomScene mode={currentMode} />
@@ -885,14 +831,7 @@ export default function TimerDashboard() {
                   gap: 8,
                 }}
               >
-                {[
-                  { id: "forest", label: "Forest" },
-                  { id: "cafe", label: "Cafe" },
-                  { id: "rain", label: "Rain" },
-                  { id: "fireplace", label: "Fireplace" },
-                  { id: "piano", label: "Piano" },
-                  { id: "celestial", label: "Celestial" },
-                ].map((theme) => (
+                {AMBIENCE_THEMES.map((theme) => (
                   <button
                     key={theme.id}
                     onClick={() => setSoundTheme(theme.id)}
@@ -1075,14 +1014,7 @@ export default function TimerDashboard() {
             backdropFilter: "blur(5px)",
           }}
         >
-          <img
-            src="https://img.icons8.com/ios-filled/50/ffffff/visible.png"
-            alt="toggle-ui"
-            style={{
-              width: "22px",
-              height: "22px",
-            }}
-          />
+          <Icon name="eye" title="show interface" />
         </button>
       )}
     </div>

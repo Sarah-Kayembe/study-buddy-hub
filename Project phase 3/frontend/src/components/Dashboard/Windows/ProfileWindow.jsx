@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { API_BASE } from "../../../api/base";
+import Icon from "../Icon";
 
 export default function ProfileWindow({ user, onClose, onProfileUpdated }) {
   const [file, setFile] = useState(null);
@@ -33,9 +34,7 @@ export default function ProfileWindow({ user, onClose, onProfileUpdated }) {
     }
   }
 
-  const profileSrc = user?.profile_image
-    ? `${API_BASE}/${user.profile_image}`
-    : "https://placehold.co/120x120?text=Avatar";
+  const profileSrc = user?.profile_image ? `${API_BASE}/${user.profile_image}` : null;
 
   return (
     <div className="spirit-window-overlay">
@@ -46,17 +45,35 @@ export default function ProfileWindow({ user, onClose, onProfileUpdated }) {
         </div>
 
         <div className="window-content" style={{ textAlign: "center" }}>
-          <img
-            src={profileSrc}
-            alt="avatar"
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
-              objectFit: "cover",
-              marginBottom: 12
-            }}
-          />
+          {profileSrc ? (
+            <img
+              src={profileSrc}
+              alt="avatar"
+              style={{
+                width: 120,
+                height: 120,
+                borderRadius: "50%",
+                objectFit: "cover",
+                marginBottom: 12
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 120,
+                height: 120,
+                borderRadius: "50%",
+                margin: "0 auto 12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "rgba(15,23,42,0.9)",
+                border: "2px solid #38bdf8",
+              }}
+            >
+              <Icon name="user" size={64} title="avatar" />
+            </div>
+          )}
 
           <input
             type="file"
