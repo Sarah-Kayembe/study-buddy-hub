@@ -72,8 +72,23 @@ LOOKUP_DATA = {
 }
 
 
+# Items in the Focus Den shop: (item_id, item_type_id, name, rarity, price
+# in coins, description). The price uses the schema's focus_cost_min column,
+# since one coin is earned per focused minute.
+SHOP_ITEMS = [
+    (1, 1, "Stone Wall", "common", 30, "A sturdy wall to frame your space"),
+    (2, 3, "Flower Bush", "common", 40, "A splash of color"),
+    (3, 2, "Wooden Bench", "common", 60, "A spot to rest between sessions"),
+    (4, 2, "Street Lamp", "rare", 80, "Lights the way on late study nights"),
+    (5, 2, "Fountain", "legendary", 300, "The centerpiece of a hard-earned town"),
+    (6, 3, "Tree", "rare", 100, "Shade for the long haul"),
+    (7, 2, "Books", "rare", 120, "A stack of well-loved reads"),
+    (8, 1, "Coffee Cart", "epic", 200, "Fuel for focus"),
+]
+
+
 def seed_lookup_data(cursor):
-    """Insert the lookup rows, skipping any that already exist.
+    """Insert the lookup rows and shop items, skipping any that already exist.
 
     Safe to run on every start, so new values added here reach existing
     databases without touching rows users created.
@@ -83,3 +98,11 @@ def seed_lookup_data(cursor):
             f"INSERT IGNORE INTO {table} ({id_column}, {name_column}) VALUES (%s, %s)",
             rows,
         )
+    cursor.executemany(
+        """
+        INSERT IGNORE INTO focusitems
+            (item_id, item_type_id, item_name, rarity_level, focus_cost_min, description)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        SHOP_ITEMS,
+    )
