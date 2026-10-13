@@ -43,6 +43,7 @@ import tileImg from "../assets/studyville/tile.svg";
 
 // API Configuration
 import { API_BASE } from "../api/base";
+import Icon from "../components/Dashboard/Icon";
 
 const API_BASE_URL = `${API_BASE}/api/focus`;
 
@@ -1013,14 +1014,7 @@ export default function TimerDashboard() {
             backdropFilter: "blur(5px)",
           }}
         >
-          <img
-            src="https://img.icons8.com/ios-filled/50/ffffff/visible.png"
-            alt="toggle-ui"
-            style={{
-              width: "22px",
-              height: "22px",
-            }}
-          />
+          <Icon name="eye" title="show interface" />
         </button>
       )}
     </div>
