@@ -328,7 +328,7 @@ const PracticeFlashcards = forwardRef((props, ref) => {
                         {cardsData.length === 0 ? (
                           <div style={{ color: '#9ca3af', textAlign: 'center', padding: '2rem 0' }}>No cards yet</div>
                         ) : (
-                          cardsData.map((card, idx) => (
+                          cardsData.map((card) => (
                             <div
                               key={card.flashcard_id}
                               style={{

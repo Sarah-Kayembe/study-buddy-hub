@@ -1,6 +1,6 @@
 // By Rise Akizaki
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser, loginUser} from "../api/auth.js"; // all methods from the api go here
 
