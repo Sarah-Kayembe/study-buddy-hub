@@ -329,9 +329,9 @@ export default function HomePage() {
               <button
                 className="btn btn-primary feature-card-btn"
                 type="button"
-                disabled
+                onClick={() => navigate("/study-tools")}
               >
-                Coming soon
+                Open Study Tools
               </button>
             </div>
           </section>

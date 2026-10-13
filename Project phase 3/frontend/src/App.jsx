@@ -1,4 +1,5 @@
 // src/App.jsx
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import StudyGroups from "./pages/StudyGroups";
@@ -12,7 +13,12 @@ import { AccountPage, EditAccountPage } from "./pages/User";
 
 import NavBar from "./components/NavBar";
 import RootRoute from "./components/RootRoute";
+import RequireLogin from "./components/RequireLogin";
 import StudyBuddyMatch from "./pages/StuddyBuddyMatch";
+
+// The Study Tools dashboard is large (images, sounds), so it only loads
+// when someone opens it instead of slowing down every page.
+const TimerDashboard = lazy(() => import("./pages/TimerDashboard"));
 
 function App() {
   return (
@@ -38,6 +44,18 @@ function App() {
         <Route path="/user/account" element={<AccountPage />} />
         <Route path="/user/account/edit" element={<EditAccountPage />} />
         <Route path="/resources" element={<ResourcesPage />} />
+        <Route
+          path="/study-tools"
+          element={
+            <RequireLogin>
+              <div className="study-tools">
+                <Suspense fallback={null}>
+                  <TimerDashboard />
+                </Suspense>
+              </div>
+            </RequireLogin>
+          }
+        />
 
         {/* <Route
           path="/"

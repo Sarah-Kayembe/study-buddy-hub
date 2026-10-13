@@ -1,6 +1,11 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 export default function NavBar() {
+  const { pathname } = useLocation();
+
+  // The Study Tools dashboard is full screen with its own controls.
+  if (pathname.startsWith("/study-tools")) return null;
+
   return (
     <header className="navbar">
       <div className="nav-left">
@@ -56,13 +61,14 @@ export default function NavBar() {
           Flashcards
         </NavLink>
 
-        <button
-          type="button"
-          className="nav-link nav-link-disabled"
-          disabled
+        <NavLink
+          to="/study-tools"
+          className={({ isActive }) =>
+            "nav-link" + (isActive ? " nav-link-active" : "")
+          }
         >
-          Study Tools (soon)
-        </button>
+          Study Tools
+        </NavLink>
 
         <NavLink
           to="/user/account"
