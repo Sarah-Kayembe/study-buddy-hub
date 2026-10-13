@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 import os
+import bcrypt
 from dotenv import load_dotenv
 
 from routes.studygroup_routes import bp as studygroup_bp
@@ -38,16 +39,17 @@ def seed_admin_user():
         existing = cursor.fetchone()
         
         if not existing:
-            # Create admin user (adjust fields to match your users table schema)
+            # Store a bcrypt hash, the same format the login route checks against
+            password_hash = bcrypt.hashpw(admin_password.encode(), bcrypt.gensalt()).decode()
             cursor.execute(
                 """
                 INSERT INTO users (first_name, last_name, email, password_hash, bio)
                 VALUES (%s, %s, %s, %s, %s)
                 """,
-                ("Admin", "User", admin_username, admin_password, "Default admin account")
+                ("Admin", "User", admin_username, password_hash, "Default admin account")
             )
             conn.commit()
-            print(f"[SEED] Admin user created: {admin_username}/{admin_password}")
+            print(f"[SEED] Admin user created: {admin_username}")
         else:
             print(f"[SEED] Admin user already exists: {admin_username}")
     except Exception as e:
