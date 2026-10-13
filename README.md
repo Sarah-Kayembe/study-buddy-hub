@@ -151,6 +151,18 @@ Study_Buddy_hub/
 
 
 
+## Running Tests
+
+The backend has a pytest suite that runs against a real MySQL database named `studybuddy_test`. It is created from the Phase 2 schema files at the start of each run and emptied between tests, so your `StudyBuddy` database is never touched.
+
+```bash
+cd "Project phase 3/backend"
+pip install -r requirements.txt -r requirements-dev.txt
+MYSQL_PASSWORD=your-mysql-password pytest
+```
+
+To see test coverage, run `pytest --cov`.
+
 ## Default Login Credentials
 
 - **Username:** admin
