@@ -19,7 +19,7 @@ import {
 } from "../api/studygroups.js";
 
 import ChatPage from "./ChatPage";
-import CheckJoinIcon from "../assets/CheckJoin.png";
+import ManageMembersIcon from "../assets/icons/manage-members.svg";
 import { API_BASE } from "../api/base";
 
 export default function StudyGroups() {
@@ -676,7 +676,7 @@ export default function StudyGroups() {
                             })
                           }
                         >
-                          <img src={CheckJoinIcon} alt="Manage members" />
+                          <img src={ManageMembersIcon} alt="Manage members" />
                         </button>
 
                         <button

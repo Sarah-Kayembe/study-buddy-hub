@@ -2,10 +2,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import CardsIcon from "../assets/Cards.png";
-import LevelUpIcon from "../assets/levelup.png";
-import NetworkIcon from "../assets/Network.png";
-import MatcherIcon from "../assets/matcher.png";
+import CardsIcon from "../assets/icons/cards.svg";
+import LevelUpIcon from "../assets/icons/levelup.svg";
+import NetworkIcon from "../assets/icons/network.svg";
+import MatcherIcon from "../assets/icons/matcher.svg";
 
 import useCurrentUser from "../hooks/useCurrentUser";
 import { fetchMyGroups, fetchUpcomingSessions } from "../api/studygroups.js";
