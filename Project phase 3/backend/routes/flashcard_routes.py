@@ -144,6 +144,9 @@ def list_flashcard_sets():
 # ------------------------------
 @flashcard_bp.route("/sets/<int:set_id>", methods=["PUT"])
 def update_flashcard_set(set_id):
+    if not session.get("user"):
+        return jsonify({"error": "Not logged in"}), 401
+
     data = request.json
     conn = get_db_connection()
     if not conn:
@@ -179,6 +182,9 @@ def update_flashcard_set(set_id):
 # ------------------------------
 @flashcard_bp.route("/sets/<int:set_id>", methods=["DELETE"])
 def delete_flashcard_set(set_id):
+    if not session.get("user"):
+        return jsonify({"error": "Not logged in"}), 401
+
     conn = get_db_connection()
     if not conn:
         return jsonify({"error": "Database connection failed"}), 500
@@ -210,6 +216,9 @@ def delete_flashcard_set(set_id):
 # ------------------------------
 @flashcard_bp.route("/cards/<int:card_id>", methods=["PUT"])
 def update_flashcard(card_id):
+    if not session.get("user"):
+        return jsonify({"error": "Not logged in"}), 401
+
     data = request.json
     conn = get_db_connection()
     if not conn:
@@ -244,6 +253,9 @@ def update_flashcard(card_id):
 # ------------------------------
 @flashcard_bp.route("/cards/<int:card_id>", methods=["DELETE"])
 def delete_flashcard(card_id):
+    if not session.get("user"):
+        return jsonify({"error": "Not logged in"}), 401
+
     conn = get_db_connection()
     if not conn:
         return jsonify({"error": "Database connection failed"}), 500
