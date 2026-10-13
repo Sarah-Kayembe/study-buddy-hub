@@ -98,7 +98,6 @@ export default function TimerDashboard() {
   const [money, setMoney] = useState(0);
   const [stats, setStats] = useState({});
   const [level, setLevel] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
 
   // User account data (used for top bar and profile picture)
   const [user, setUser] = useState(null);
@@ -317,8 +316,6 @@ export default function TimerDashboard() {
       }
     } catch (e) {
       console.error("API Error", e);
-    } finally {
-      setIsLoading(false);
     }
   }, []);
 
@@ -341,10 +338,13 @@ export default function TimerDashboard() {
     }
   }, []);
 
+  // The dashboard response already includes the user's tasks, so one
+  // request fills everything on first load.
   useEffect(() => {
+    // Loading data on mount; state is set when the response arrives.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDashboardData();
-    loadTasks();
-  }, [fetchDashboardData, loadTasks]);
+  }, [fetchDashboardData]);
 
   // Log session to backend
   const logSessionToBackend = useCallback(
@@ -461,6 +461,8 @@ export default function TimerDashboard() {
 
   useEffect(() => {
     if (isTimerRunning && !isBreak && timerMode !== "flowtime" && timeLeft <= 0) {
+      // Reacting to the countdown reaching zero is what ends the focus period.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       finishFocusPeriod();
     }
   }, [timeLeft, isTimerRunning, isBreak, timerMode, finishFocusPeriod]);
@@ -476,6 +478,8 @@ export default function TimerDashboard() {
 
   useEffect(() => {
     if (isTimerRunning && isBreak && breakSecondsLeft <= 0) {
+      // Reacting to the break countdown reaching zero is what ends the break.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       finishBreak();
     }
   }, [isTimerRunning, isBreak, breakSecondsLeft, finishBreak]);
@@ -526,23 +530,6 @@ export default function TimerDashboard() {
       : isBreak
       ? formatSeconds(breakSecondsLeft)
       : formatSeconds(timeLeft);
-
-  if (isLoading) {
-    return (
-      <div
-        style={{
-          color: "white",
-          background: "#000",
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        Loading Studio...
-      </div>
-    );
-  }
 
   return (
     <div className="spirit-dashboard">
