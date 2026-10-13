@@ -66,3 +66,42 @@ def test_init_db_seeds_lookup_rows_and_is_repeatable(fresh_database):
     assert categories[0] == (1, "Homework")
     assert len(categories) == 5
     assert mood_count == 6
+
+
+def test_init_db_applies_each_migration_once(fresh_database):
+    init_db.main()
+    init_db.main()
+
+    conn = _server_connection(FRESH_DB)
+    cursor = conn.cursor()
+    cursor.execute("SELECT version FROM schema_migrations ORDER BY version")
+    versions = [row[0] for row in cursor.fetchall()]
+    cursor.execute("SHOW TABLES LIKE 'user_progress'")
+    has_progress_table = cursor.fetchone() is not None
+    cursor.close()
+    conn.close()
+
+    assert versions[0] == "0001_user_progress"
+    assert len(versions) == len(set(versions))
+    assert has_progress_table
+
+
+def test_progress_migration_credits_existing_focus_time(fresh_database):
+    import migrate
+    from schema import load_schema
+
+    conn = _server_connection(FRESH_DB)
+    cursor = conn.cursor()
+    load_schema(cursor)
+    cursor.execute(
+        "INSERT INTO Users (email, password_hash, first_name, last_name) VALUES ('a@b.c', 'x', 'A', 'B')"
+    )
+    user_id = cursor.lastrowid
+    cursor.execute("INSERT INTO studystats (user_id, total_focus_time_min) VALUES (%s, 90)", (user_id,))
+
+    migrate.apply_migrations(cursor)
+
+    cursor.execute("SELECT xp, coins FROM user_progress WHERE user_id = %s", (user_id,))
+    assert cursor.fetchone() == (180, 90)
+    cursor.close()
+    conn.close()

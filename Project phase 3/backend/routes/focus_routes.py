@@ -11,6 +11,7 @@ from decimal import Decimal
 
 from flask import Blueprint, jsonify, request, session
 
+import progression
 from repositories import focus_repository as repo
 
 bp = Blueprint("focus", __name__, url_prefix="/api/focus")
@@ -244,12 +245,18 @@ def complete_session():
         short_break_min=data.get("short_break_min"),
         long_break_min=data.get("long_break_min"),
     )
-    # One coin per focused minute and two XP per minute, as in the original timer.
+    reward = result["reward"]
     return jsonify({
         "success": True,
         "timer_id": result["timer_id"],
         "current_streak_days": result["current_streak_days"],
-        "reward": {"coins": duration, "xp": duration * 2},
+        "reward": {
+            "xp": reward["xp"],
+            "coins": reward["coins"],
+            "level_up_coins": reward["level_up_coins"],
+        },
+        "leveled_up": reward["leveled_up"],
+        "progress": {**progression.level_progress(result["xp"]), "coins": result["coins"]},
     })
 
 
@@ -272,7 +279,14 @@ def give_up_session():
 # Stats, dashboard, moods, calendar, StudyVille and leaderboard
 # ------------------------------------------------------------------
 
-MINUTES_PER_LEVEL = 60
+def _stats_for_today(user_id):
+    """Stored stats with the streak shown as 0 if a day has been missed."""
+    stats = repo.get_stats(user_id)
+    last = stats["last_session_at"]
+    stats["current_streak_days"] = progression.visible_streak(
+        stats["current_streak_days"], last.date() if last else None, _utc_now().date()
+    )
+    return _plain(stats)
 
 
 @bp.get("/stats")
@@ -280,28 +294,27 @@ def get_stats():
     user_id = _current_user_id()
     if not user_id:
         return _not_logged_in()
-    return jsonify(_plain(repo.get_stats(user_id)))
+    return jsonify(_stats_for_today(user_id))
 
 
 @bp.get("/dashboard")
 def get_dashboard():
-    """Everything the dashboard shows on load, from the user's real data.
-
-    Coins match the session reward (one per focused minute) and the user
-    gains a level every MINUTES_PER_LEVEL minutes of focus.
-    """
+    """Everything the dashboard shows on load, from the user's real data."""
     user_id = _current_user_id()
     if not user_id:
         return _not_logged_in()
 
-    stats = _plain(repo.get_stats(user_id))
-    total_min = stats["total_focus_time_min"] or 0
+    stats = _stats_for_today(user_id)
+    wallet = repo.get_progress(user_id)
+    level = progression.level_progress(wallet["xp"])
+    stats["total_exp"] = wallet["xp"]
     return jsonify({
         "tasks": [_task_for_client(t) for t in repo.list_tasks(user_id)],
         "stats": stats,
-        "money": total_min,
-        "level": 1 + total_min // MINUTES_PER_LEVEL,
-        "next_level_progress": round(100 * (total_min % MINUTES_PER_LEVEL) / MINUTES_PER_LEVEL),
+        "money": wallet["coins"],
+        "level": level["level"],
+        "next_level_progress": level["percent_to_next_level"],
+        "progress": {**level, "coins": wallet["coins"], "streak_days": stats["current_streak_days"]},
     })
 
 
@@ -349,3 +362,55 @@ def get_leaderboard():
     if period not in repo.LEADERBOARD_DAYS:
         return jsonify({"error": "period must be daily, weekly, monthly or all_time"}), 400
     return jsonify(repo.leaderboard(period, _utc_now()))
+
+
+# ------------------------------------------------------------------
+# Shop and inventory
+# ------------------------------------------------------------------
+
+# Display icons for shop items, keyed by item_id (placeholders until there is art).
+ITEM_ICONS = {1: "🧱", 2: "🌸", 3: "🪑", 4: "💡", 5: "⛲", 6: "🌳", 7: "📚", 8: "☕"}
+
+
+def _with_icon(item):
+    item = _plain(item)
+    item["icon"] = ITEM_ICONS.get(item["item_id"], "🎁")
+    return item
+
+
+@bp.get("/shop")
+def get_shop():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    return jsonify({
+        "coins": repo.get_progress(user_id)["coins"],
+        "items": [_with_icon(item) for item in repo.list_shop_items()],
+    })
+
+
+@bp.get("/inventory")
+def get_inventory():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    return jsonify([_with_icon(item) for item in repo.inventory(user_id)])
+
+
+@bp.post("/shop/<int:item_id>/buy")
+def buy_item(item_id):
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    try:
+        result = repo.buy_item(user_id, item_id, _utc_now())
+    except repo.NotEnoughCoins as error:
+        return jsonify({
+            "error": "Not enough coins",
+            "price": error.price,
+            "coins": error.coins,
+        }), 400
+    if result is None:
+        return jsonify({"error": "Item not found"}), 404
+    return jsonify({"success": True, **result})
+

@@ -23,6 +23,7 @@ os.environ.setdefault("MYSQL_PASSWORD", "")
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
 
 from app import create_app  # noqa: E402  (must come after the env setup)
+from migrate import apply_migrations  # noqa: E402
 from schema import LOOKUP_DATA, load_schema, seed_lookup_data  # noqa: E402
 
 
@@ -46,6 +47,7 @@ def test_database():
     cursor.execute(f"CREATE DATABASE {TEST_DB}")
     cursor.execute(f"USE {TEST_DB}")
     load_schema(cursor)
+    apply_migrations(cursor)
     cursor.close()
     conn.close()
     yield TEST_DB
@@ -68,7 +70,7 @@ def clean_tables(test_database):
     tables = [row[0] for row in cursor.fetchall()]
     cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
     for table in tables:
-        if table not in LOOKUP_DATA:
+        if table not in LOOKUP_DATA and table != "schema_migrations":
             cursor.execute(f"TRUNCATE TABLE `{table}`")
     cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
     seed_lookup_data(cursor)

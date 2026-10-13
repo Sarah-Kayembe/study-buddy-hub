@@ -23,17 +23,21 @@ def test_stats_are_zero_before_any_session(logged_in_client):
 
 
 def test_dashboard_uses_real_progress(logged_in_client):
-    complete(logged_in_client, 50)
-    complete(logged_in_client, 40)
+    complete(logged_in_client, 50)   # 100 XP: reaches level 2, +50 coin bonus
+    complete(logged_in_client, 40)   # 80 XP more
     logged_in_client.post("/api/focus/tasks", json={"title": "Read chapter 6", "tag_id": 3})
 
     dashboard = logged_in_client.get("/api/focus/dashboard").get_json()
 
     assert dashboard["stats"]["total_focus_time_min"] == 90
     assert dashboard["stats"]["total_sessions"] == 2
-    assert dashboard["money"] == 90
+    assert dashboard["stats"]["total_exp"] == 180
+    assert dashboard["money"] == 90 + 50
     assert dashboard["level"] == 2
-    assert dashboard["next_level_progress"] == 50
+    assert dashboard["next_level_progress"] == 40
+    assert dashboard["progress"]["xp_into_level"] == 80
+    assert dashboard["progress"]["xp_for_next_level"] == 200
+    assert dashboard["progress"]["streak_days"] == 1
     assert [t["title"] for t in dashboard["tasks"]] == ["Read chapter 6"]
 
 

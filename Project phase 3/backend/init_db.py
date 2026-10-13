@@ -1,15 +1,18 @@
-"""Create the StudyBuddy tables in a new, empty database.
+"""Set up or update the StudyBuddy database. Safe to run on every deploy.
 
-Safe to run on every deploy: if the tables already exist it skips the
-schema, so existing data is never touched. Lookup rows (task categories,
-mood levels, ...) are added every time, skipping ones already present. The schema files drop and recreate some
-tables, which is why they must only run against an empty database.
+1. On an empty database, create the tables from the Phase 2 schema. The
+   schema files drop and recreate some tables, so they only ever run on
+   an empty database.
+2. Add lookup rows (task categories, mood levels, ...), skipping any
+   already present.
+3. Apply any migrations in migrations/ that haven't run yet.
 
     python init_db.py
 """
 import sys
 
 from db import get_db_connection
+from migrate import apply_migrations
 from schema import load_schema, seed_lookup_data
 
 
@@ -24,8 +27,10 @@ def main():
             load_schema(cursor)
             print("[init_db] Created the StudyBuddy tables.")
         seed_lookup_data(cursor)
-        conn.commit()
         print("[init_db] Lookup data is in place.")
+        for name in apply_migrations(cursor):
+            print(f"[init_db] Applied migration {name}.")
+        conn.commit()
         return 0
     finally:
         cursor.close()

@@ -42,7 +42,7 @@ def test_completing_a_session_updates_session_log_and_stats(logged_in_client, db
 
     body = response.get_json()
     assert body["success"] is True
-    assert body["reward"] == {"coins": 25, "xp": 50}
+    assert body["reward"] == {"coins": 25, "xp": 50, "level_up_coins": 0}
     assert body["current_streak_days"] == 1
     assert count_sessions(db) == 1
     assert daily_log(db, user_id)[0]["total_sessions"] == 1
@@ -108,3 +108,56 @@ def test_streak_grows_on_consecutive_days_and_resets_after_a_gap(logged_in_clien
     assert stats["longest_streak_days"] == 3
     assert stats["total_sessions"] == 5
     assert float(stats["avg_duration_min"]) == 25.0
+
+
+def test_completing_a_session_awards_xp_and_coins(logged_in_client, db):
+    body = logged_in_client.post("/api/focus/session/complete", json={"duration_min": 30}).get_json()
+
+    assert body["reward"] == {"xp": 60, "coins": 30, "level_up_coins": 0}
+    assert body["leveled_up"] is False
+    assert body["progress"]["xp"] == 60
+    assert body["progress"]["coins"] == 30
+    cursor = db.cursor()
+    cursor.execute("SELECT xp, coins FROM user_progress")
+    assert cursor.fetchone() == (60, 30)
+    cursor.close()
+
+
+def test_level_up_is_reported_with_bonus_coins(logged_in_client):
+    logged_in_client.post("/api/focus/session/complete", json={"duration_min": 40})   # 80 XP
+
+    body = logged_in_client.post("/api/focus/session/complete", json={"duration_min": 10}).get_json()
+
+    assert body["leveled_up"] is True
+    assert body["progress"]["level"] == 2
+    assert body["reward"]["level_up_coins"] == 50
+    assert body["progress"]["coins"] == 40 + 10 + 50
+
+
+def test_streak_bonus_increases_xp(logged_in_client):
+    user_id = logged_in_client.user["user_id"]
+    repo.record_completed_session(user_id, 10, datetime(2026, 10, 10, 15, 0))
+    repo.record_completed_session(user_id, 10, datetime(2026, 10, 11, 15, 0))
+    result = repo.record_completed_session(user_id, 10, datetime(2026, 10, 12, 15, 0))
+
+    assert result["current_streak_days"] == 3
+    assert result["reward"]["xp"] == 22   # 20 XP * 1.10
+
+
+def test_giving_up_earns_no_xp_or_coins(logged_in_client, db):
+    logged_in_client.post("/api/focus/session/giveup", json={"duration_min": 15})
+
+    cursor = db.cursor()
+    cursor.execute("SELECT COUNT(*) FROM user_progress WHERE xp > 0 OR coins > 0")
+    assert cursor.fetchone()[0] == 0
+    cursor.close()
+
+
+def test_missed_day_shows_streak_as_zero(logged_in_client):
+    user_id = logged_in_client.user["user_id"]
+    repo.record_completed_session(user_id, 25, datetime(2020, 1, 1, 12, 0))
+
+    stats = logged_in_client.get("/api/focus/stats").get_json()
+
+    assert stats["current_streak_days"] == 0
+    assert stats["longest_streak_days"] == 1
