@@ -21,6 +21,7 @@ import { LevelUpCelebration, SessionRewardToast } from "../components/Dashboard/
 import TimerWindow from "../components/Dashboard/Windows/TimerWindow";
 import TaskWindow from "../components/Dashboard/Windows/TaskWindow";
 import MoodWindow from "../components/Dashboard/Windows/MoodWindow";
+import ShopWindow from "../components/Dashboard/Windows/ShopWindow";
 import StudyVilleWindow from "../components/Dashboard/Windows/StudyVilleWindow";
 import LeaderboardWindow from "../components/Dashboard/Windows/LeaderboardWindow";
 import StatsWindow from "../components/Dashboard/Windows/StatsWindow";
@@ -476,6 +477,7 @@ export default function TimerDashboard() {
               setItemToPlace(null);
               toggleWindow("studyville");
             }}
+            onOpenRewards={() => toggleWindow("shop")}
             onOpenBuddies={() => leaveDen("/groups")}
             onOpenGroups={() => alert("Groups Coming Soon")}
             onOpenLeaderboard={() => toggleWindow("leaderboard")}
@@ -750,11 +752,29 @@ export default function TimerDashboard() {
         </div>
       )}
 
+      {/* REWARDS (SHOP) WINDOW */}
+      {activeWindow === "shop" && (
+        <div className="den-window-overlay">
+          <ShopWindow
+            onClose={() => setActiveWindow(null)}
+            onCoinsChange={(coins) => setProgress((prev) => ({ ...prev, coins }))}
+            onPlaceItem={(item) => {
+              setItemToPlace(item.item_id);
+              setActiveWindow("studyville");
+            }}
+          />
+        </div>
+      )}
+
       {/* STUDYVILLE WINDOW */}
       {activeWindow === "studyville" && (
         <div className="den-window-overlay">
           <StudyVilleWindow
             initialItemId={itemToPlace}
+            onOpenShop={() => {
+              setItemToPlace(null);
+              setActiveWindow("shop");
+            }}
             onClose={() => {
               setItemToPlace(null);
               setActiveWindow(null);
