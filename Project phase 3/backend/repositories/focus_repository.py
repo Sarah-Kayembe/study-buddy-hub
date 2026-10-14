@@ -7,6 +7,8 @@ another user's tasks or sessions.
 """
 from datetime import timedelta
 
+import mysql.connector
+
 import progression
 from db import transaction
 
@@ -470,3 +472,65 @@ def buy_item(user_id, item_id, now):
         quantity = cursor.fetchone()["quantity"]
     return {"coins": wallet["coins"] - item["price"], "quantity": quantity}
 
+
+# ------------------------------------------------------------------
+# StudyVille placement
+# ------------------------------------------------------------------
+
+STUDYVILLE_SIZE = 8   # the town is an 8 x 8 grid
+
+
+class PlacementError(Exception):
+    """Raised when an item can't be placed. `reason` is shown to the user."""
+
+    def __init__(self, reason, status=400):
+        super().__init__(reason)
+        self.reason = reason
+        self.status = status
+
+
+def place_item(user_id, item_id, x, y):
+    """Put one owned item on a free StudyVille tile. Returns the new layout row."""
+    if not (0 <= x < STUDYVILLE_SIZE and 0 <= y < STUDYVILLE_SIZE):
+        raise PlacementError("That spot is outside StudyVille")
+    with transaction(dictionary=True) as cursor:
+        # Lock the owned row so two clicks can't place the same copy twice.
+        cursor.execute(
+            "SELECT quantity FROM userfocusitems WHERE user_id = %s AND item_id = %s FOR UPDATE",
+            (user_id, item_id),
+        )
+        owned = cursor.fetchone()
+        cursor.execute(
+            "SELECT COUNT(*) AS placed FROM usercitylayout WHERE user_id = %s AND item_id = %s",
+            (user_id, item_id),
+        )
+        placed = cursor.fetchone()["placed"]
+        if not owned or owned["quantity"] <= placed:
+            raise PlacementError("You don't have one of these left to place")
+
+        cursor.execute(
+            "SELECT 1 FROM usercitylayout WHERE user_id = %s AND position_x = %s AND position_y = %s",
+            (user_id, x, y),
+        )
+        if cursor.fetchone():
+            raise PlacementError("Something is already on that spot", status=409)
+
+        try:
+            cursor.execute(
+                "INSERT INTO usercitylayout (user_id, item_id, position_x, position_y) VALUES (%s, %s, %s, %s)",
+                (user_id, item_id, x, y),
+            )
+        except mysql.connector.IntegrityError as error:
+            raise PlacementError("Something is already on that spot", status=409) from error
+        layout_id = cursor.lastrowid
+    return {"layout_id": layout_id, "item_id": item_id, "position_x": x, "position_y": y}
+
+
+def remove_placement(user_id, layout_id):
+    """Take an item off the map and back into the inventory. False if not found."""
+    with transaction() as cursor:
+        cursor.execute(
+            "DELETE FROM usercitylayout WHERE layout_id = %s AND user_id = %s",
+            (layout_id, user_id),
+        )
+        return cursor.rowcount > 0

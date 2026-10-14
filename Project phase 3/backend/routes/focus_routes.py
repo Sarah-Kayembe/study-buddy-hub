@@ -407,3 +407,34 @@ def get_city():
     if not user_id:
         return _not_logged_in()
     return jsonify([_plain(item) for item in repo.city_layout(user_id)])
+
+
+@bp.post("/city")
+def place_in_city():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+
+    data = request.get_json() or {}
+    try:
+        item_id = int(data["item_id"])
+        x = int(data["x"])
+        y = int(data["y"])
+    except (KeyError, TypeError, ValueError):
+        return jsonify({"error": "item_id, x and y are required numbers"}), 400
+
+    try:
+        placed = repo.place_item(user_id, item_id, x, y)
+    except repo.PlacementError as error:
+        return jsonify({"error": error.reason}), error.status
+    return jsonify({"success": True, **placed}), 201
+
+
+@bp.delete("/city/<int:layout_id>")
+def remove_from_city(layout_id):
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    if not repo.remove_placement(user_id, layout_id):
+        return jsonify({"error": "Nothing placed there"}), 404
+    return jsonify({"success": True})
