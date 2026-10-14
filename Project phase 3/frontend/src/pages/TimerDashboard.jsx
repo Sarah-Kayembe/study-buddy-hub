@@ -22,6 +22,7 @@ import TimerWindow from "../components/Dashboard/Windows/TimerWindow";
 import TaskWindow from "../components/Dashboard/Windows/TaskWindow";
 import MoodWindow from "../components/Dashboard/Windows/MoodWindow";
 import ShopWindow from "../components/Dashboard/Windows/ShopWindow";
+import CalendarWindow from "../components/Dashboard/Windows/CalendarWindow";
 import StudyVilleWindow from "../components/Dashboard/Windows/StudyVilleWindow";
 import LeaderboardWindow from "../components/Dashboard/Windows/LeaderboardWindow";
 import StatsWindow from "../components/Dashboard/Windows/StatsWindow";
@@ -506,7 +507,7 @@ export default function TimerDashboard() {
           activeWindow={activeWindow}
           onToggleTimer={() => toggleWindow("timer")}
           onToggleTasks={() => toggleWindow("tasks")}
-          onToggleCalendar={() => leaveDen("/groups")}
+          onToggleCalendar={() => toggleWindow("calendar")}
           onToggleStats={() => toggleWindow("stats")}
           onOpenMood={() => toggleWindow("mood")}
           roomMode={currentMode}
@@ -780,6 +781,13 @@ export default function TimerDashboard() {
               setActiveWindow(null);
             }}
           />
+        </div>
+      )}
+
+      {/* CALENDAR WINDOW */}
+      {activeWindow === "calendar" && (
+        <div className="den-window-overlay">
+          <CalendarWindow onClose={() => setActiveWindow(null)} />
         </div>
       )}
 

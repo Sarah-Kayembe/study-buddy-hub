@@ -25,3 +25,4 @@ export const getCity = () => request("/city");
 export const placeItem = (itemId, x, y) =>
   request("/city", { method: "POST", body: JSON.stringify({ item_id: itemId, x, y }) });
 export const removeFromCity = (layoutId) => request(`/city/${layoutId}`, { method: "DELETE" });
+export const getCalendar = () => request("/calendar");

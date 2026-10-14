@@ -1355,3 +1355,100 @@
   color: var(--den-text-muted);
   font-variant-numeric: tabular-nums;
 }
+
+/* =========================================
+   CALENDAR
+   ========================================= */
+.focus-den .den-calendar {
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+}
+
+.focus-den .den-cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.focus-den .den-cal-nav .den-icon-btn {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.focus-den .den-cal-month {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: #f8fafc;
+}
+
+.focus-den .den-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.focus-den .den-cal-weekday {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--den-text-muted);
+  padding-bottom: 4px;
+}
+
+.focus-den .den-cal-day {
+  aspect-ratio: 1;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--den-text);
+  cursor: pointer;
+}
+
+/* One hue, darker to brighter as focus time grows. */
+.focus-den .level-0 { background: rgba(148, 163, 184, 0.1); }
+.focus-den .level-1 { background: #0c4a6e; }
+.focus-den .level-2 { background: #0369a1; }
+.focus-den .level-3 { background: #0ea5e9; color: #020617; }
+.focus-den .level-4 { background: #7dd3fc; color: #020617; }
+
+.focus-den .den-cal-day.is-today {
+  border-color: var(--den-gold);
+}
+
+.focus-den .den-cal-day.is-selected {
+  outline: 2px solid #f8fafc;
+  outline-offset: 1px;
+}
+
+.focus-den .den-cal-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 10px;
+  font-size: 0.72rem;
+  color: var(--den-text-muted);
+}
+
+.focus-den .den-cal-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.focus-den .den-cal-detail {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #f8fafc;
+  font-size: 0.9rem;
+}
