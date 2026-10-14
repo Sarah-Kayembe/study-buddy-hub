@@ -912,6 +912,14 @@
   border-radius: 50%;
 }
 
+.focus-den .den-dock-clock {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+  padding: 0 4px;
+}
+
 /* ---------- Rewards ---------- */
 .focus-den .den-toast {
   position: absolute;
@@ -1060,6 +1068,10 @@
 
   .focus-den .den-mood-btn {
     order: 4;
+  }
+
+  .focus-den .den-dock-clock {
+    margin-left: auto;
   }
 
   .focus-den .den-room-modes button span,
