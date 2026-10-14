@@ -227,6 +227,8 @@ export default function TimerDashboard() {
 
   const handleStartSession = useCallback((config) => {
     setPendingConfig(config || {});
+    // Close the timer window so the reward picker isn't hidden behind it.
+    setActiveWindow(null);
     setShowRewardPicker(true);
   }, []);
 
