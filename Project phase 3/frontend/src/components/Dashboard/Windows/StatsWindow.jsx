@@ -17,8 +17,8 @@ export default function StatsWindow({ onClose }) {
   // LOADING STATE
   if (!stats) {
     return (
-      <div className="spirit-window-overlay">
-        <div className="spirit-window" style={{ width: "520px" }}>
+      <div className="den-window-overlay">
+        <div className="den-window" style={{ width: "520px" }}>
           <div className="window-header">
             <span className="window-title">Statistics</span>
             <button className="close-btn" onClick={onClose}>✖</button>
@@ -40,9 +40,9 @@ export default function StatsWindow({ onClose }) {
   const currentStreak = stats.current_streak_days ?? 0;
 
   return (
-    <div className="spirit-window-overlay">
+    <div className="den-window-overlay">
       <div
-        className="spirit-window"
+        className="den-window"
         style={{
           width: "600px",
           maxHeight: "90vh",

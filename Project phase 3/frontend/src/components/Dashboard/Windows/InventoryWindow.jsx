@@ -16,7 +16,7 @@ const DEMO_ITEMS = [
 export default function InventoryWindow({ onClose, onSelectItem }) {
   return (
     // The Main Window Container
-    <div className="spirit-window" style={{ width: '500px', height: '450px' }}>
+    <div className="den-window" style={{ width: '500px', height: '450px' }}>
         
         {/* Header */}
         <div className="window-header">

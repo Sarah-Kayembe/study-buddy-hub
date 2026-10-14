@@ -32,7 +32,7 @@ export default function RoomArt({ mode = "focus" }) {
 
   return (
     <svg
-      className="spirit-room-image"
+      className="den-room-image"
       viewBox="0 0 1600 900"
       preserveAspectRatio="xMidYMid slice"
       role="img"

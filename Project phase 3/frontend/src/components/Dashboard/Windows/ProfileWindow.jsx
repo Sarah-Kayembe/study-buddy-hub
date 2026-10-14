@@ -37,8 +37,8 @@ export default function ProfileWindow({ user, onClose, onProfileUpdated }) {
   const profileSrc = user?.profile_image ? `${API_BASE}/${user.profile_image}` : null;
 
   return (
-    <div className="spirit-window-overlay">
-      <div className="spirit-window" style={{ width: 380 }}>
+    <div className="den-window-overlay">
+      <div className="den-window" style={{ width: 380 }}>
         <div className="window-header">
           <span className="window-title">Profile Settings</span>
           <button className="close-btn" onClick={onClose}>✖</button>
@@ -83,7 +83,7 @@ export default function ProfileWindow({ user, onClose, onProfileUpdated }) {
 
           <button
             style={{ marginTop: 12 }}
-            className="spirit-btn-primary"
+            className="den-btn-primary"
             disabled={loading}
             onClick={uploadImage}
           >

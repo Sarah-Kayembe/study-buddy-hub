@@ -8,8 +8,8 @@ export default function FlowtimeDialog({
   onStartAnother,
 }) {
   return (
-    <div className="spirit-window-overlay flow-dialog-overlay">
-      <div className="spirit-window flow-dialog">
+    <div className="den-window-overlay flow-dialog-overlay">
+      <div className="den-window flow-dialog">
 
         {/* Header */}
         <div className="window-header">
@@ -32,21 +32,21 @@ export default function FlowtimeDialog({
           <div className="dialog-buttons">
 
             <button
-              className="spirit-btn-primary"
+              className="den-btn-primary"
               onClick={onStartBreak}
             >
               Start Break
             </button>
 
             <button
-              className="spirit-btn-secondary"
+              className="den-btn-secondary"
               onClick={onEndSession}
             >
               End Session
             </button>
 
             <button
-              className="spirit-btn-secondary"
+              className="den-btn-secondary"
               onClick={onStartAnother}
             >
               Start Another Flowtime

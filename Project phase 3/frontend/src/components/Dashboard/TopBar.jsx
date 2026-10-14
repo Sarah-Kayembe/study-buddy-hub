@@ -1,256 +1,163 @@
 // Author: Sarah Kayembe
 // frontend/src/components/Dashboard/TopBar.jsx
+//
+// The Focus Den header. It mirrors the main site's navigation bar so the
+// den feels like part of StudyBuddy, and shows the student's real level,
+// XP, streak and coins from the backend.
 
 import React, { useEffect, useRef } from "react";
 import { API_BASE } from "../../api/base";
-import { useNavigate } from "react-router-dom";
 import Icon from "./Icon";
 
+function plural(count, word) {
+  return `${count} ${word}${count === 1 ? "" : "s"}`;
+}
+
 export default function TopBar({
-  exp,
-  level,
-  money,
-  streakDays,
+  progress,
 
   profileImage,
-
   firstName,
   lastName,
   email,
-  userName,
 
   soundMuted,
   soundTheme,
   onOpenSoundSettings,
-
   onToggleUI,
 
-  onProfileClick,
   showProfileMenu,
   setShowProfileMenu,
-
   onViewProfile,
+  onLeave,
   onLogout,
 }) {
-  const navigate = useNavigate();
-
   const menuRef = useRef(null);
+  const displayName = firstName || "Student";
 
-  const displayName =
-    firstName || userName || "User";
+  const level = progress?.level ?? 1;
+  const xpInto = progress?.xp_into_level ?? 0;
+  const xpNeeded = progress?.xp_for_next_level ?? 0;
+  const percent = progress?.percent_to_next_level ?? 0;
+  const streak = progress?.streak_days ?? 0;
+  const coins = progress?.coins ?? 0;
 
   useEffect(() => {
     function handleClickOutside(e) {
       if (!showProfileMenu) return;
       if (menuRef.current && !menuRef.current.contains(e.target)) {
-        if (typeof setShowProfileMenu === "function") {
-          setShowProfileMenu(false);
-        }
+        setShowProfileMenu(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showProfileMenu, setShowProfileMenu]);
 
-  const handleProfileToggle = () => {
-    if (typeof setShowProfileMenu === "function") {
-      setShowProfileMenu(!showProfileMenu);
-      return;
-    }
-    if (typeof onProfileClick === "function") onProfileClick();
-  };
-
   return (
-    <>
-      <div className="hud-top-left">
-        <div
-          style={{
-            fontSize: "0.9rem",
-            fontWeight: "bold",
-            color: "#fcd34d",
-          }}
+    <header className="den-header">
+      <div className="den-header-brand">
+        <button
+          type="button"
+          className="den-back-link"
+          onClick={() => onLeave("/home")}
+          title="Back to StudyBuddy Hub"
         >
-          Streak: {streakDays || 0}
+          <Icon name="back" size={18} />
+          <span>StudyBuddy</span>
+        </button>
+        <span className="den-header-title">Focus Den</span>
+      </div>
+
+      <div className="den-progress" aria-label="Your progress">
+        <div className="den-level" title={`${xpInto} of ${xpNeeded} XP to level ${level + 1}`}>
+          <span className="den-level-badge">{level}</span>
+          <div className="den-level-text">
+            <span className="den-level-label">Level {level}</span>
+            <div
+              className="den-xp-bar"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={percent}
+              aria-label="XP toward next level"
+            >
+              <div className="den-xp-fill" style={{ width: `${percent}%` }} />
+            </div>
+            <span className="den-xp-numbers">
+              {xpInto} / {xpNeeded} XP
+            </span>
+          </div>
         </div>
 
         <div
-          style={{
-            marginTop: 6,
-            fontSize: "0.85rem",
-            fontWeight: "bold",
-            color: "#fcd34d",
-          }}
+          className={`den-stat ${streak > 0 ? "is-lit" : ""}`}
+          title={streak > 0 ? `${plural(streak, "day")} in a row` : "Finish a session to start a streak"}
         >
-          EXP: {exp || 0}
+          <Icon name="flame" size={20} style={{ color: streak > 0 ? "#fb923c" : "#64748b" }} />
+          <span>{plural(streak, "day")}</span>
         </div>
 
-        <div
-          style={{
-            marginTop: 6,
-            fontSize: "0.85rem",
-            fontWeight: "bold",
-            color: "#fcd34d",
-          }}
-        >
-          Level: {level || 1} | Coins: {money || 0}
+        <div className="den-stat" title="Coins to spend in the shop">
+          <Icon name="coin" size={20} style={{ color: "#fcd34d" }} />
+          <span>{coins}</span>
         </div>
       </div>
 
-      <div className="hud-top-right" style={{ display: "flex", gap: "10px" }}>
+      <div className="den-header-actions">
         <button
-          className="circle-btn"
-          title={soundMuted ? "Unmute sound" : `Sound: ${soundTheme}`}
+          type="button"
+          className={`den-icon-btn ${soundMuted ? "is-muted" : ""}`}
+          title={soundMuted ? "Sound is off" : `Sound: ${soundTheme}`}
           onClick={onOpenSoundSettings}
-          style={{
-            width: "40px",
-            height: "40px",
-            opacity: soundMuted ? 0.4 : 1,
-          }}
         >
-          <Icon name="sound" title="sound" />
+          <Icon name="sound" title="Sound settings" />
         </button>
 
-        <button
-          onClick={onToggleUI}
-          className="circle-btn"
-          title="Toggle UI"
-          style={{ width: "40px", height: "40px" }}
-        >
-          <Icon name="eye" title="toggle interface" />
+        <button type="button" className="den-icon-btn" title="Hide the interface" onClick={onToggleUI}>
+          <Icon name="eye" title="Hide the interface" />
         </button>
 
-        <button
-          className="circle-btn"
-          title="Settings"
-          style={{ width: "40px", height: "40px" }}
-        >
-          <Icon name="settings" title="settings" />
-        </button>
-
-        <div style={{ position: "relative" }} ref={menuRef}>
-          <div
-            onClick={handleProfileToggle}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              cursor: "pointer",
-              color: "white",
-              userSelect: "none",
-            }}
+        <div className="den-profile" ref={menuRef}>
+          <button
+            type="button"
+            className="den-avatar"
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            aria-expanded={showProfileMenu}
+            title={displayName}
           >
-            <div
-              style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                overflow: "hidden",
-                border: "2px solid white",
-                boxShadow: "0 0 10px rgba(79, 70, 229, 0.5)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "rgba(15,23,42,0.9)",
-              }}
-            >
-              {profileImage ? (
-                <img
-                  src={`${API_BASE}/${profileImage}`}
-                  alt="profile"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              ) : (
-                <Icon name="user" title="profile" />
-              )}
-
-            </div>
-
-            <span style={{ marginTop: "4px", fontSize: "0.75rem" }}>
-              {displayName}
-            </span>
-          </div>
+            {profileImage ? (
+              <img src={`${API_BASE}/${profileImage}`} alt="" />
+            ) : (
+              <Icon name="user" title="Profile" />
+            )}
+          </button>
 
           {showProfileMenu && (
-            <div
-              style={{
-                position: "absolute",
-                top: "55px",
-                right: "0",
-                background: "rgba(15,23,42,0.95)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "8px",
-                width: "190px",
-                padding: "10px",
-                zIndex: 200,
-              }}
-            >
-              <div style={{ color: "white", fontWeight: "bold" }}>
-                {(firstName || userName || "User")} {lastName || ""}
+            <div className="den-profile-menu">
+              <div className="den-profile-name">
+                {displayName} {lastName || ""}
               </div>
+              {email && <div className="den-profile-email">{email}</div>}
 
-              {email && (
-                <div
-                  style={{
-                    color: "#7dd3fc",
-                    fontSize: "0.8rem",
-                    marginBottom: "10px",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  {email}
-                </div>
-              )}
-
-              <button
-                onClick={onViewProfile}
-                style={{
-                  width: "100%",
-                  padding: "6px 0",
-                  background: "#0369a1",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  marginBottom: "6px",
-                  cursor: "pointer",
-                }}
-              >
-                View Profile
+              <button type="button" onClick={onViewProfile}>
+                View profile
               </button>
-
-              <button
-                onClick={() => navigate("/home")}
-                style={{
-                  width: "100%",
-                  padding: "6px 0",
-                  background: "#334155",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  marginBottom: "6px",
-                  cursor: "pointer",
-                }}
-              >
-                Back to StudyBuddy
+              <button type="button" onClick={() => onLeave("/home")}>
+                StudyBuddy home
               </button>
-
-              <button
-                onClick={onLogout}
-                style={{
-                  width: "100%",
-                  padding: "6px 0",
-                  background: "#ef4444",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                }}
-              >
-                Logout
+              <button type="button" onClick={() => onLeave("/quizzes")}>
+                Quizzes
+              </button>
+              <button type="button" onClick={() => onLeave("/groups")}>
+                Study groups
+              </button>
+              <button type="button" className="is-danger" onClick={onLogout}>
+                Log out
               </button>
             </div>
           )}
         </div>
       </div>
-    </>
+    </header>
   );
 }

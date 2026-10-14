@@ -28,7 +28,7 @@ export default function StudyVilleWindow({
   };
 
   return (
-    <div className="spirit-window" style={{ width: "1090px" }}>
+    <div className="den-window" style={{ width: "1090px" }}>
       <div className="window-header">
         <span className="window-title">StudyVille</span>
         <button className="close-btn" onClick={onClose}>✖</button>
