@@ -28,7 +28,7 @@ export default function LeftSidebar({
   onOpenStudyVille,
   onOpenBuddies,
   onOpenRewards,
-  onOpenGroups,
+  onOpenChallenges,
   onOpenLeaderboard
 }) {
 
@@ -58,12 +58,12 @@ export default function LeftSidebar({
         onClick={onOpenRewards}
       />
 
-      {/* CHALLENGES (your previous groups button) */}
+      {/* CHALLENGES: today's goals */}
       <MenuBtn
         label="Challenges"
         icon={groupsIcon}
-        isActive={activeWindow === "groups"}
-        onClick={onOpenGroups}
+        isActive={activeWindow === "challenges"}
+        onClick={onOpenChallenges}
       />
 
       {/* LEADERBOARD */}

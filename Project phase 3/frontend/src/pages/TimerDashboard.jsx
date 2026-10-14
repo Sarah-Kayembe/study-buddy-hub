@@ -23,6 +23,7 @@ import TaskWindow from "../components/Dashboard/Windows/TaskWindow";
 import MoodWindow from "../components/Dashboard/Windows/MoodWindow";
 import ShopWindow from "../components/Dashboard/Windows/ShopWindow";
 import CalendarWindow from "../components/Dashboard/Windows/CalendarWindow";
+import ChallengesWindow from "../components/Dashboard/Windows/ChallengesWindow";
 import StudyVilleWindow from "../components/Dashboard/Windows/StudyVilleWindow";
 import LeaderboardWindow from "../components/Dashboard/Windows/LeaderboardWindow";
 import StatsWindow from "../components/Dashboard/Windows/StatsWindow";
@@ -480,7 +481,7 @@ export default function TimerDashboard() {
             }}
             onOpenRewards={() => toggleWindow("shop")}
             onOpenBuddies={() => leaveDen("/groups")}
-            onOpenGroups={() => alert("Groups Coming Soon")}
+            onOpenChallenges={() => toggleWindow("challenges")}
             onOpenLeaderboard={() => toggleWindow("leaderboard")}
           />
         </div>
@@ -788,6 +789,16 @@ export default function TimerDashboard() {
       {activeWindow === "calendar" && (
         <div className="den-window-overlay">
           <CalendarWindow onClose={() => setActiveWindow(null)} />
+        </div>
+      )}
+
+      {/* CHALLENGES WINDOW */}
+      {activeWindow === "challenges" && (
+        <div className="den-window-overlay">
+          <ChallengesWindow
+            onClose={() => setActiveWindow(null)}
+            onCoinsChange={(coins) => setProgress((prev) => ({ ...prev, coins }))}
+          />
         </div>
       )}
 
