@@ -28,6 +28,25 @@ const ACTIVE_MESSAGES = [
   "Your dedication is inspiring. Keep it up!",
 ];
 
+function timeNow() {
+  const now = new Date();
+  return `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+}
+
+// Sarah's clock: the current time, checked every few seconds.
+function DockClock() {
+  const [time, setTime] = useState(timeNow);
+  useEffect(() => {
+    const id = setInterval(() => setTime(timeNow()), 5000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <time className="den-dock-clock" aria-label={`Current time ${time}`}>
+      {time}
+    </time>
+  );
+}
+
 const QuickBtn = ({ icon, label, onClick, isActive }) => (
   <button
     type="button"
@@ -97,6 +116,8 @@ export default function QuickMenu({
         <span className="den-dock-next">{nextTask ? `Up next: ${nextTask}` : "No tasks yet"}</span>
         <span className="den-dock-message">{message}</span>
       </div>
+
+      <DockClock />
 
       <button type="button" className="den-icon-btn den-mood-btn" onClick={onOpenMood} title="How are you feeling?">
         <Icon name="mood" size={22} title="Log your mood" />

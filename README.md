@@ -244,8 +244,10 @@ All of these act on the logged-in user and return `401` otherwise, except the th
 - `POST /api/focus/mood` - Log a mood by id (1-6) or name
 - `GET /api/focus/calendar` - Minutes, topics and mood per day
 - `GET /api/focus/city` - StudyVille layout
+- `POST /api/focus/city` with `item_id`, `x`, `y` - Place an owned item on a free tile of the 8x8 town
+- `DELETE /api/focus/city/<layout_id>` - Take an item off the map and back into the inventory
 - `GET /api/focus/leaderboard?period=daily|weekly|monthly|all_time` - Top users by focused minutes
-- `GET /api/focus/shop`, `POST /api/focus/shop/<item_id>/buy`, `GET /api/focus/inventory` - Spend coins on items and list what you own
+- `GET /api/focus/shop`, `POST /api/focus/shop/<item_id>/buy`, `GET /api/focus/inventory` - Spend coins on items and list what you own, with how many are placed. Each item has an `art` key naming its drawing in the frontend
 
 **Progression rules** (`backend/progression.py`): each focused minute earns 2 XP and 1 coin. A streak adds +5% XP per day after the first, up to +50%. Levels start at 0, 100, 300, 600, 1000 XP, each taking 100 XP more than the last, and reaching level N pays N x 25 bonus coins. Missing a day shows the streak as 0 until the next session. Giving up a session earns nothing.
 

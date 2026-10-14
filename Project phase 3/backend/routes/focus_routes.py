@@ -276,7 +276,7 @@ def give_up_session():
 
 
 # ------------------------------------------------------------------
-# Stats, dashboard, moods, calendar, StudyVille and leaderboard
+# Stats, dashboard, moods, calendar and leaderboard
 # ------------------------------------------------------------------
 
 def _stats_for_today(user_id):
@@ -345,14 +345,6 @@ def get_calendar():
     return jsonify([_plain(day) for day in repo.calendar(user_id)])
 
 
-@bp.get("/city")
-def get_city():
-    user_id = _current_user_id()
-    if not user_id:
-        return _not_logged_in()
-    return jsonify([_plain(item) for item in repo.city_layout(user_id)])
-
-
 @bp.get("/leaderboard")
 def get_leaderboard():
     if not _current_user_id():
@@ -368,16 +360,6 @@ def get_leaderboard():
 # Shop and inventory
 # ------------------------------------------------------------------
 
-# Display icons for shop items, keyed by item_id (placeholders until there is art).
-ITEM_ICONS = {1: "🧱", 2: "🌸", 3: "🪑", 4: "💡", 5: "⛲", 6: "🌳", 7: "📚", 8: "☕"}
-
-
-def _with_icon(item):
-    item = _plain(item)
-    item["icon"] = ITEM_ICONS.get(item["item_id"], "🎁")
-    return item
-
-
 @bp.get("/shop")
 def get_shop():
     user_id = _current_user_id()
@@ -385,7 +367,7 @@ def get_shop():
         return _not_logged_in()
     return jsonify({
         "coins": repo.get_progress(user_id)["coins"],
-        "items": [_with_icon(item) for item in repo.list_shop_items()],
+        "items": [_plain(item) for item in repo.list_shop_items()],
     })
 
 
@@ -394,7 +376,7 @@ def get_inventory():
     user_id = _current_user_id()
     if not user_id:
         return _not_logged_in()
-    return jsonify([_with_icon(item) for item in repo.inventory(user_id)])
+    return jsonify([_plain(item) for item in repo.inventory(user_id)])
 
 
 @bp.post("/shop/<int:item_id>/buy")
@@ -414,3 +396,45 @@ def buy_item(item_id):
         return jsonify({"error": "Item not found"}), 404
     return jsonify({"success": True, **result})
 
+
+# ------------------------------------------------------------------
+# StudyVille
+# ------------------------------------------------------------------
+
+@bp.get("/city")
+def get_city():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    return jsonify([_plain(item) for item in repo.city_layout(user_id)])
+
+
+@bp.post("/city")
+def place_in_city():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+
+    data = request.get_json() or {}
+    try:
+        item_id = int(data["item_id"])
+        x = int(data["x"])
+        y = int(data["y"])
+    except (KeyError, TypeError, ValueError):
+        return jsonify({"error": "item_id, x and y are required numbers"}), 400
+
+    try:
+        placed = repo.place_item(user_id, item_id, x, y)
+    except repo.PlacementError as error:
+        return jsonify({"error": error.reason}), error.status
+    return jsonify({"success": True, **placed}), 201
+
+
+@bp.delete("/city/<int:layout_id>")
+def remove_from_city(layout_id):
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    if not repo.remove_placement(user_id, layout_id):
+        return jsonify({"error": "Nothing placed there"}), 404
+    return jsonify({"success": True})

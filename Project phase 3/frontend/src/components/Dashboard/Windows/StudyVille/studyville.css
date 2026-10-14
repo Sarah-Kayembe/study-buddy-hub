@@ -1,50 +1,69 @@
-/* --- ISOMETRIC GRID CONTAINER --- */
-.iso-grid {
+/* StudyVille isometric map. Scoped under .focus-den like the rest of the den. */
+
+.focus-den .iso-scroll {
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 16px;
+}
+
+.focus-den .iso-grid {
   position: relative;
-  width: 800px;      /* full grid width */
-  height: 500px;     /* full grid height */
-
-  /* ⭐ Center the grid perfectly inside StudyVille window */
-  left: 72%;
-  top: 0;
-  transform: translateX(-35%);
+  flex-shrink: 0;
 }
 
-/* --- ISOMETRIC TILE (diamond shape) --- */
-.iso-tile {
+.focus-den .iso-tile {
   position: absolute;
-  width: 128px;       /* TWICE the height → correct ISO diamond */
-  height: 64px;
-  background: #9ad66e;
-  clip-path: polygon(
-      50% 0%,     /* top */
-      100% 50%,   /* right */
-      50% 100%,   /* bottom */
-      0% 50%      /* left */
-  );
-  border: 1px solid rgba(80, 120, 60, 0.5);
+  padding: 0;
+  border: none;
+  /* Empty land is bare soil; grass, roads and buildings are bought. */
+  background: #cdb98d;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  cursor: default;
+  z-index: 1;
+}
+
+.focus-den .iso-tile:nth-child(even) {
+  background: #c5b083;
+}
+
+.focus-den .iso-grid.is-placing .iso-tile.is-open {
   cursor: pointer;
-  transition: transform 0.15s ease;
-  z-index: 1;      /* tiles stay behind objects */
 }
 
-/* Hover effect */
-.iso-tile:hover {
-  transform: scale(1.05);
-  filter: brightness(1.15);
+.focus-den .iso-grid.is-placing .iso-tile.is-open:hover,
+.focus-den .iso-grid.is-placing .iso-tile.is-open:focus-visible {
+  background: #bae6fd;
+  outline: none;
 }
 
-/* --- OBJECTS (houses, shops, trees) --- */
-.iso-object {
+.focus-den .iso-object {
   position: absolute;
-  pointer-events: auto;
-  user-select: none;
-  transform-origin: bottom center;  /* anchors object to tile */
-  z-index: 50;   /* ALWAYS above tiles */
-  image-rendering: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
 }
 
-/* Optional: slight pop effect when selecting an object */
-.iso-object:hover {
-  transform: scale(1.03);
+.focus-den .iso-object img {
+  width: 100%;
+  height: auto;
+  display: block;
+  user-select: none;
+}
+
+.focus-den .iso-object:hover img,
+.focus-den .iso-object:focus-visible img {
+  filter: brightness(1.12);
+}
+
+.focus-den .iso-object.is-selected img {
+  filter: drop-shadow(0 0 6px #7dd3fc) drop-shadow(0 0 2px #7dd3fc);
+}
+
+/* While placing, clicks pass through drawings so tiles behind tall
+   buildings can still be picked. */
+.focus-den .iso-grid.is-placing .iso-object {
+  pointer-events: none;
 }
