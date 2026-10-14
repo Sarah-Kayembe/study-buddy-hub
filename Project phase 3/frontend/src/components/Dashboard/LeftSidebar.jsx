@@ -2,7 +2,6 @@
 // Updated by Sarah Kayembe
 
 import React from "react";
-import { useNavigate } from "react-router-dom";
 
 import studyvilleIcon from "../../assets/Ville1.webp";
 import inventoryIcon from "../../assets/Buddies.webp";
@@ -11,13 +10,14 @@ import groupsIcon from "../../assets/Challenge1.webp";
 import leaderboardIcon from "../../assets/Leaderboard.webp";
 
 const MenuBtn = ({ label, icon, onClick, isActive }) => (
-  <button 
+  <button
+    type="button"
     onClick={onClick}
+    aria-pressed={isActive}
     className={`sidebar-btn ${isActive ? "active" : ""}`}
   >
     <div className="sidebar-icon">
-      <img src={icon} alt={label} className="sidebar-img" />
-      {isActive && <span className="magic-ring"></span>}
+      <img src={icon} alt="" className="sidebar-img" />
     </div>
     <span className="sidebar-label">{label}</span>
   </button>
@@ -26,11 +26,10 @@ const MenuBtn = ({ label, icon, onClick, isActive }) => (
 export default function LeftSidebar({
   activeWindow,
   onOpenStudyVille,
+  onOpenBuddies,
   onOpenGroups,
   onOpenLeaderboard
 }) {
-
-  const navigate = useNavigate();
 
   return (
     <>
@@ -42,12 +41,12 @@ export default function LeftSidebar({
         onClick={onOpenStudyVille}
       />
 
-      {/* BUDDIES — Redirect to studyGroups.jsx */}
+      {/* BUDDIES: opens Study Groups */}
       <MenuBtn
         label="Buddies"
         icon={inventoryIcon}
         isActive={false}
-        onClick={() => navigate("/groups")}
+        onClick={onOpenBuddies}
       />
 
       {/* REWARDS */}
