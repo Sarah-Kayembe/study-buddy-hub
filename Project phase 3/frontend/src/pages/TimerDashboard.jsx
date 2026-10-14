@@ -479,14 +479,14 @@ export default function TimerDashboard() {
       : formatSeconds(timeLeft);
 
   return (
-    <div className="spirit-dashboard">
+    <div className="den-dashboard">
 
-      <div className="spirit-room-layer">
+      <div className="den-room-layer">
         <RoomScene mode={currentMode} />
       </div>
 
       <div
-        className="spirit-ui-layer"
+        className="den-ui-layer"
         style={{
           opacity: uiVisible ? 1 : 0,
           transition: "opacity 0.5s",
@@ -577,9 +577,9 @@ export default function TimerDashboard() {
       </div>
 
       {flowtimeTooShort && (
-        <div className="spirit-window-overlay">
+        <div className="den-window-overlay">
           <div
-            className="spirit-window"
+            className="den-window"
             style={{
               width: "300px",
               textAlign: "center",
@@ -676,9 +676,9 @@ export default function TimerDashboard() {
       )}
 
       {showRewardPicker && (
-        <div className="spirit-window-overlay">
+        <div className="den-window-overlay">
           <div
-            className="spirit-window"
+            className="den-window"
             style={{
               width: "480px",
               maxWidth: "95vw",
@@ -772,9 +772,9 @@ export default function TimerDashboard() {
       )}
 
       {showSoundSettings && (
-        <div className="spirit-window-overlay">
+        <div className="den-window-overlay">
           <div
-            className="spirit-window"
+            className="den-window"
             style={{
               width: "360px",
               maxWidth: "90vw",
@@ -807,7 +807,7 @@ export default function TimerDashboard() {
                   Master Sound
                 </span>
                 <button
-                  className="spirit-btn-secondary"
+                  className="den-btn-secondary"
                   onClick={() => setSoundMuted((m) => !m)}
                 >
                   {soundMuted ? "Unmute" : "Mute All"}
@@ -862,7 +862,7 @@ export default function TimerDashboard() {
 
       {/* TIMER WINDOW */}
       <div
-        className="spirit-window-overlay"
+        className="den-window-overlay"
         style={{
           display: activeWindow === "timer" ? "flex" : "none",
         }}
@@ -886,7 +886,7 @@ export default function TimerDashboard() {
 
       {/* TASKS WINDOW */}
       {activeWindow === "tasks" && (
-        <div className="spirit-window-overlay">
+        <div className="den-window-overlay">
           <TaskWindow
             tasks={tasks}
             onClose={() => {
@@ -900,7 +900,7 @@ export default function TimerDashboard() {
 
       {/* MOOD WINDOW */}
       {activeWindow === "mood" && (
-        <div className="spirit-window-overlay">
+        <div className="den-window-overlay">
           <MoodWindow
             onClose={() => {
               setActiveWindow(null);
@@ -912,7 +912,7 @@ export default function TimerDashboard() {
 
       {/* INVENTORY WINDOW */}
       {activeWindow === "inventory" && (
-        <div className="spirit-window-overlay">
+        <div className="den-window-overlay">
           <InventoryWindow
             onClose={() => {
               setActiveWindow(null);
@@ -928,7 +928,7 @@ export default function TimerDashboard() {
 
       {/* STUDYVILLE WINDOW */}
       {activeWindow === "studyville" && (
-        <div className="spirit-window-overlay">
+        <div className="den-window-overlay">
           <StudyVilleWindow
             selectedItemToPlace={selectedItemToPlace}
             onClearSelection={() => setSelectedItemToPlace(null)}
@@ -943,7 +943,7 @@ export default function TimerDashboard() {
 
       {/* LEADERBOARD WINDOW */}
       {activeWindow === "leaderboard" && (
-        <div className="spirit-window-overlay">
+        <div className="den-window-overlay">
           <LeaderboardWindow
             onClose={() => {
               setActiveWindow(null);
@@ -955,7 +955,7 @@ export default function TimerDashboard() {
 
       {/* STATS WINDOW */}
       {activeWindow === "stats" && (
-        <div className="spirit-window-overlay">
+        <div className="den-window-overlay">
           <StatsWindow
             onClose={() => {
               setActiveWindow(null);
@@ -967,7 +967,7 @@ export default function TimerDashboard() {
 
       {/* PROFILE WINDOW */}
       {showProfile && (
-        <div className="spirit-window-overlay">
+        <div className="den-window-overlay">
           <ProfileWindow
             user={user}
             onClose={() => setShowProfile(false)}

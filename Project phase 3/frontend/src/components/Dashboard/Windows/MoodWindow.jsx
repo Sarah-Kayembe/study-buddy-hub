@@ -42,8 +42,8 @@ export default function MoodWindow({ onClose }) {
 
   return (
     // Centered Window Overlay (using your CSS classes)
-    <div className="spirit-window-overlay">
-        <div className="spirit-window" style={{ width: '350px' }}>
+    <div className="den-window-overlay">
+        <div className="den-window" style={{ width: '350px' }}>
             
             {/* Header */}
             <div className="window-header">

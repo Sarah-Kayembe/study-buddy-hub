@@ -2,8 +2,8 @@ import React from "react";
 
 export default function BreakDialog({ message, onStartNext, onSkip }) {
   return (
-    <div className="spirit-window-overlay break-dialog-overlay">
-      <div className="spirit-window break-dialog">
+    <div className="den-window-overlay break-dialog-overlay">
+      <div className="den-window break-dialog">
         
         {/* Header */}
         <div className="window-header">
@@ -16,11 +16,11 @@ export default function BreakDialog({ message, onStartNext, onSkip }) {
           <p className="dialog-message">{message}</p>
 
           <div className="dialog-buttons">
-            <button className="spirit-btn-primary" onClick={onStartNext}>
+            <button className="den-btn-primary" onClick={onStartNext}>
               Start Next Session
             </button>
 
-            <button className="spirit-btn-secondary" onClick={onSkip}>
+            <button className="den-btn-secondary" onClick={onSkip}>
               Skip / End Session
             </button>
           </div>

@@ -1,5 +1,5 @@
 // TaskWindow.jsx
-// Spirit City task panel — UI enhanced with tag visuals
+// Focus Den task panel with tag colors
 
 import React, { useState } from "react";
 import AddTaskModal from "./AddTaskModal";
@@ -93,7 +93,7 @@ export default function TaskWindow({ tasks, onClose, onRefreshData }) {
   // --------------------------------------------------
   return (
     <>
-      <div className="spirit-window task-window-small">
+      <div className="den-window task-window-small">
         <div className="window-header">
           <span className="window-title">
             Completed: {completedCount} / {localTasks.length}

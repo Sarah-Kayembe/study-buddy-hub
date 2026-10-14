@@ -2,8 +2,8 @@ import React from "react";
 
 export default function GiveUpDialog({ onCancel, onConfirm }) {
   return (
-    <div className="spirit-window-overlay giveup-dialog-overlay">
-      <div className="spirit-window giveup-dialog">
+    <div className="den-window-overlay giveup-dialog-overlay">
+      <div className="den-window giveup-dialog">
 
         {/* Header */}
         <div className="window-header">
@@ -23,7 +23,7 @@ export default function GiveUpDialog({ onCancel, onConfirm }) {
 
           <div className="dialog-buttons" style={{ marginTop: "18px" }}>
             <button 
-              className="spirit-btn-secondary"
+              className="den-btn-secondary"
               onClick={onCancel}
               style={{ padding: "10px" }}
             >

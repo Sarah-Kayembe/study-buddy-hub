@@ -1,5 +1,5 @@
 // AddTaskModal.jsx
-// Spirit City — Task creation modal (DB-accurate, enhanced)
+// Focus Den task creation modal
 
 import React, { useEffect, useState } from "react";
 
@@ -106,8 +106,8 @@ export default function AddTaskModal({ onClose, onTaskCreated }) {
   // Render
   // --------------------------------------------------
   return (
-    <div className="spirit-window-overlay">
-      <div className="spirit-window" style={{ width: 460 }}>
+    <div className="den-window-overlay">
+      <div className="den-window" style={{ width: 460 }}>
         <div className="window-header">
           <span className="window-title">Add New Task</span>
           <button className="close-btn" onClick={onClose}>✖</button>
@@ -118,7 +118,7 @@ export default function AddTaskModal({ onClose, onTaskCreated }) {
           {/* TITLE */}
           <label className="task-label">Task Title</label>
           <input
-            className="spirit-input"
+            className="den-input"
             placeholder="What do you want to work on?"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -185,7 +185,7 @@ export default function AddTaskModal({ onClose, onTaskCreated }) {
             Course (optional)
           </label>
           <select
-            className="spirit-input"
+            className="den-input"
             value={courseId}
             onChange={(e) => {
               setCourseId(e.target.value);
@@ -208,7 +208,7 @@ export default function AddTaskModal({ onClose, onTaskCreated }) {
                 Topic (optional)
               </label>
               <select
-                className="spirit-input"
+                className="den-input"
                 value={topicId}
                 onChange={(e) => setTopicId(e.target.value)}
               >
@@ -242,7 +242,7 @@ export default function AddTaskModal({ onClose, onTaskCreated }) {
             <span style={{ opacity: 0.7 }}>📅</span>
             <input
               type="date"
-              className="spirit-input"
+              className="den-input"
               style={{
                 border: "none",
                 background: "transparent",
@@ -256,7 +256,7 @@ export default function AddTaskModal({ onClose, onTaskCreated }) {
 
           {/* SAVE */}
           <button
-            className="spirit-btn-primary"
+            className="den-btn-primary"
             style={{ marginTop: 22 }}
             onClick={handleSaveTask}
             disabled={saving}

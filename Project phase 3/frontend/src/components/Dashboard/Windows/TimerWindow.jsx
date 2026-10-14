@@ -198,7 +198,7 @@ export default function TimerWindow({
   // RENDER
   // ------------------------------------------------------------
   return (
-    <div className="spirit-window" style={{ width: "460px" }}>
+    <div className="den-window" style={{ width: "460px" }}>
       {/* HEADER */}
       <div className="window-header">
         <span className="window-title">Study Timer</span>
@@ -388,14 +388,14 @@ export default function TimerWindow({
 
         {/* BUTTONS */}
         <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-          <button className="spirit-btn-primary" onClick={handleStartClick}>
+          <button className="den-btn-primary" onClick={handleStartClick}>
             {getPrimaryLabel()}
           </button>
 
           {/* Flow STOP button */}
           {tab === "flowtime" && isTimerRunning && !isInPreStart && (
             <button
-              className="spirit-btn-secondary"
+              className="den-btn-secondary"
               onClick={onFlowtimeStop}
             >
               Stop Flow
@@ -408,7 +408,7 @@ export default function TimerWindow({
             canGiveUp &&
             !isInPreStart && (
               <button
-                className="spirit-btn-secondary"
+                className="den-btn-secondary"
                 style={{
                   background: "rgba(239,68,68,0.15)",
                   color: "#fca5a5",
@@ -432,7 +432,7 @@ function FieldRow({ label, value, onChange, min = 1, max = 120 }) {
       <span style={{ color: "#e5e7eb" }}>{label}</span>
       <input
         type="number"
-        className="spirit-input"
+        className="den-input"
         min={min}
         max={max}
         value={value}

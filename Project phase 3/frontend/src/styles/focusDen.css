@@ -9,13 +9,13 @@
    1. GLOBAL RESET & BASE THEME
    ========================================= */
 .focus-den {
-  --spirit-dark: #0b1120;
-  --spirit-darker: #020617;
-  --spirit-purple: #0ea5e9;
-  --spirit-glass: rgba(11, 17, 32, 0.85);
-  --spirit-border: rgba(255, 255, 255, 0.15);
-  --spirit-text: #E0E0E0;
-  --spirit-text-muted: #9CA3AF;
+  --den-dark: #0b1120;
+  --den-darker: #020617;
+  --den-accent: #0ea5e9;
+  --den-glass: rgba(11, 17, 32, 0.85);
+  --den-border: rgba(255, 255, 255, 0.15);
+  --den-text: #E0E0E0;
+  --den-text-muted: #9CA3AF;
 }
 
 .focus-den, .focus-den * { box-sizing: border-box; }
@@ -23,7 +23,7 @@
 .focus-den {
   margin: 0; padding: 0;
   background-color: #000;
-  color: var(--spirit-text);
+  color: var(--den-text);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -32,29 +32,29 @@
 /* =========================================
    2. GAME CONTAINER (The Stage)
    ========================================= */
-.focus-den .spirit-dashboard {
+.focus-den .den-dashboard {
   position: fixed; 
   top: 0; 
   left: 0;
   width: 100vw;
   height: 100vh;
   overflow: hidden; 
-  background-color: var(--spirit-darker);
+  background-color: var(--den-darker);
   user-select: none;
   z-index: 0; 
 }
 
 /* LAYER 0: Room Background */
-.focus-den .spirit-room-layer {
+.focus-den .den-room-layer {
   position: absolute; inset: 0; z-index: 0;
 }
-.focus-den .spirit-room-image {
+.focus-den .den-room-image {
   width: 100%; height: 100%; object-fit: cover;
   transition: opacity 1s ease;
 }
 
 /* LAYER 1: Avatar */
-.focus-den .spirit-avatar-layer {
+.focus-den .den-avatar-layer {
   position: absolute;
   bottom: 18%; 
   left: 50%;
@@ -62,22 +62,22 @@
   z-index: 10;
   pointer-events: none; 
 }
-.focus-den .spirit-avatar-img {
+.focus-den .den-avatar-img {
   width: 280px; height: auto;
   filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6));
 }
 
 /* LAYER 2: UI Container (Click-through) */
-.focus-den .spirit-ui-layer {
+.focus-den .den-ui-layer {
   position: absolute; inset: 0; z-index: 20;
   pointer-events: none; 
 }
 
-.focus-den .spirit-ui-layer button,
-.focus-den .spirit-ui-layer .spirit-window,
-.focus-den .spirit-ui-layer .spirit-window *,
-.focus-den .spirit-ui-layer .hud-active-panel,
-.focus-den .spirit-ui-layer .hud-center-bar div {
+.focus-den .den-ui-layer button,
+.focus-den .den-ui-layer .den-window,
+.focus-den .den-ui-layer .den-window *,
+.focus-den .den-ui-layer .hud-active-panel,
+.focus-den .den-ui-layer .hud-center-bar div {
   pointer-events: auto;
 }
 
@@ -95,7 +95,7 @@
   cursor: pointer;
 }
 
-.focus-den .spirit-date-input {
+.focus-den .den-date-input {
   background-color: #020617;
   color: #e5e7eb;
   border: 1px solid rgba(255,255,255,0.2);
@@ -105,13 +105,13 @@
   letter-spacing: 0.04em;
 }
 
-.focus-den .spirit-date-input::-webkit-calendar-picker-indicator {
+.focus-den .den-date-input::-webkit-calendar-picker-indicator {
   filter: invert(1) brightness(1.4);
   cursor: pointer;
   opacity: 0.85;
 }
 
-.focus-den .spirit-date-input:hover {
+.focus-den .den-date-input:hover {
   border-color: #0ea5e9;
   box-shadow: 0 0 0 1px rgba(14, 165, 233,0.4);
 }
@@ -159,7 +159,7 @@
 /* BOTTOM CENTER: ENCOURAGEMENT END*/
 
 /* ============================================================
-   SARAH — MODE POPUP (SPIRIT CITY GLASS STYLE)
+   SARAH — MODE POPUP
    ============================================================ */
 
 .focus-den .mode-popup {
@@ -317,7 +317,7 @@
   letter-spacing: 0.8px;              /* sidebar spacing */
   text-shadow: 0 2px 4px rgba(0,0,0,0.6);
 
-  /* ADDED — Spirit City glass look */
+  /* glass look */
   border: 1px solid rgba(255,255,255,0.18);
   backdrop-filter: blur(6px);
 }
@@ -399,7 +399,7 @@
 }
 
 /* ============================================================
-   SARAH — STREAK + EXP BAR (Spirit City Style)
+   SARAH — STREAK + EXP BAR
    ============================================================ */
 
 .focus-den .streak-exp-container {
@@ -497,7 +497,7 @@
 /* EXP BAR AND STREAK END */
 
 
-/* MINI INFO PANEL (under icons, same placement Spirit City uses) */
+/* MINI INFO PANEL (under icons) */
 .focus-den .quick-info-panel {
   margin-top: 24px;   /* ← increase this number for more space */
   width: 320px;
@@ -623,7 +623,7 @@
 }
 
 /* ============================================================
-   4B. SARAH'S LEFT SIDEBAR — SPIRIT CITY STYLE BUTTONS (FIXED)
+   4B. SARAH'S LEFT SIDEBAR
    ============================================================ */
 
 /* MAIN BUTTON WRAPPER */
@@ -639,14 +639,14 @@
 }
 
 .focus-den .sidebar-btn:hover {
-  transform: scale(1.10);         /* Bigger hover like Spirit City */
+  transform: scale(1.10);         
 }
 
 /* ICON CIRCLE — NOW BIGGER + SOLID GLASS PURPLE */
 .focus-den .sidebar-icon {
   width: 82px;                    /* Bigger */
   height: 82px;                   /* Bigger */
-  background: rgba(15, 23, 42, 0.92);  /* DEEPER Spirit City purple glass */
+  background: rgba(15, 23, 42, 0.92);  /* deep glass */
   border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.18);
   backdrop-filter: blur(12px);
@@ -784,7 +784,7 @@
 /* =========================================
    5. WINDOWS & MODALS
    ========================================= */
-.focus-den .spirit-window-overlay {
+.focus-den .den-window-overlay {
   position: absolute; inset: 0; z-index: 50;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
@@ -793,7 +793,7 @@
   animation: fadeIn 0.2s ease-out;
 }
 
-.focus-den .spirit-window {
+.focus-den .den-window {
   background: #25222a;
   border: 2px solid #1e293b;
   border-radius: 20px;
@@ -811,7 +811,7 @@
 }
 .focus-den .window-title {
   font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1px; color: var(--spirit-text);
+  letter-spacing: 1px; color: var(--den-text);
 }
 .focus-den .close-btn {
   background: none; border: none;
@@ -825,7 +825,7 @@
 }
 
 /* Inputs */
-.focus-den .spirit-input {
+.focus-den .den-input {
   background: #020617;
   border: 1px solid #1e293b;
   padding: 12px;
@@ -833,9 +833,9 @@
   color: white;
   width: 100%;
 }
-.focus-den .spirit-input:focus { border-color: var(--spirit-purple); }
+.focus-den .den-input:focus { border-color: var(--den-accent); }
 
-.focus-den .spirit-btn-primary {
+.focus-den .den-btn-primary {
   width: 100%;
   padding: 12px;
   background: #fff; color: #000;
@@ -843,7 +843,7 @@
   font-weight: bold; cursor: pointer;
   transition: transform 0.1s;
 }
-.focus-den .spirit-btn-primary:active { transform: scale(0.98); }
+.focus-den .den-btn-primary:active { transform: scale(0.98); }
 
 /* Task List */
 .focus-den .task-item {
@@ -1069,7 +1069,7 @@
 }
 
 /* secondary button style */
-.focus-den .spirit-btn-secondary {
+.focus-den .den-btn-secondary {
   padding: 10px 18px;
   border-radius: 10px;
   border: 1px solid rgba(156, 163, 175, 0.7);
@@ -1151,7 +1151,7 @@
 
 /* =========================================
    BREAK + FLOWTIME DIALOG WINDOWS
-   Same Spirit City aesthetic
+   Same glass look
    ========================================= */
 
 .focus-den .break-dialog-overlay,
@@ -1214,7 +1214,7 @@
 /* END OF GIVEUP DIALOG*/
 
 /* =========================================
-   CALENDAR (SPIRIT CITY STYLE)
+   CALENDAR
    ========================================= */
 
 .focus-den .calendar-overlay {
