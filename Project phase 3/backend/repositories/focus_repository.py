@@ -349,11 +349,11 @@ def city_layout(user_id):
         cursor.execute(
             """
             SELECT u.layout_id, u.item_id, u.position_x, u.position_y, u.placed_at,
-                   f.item_name, f.image_url, f.rarity_level
+                   f.item_name, f.image_url AS art, f.rarity_level
             FROM usercitylayout u
             JOIN focusitems f ON f.item_id = u.item_id
             WHERE u.user_id = %s
-            ORDER BY u.placed_at
+            ORDER BY u.placed_at, u.layout_id
             """,
             (user_id,),
         )
@@ -404,7 +404,7 @@ def list_shop_items():
         cursor.execute(
             """
             SELECT f.item_id, f.item_name, f.rarity_level, f.focus_cost_min AS price,
-                   f.description, t.type_name AS item_type
+                   f.image_url AS art, f.description, t.type_name AS item_type
             FROM focusitems f
             JOIN item_types t ON t.item_type_id = f.item_type_id
             ORDER BY f.focus_cost_min, f.item_id
@@ -414,11 +414,15 @@ def list_shop_items():
 
 
 def inventory(user_id):
-    """Items the user owns, with how many of each."""
+    """Items the user owns: how many of each, how many are placed in
+    StudyVille, and how many are still free to place."""
     with transaction(dictionary=True) as cursor:
         cursor.execute(
             """
-            SELECT f.item_id, f.item_name, f.rarity_level, u.quantity, u.last_earned_at
+            SELECT f.item_id, f.item_name, f.rarity_level, f.image_url AS art,
+                   u.quantity, u.last_earned_at,
+                   (SELECT COUNT(*) FROM usercitylayout c
+                    WHERE c.user_id = u.user_id AND c.item_id = u.item_id) AS placed
             FROM userfocusitems u
             JOIN focusitems f ON f.item_id = u.item_id
             WHERE u.user_id = %s AND u.quantity > 0
@@ -426,7 +430,11 @@ def inventory(user_id):
             """,
             (user_id,),
         )
-        return cursor.fetchall()
+        items = cursor.fetchall()
+    for item in items:
+        item["placed"] = int(item["placed"])
+        item["available"] = max(0, item["quantity"] - item["placed"])
+    return items
 
 
 def buy_item(user_id, item_id, now):

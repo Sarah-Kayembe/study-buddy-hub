@@ -92,7 +92,9 @@ def test_calendar_groups_minutes_topics_and_mood_by_day(logged_in_client, db):
 def test_city_layout_lists_placed_items(logged_in_client, db):
     user_id = logged_in_client.user["user_id"]
     cursor = db.cursor()
-    cursor.execute("INSERT INTO focusitems (item_type_id, item_name, rarity_level) VALUES (1, 'Coffee Shop', 'rare')")
+    cursor.execute(
+        "INSERT INTO focusitems (item_type_id, item_name, rarity_level, image_url) VALUES (1, 'Kiosk', 'rare', 'kiosk')"
+    )
     cursor.execute(
         "INSERT INTO usercitylayout (user_id, item_id, position_x, position_y) VALUES (%s, %s, 2, 3)",
         (user_id, cursor.lastrowid),
@@ -101,7 +103,7 @@ def test_city_layout_lists_placed_items(logged_in_client, db):
 
     city = logged_in_client.get("/api/focus/city").get_json()
 
-    assert [(c["item_name"], c["position_x"], c["position_y"]) for c in city] == [("Coffee Shop", 2, 3)]
+    assert [(c["item_name"], c["art"], c["position_x"], c["position_y"]) for c in city] == [("Kiosk", "kiosk", 2, 3)]
 
 
 def test_leaderboard_ranks_users_by_focus_minutes_in_period(logged_in_client, app):
