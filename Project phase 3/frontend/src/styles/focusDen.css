@@ -12,10 +12,13 @@
   --den-dark: #0b1120;
   --den-darker: #020617;
   --den-accent: #0ea5e9;
-  --den-glass: rgba(11, 17, 32, 0.85);
-  --den-border: rgba(255, 255, 255, 0.15);
-  --den-text: #E0E0E0;
-  --den-text-muted: #9CA3AF;
+  --den-accent-deep: #0369a1;
+  --den-sky: #7dd3fc;
+  --den-gold: #fcd34d;
+  --den-glass: rgba(2, 6, 23, 0.72);
+  --den-border: rgba(148, 163, 184, 0.28);
+  --den-text: #e5e7eb;
+  --den-text-muted: #94a3b8;
 }
 
 .focus-den, .focus-den * { box-sizing: border-box; }
@@ -24,7 +27,7 @@
   margin: 0; padding: 0;
   background-color: #000;
   color: var(--den-text);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -623,113 +626,58 @@
 }
 
 /* ============================================================
-   4B. SARAH'S LEFT SIDEBAR
+   4B. SARAH'S LEFT SIDEBAR (a glass rail of her drawn icons)
    ============================================================ */
-
-/* MAIN BUTTON WRAPPER */
 .focus-den .sidebar-btn {
-  background: none;               /* Not transparent circle — only wrapper is transparent */
+  background: none;
   border: none;
+  padding: 6px 4px;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 4px;
   cursor: pointer;
-  opacity: 1;
-  transition: transform 0.2s ease;
+  color: var(--den-text);
 }
 
-.focus-den .sidebar-btn:hover {
-  transform: scale(1.10);         
-}
-
-/* ICON CIRCLE — NOW BIGGER + SOLID GLASS PURPLE */
 .focus-den .sidebar-icon {
-  width: 82px;                    /* Bigger */
-  height: 82px;                   /* Bigger */
-  background: rgba(15, 23, 42, 0.92);  /* deep glass */
-  border-radius: 50%;
-  border: 3px solid rgba(255,255,255,0.18);
-  backdrop-filter: blur(12px);
-  
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
-
-  margin-bottom: 10px;
-  position: relative;
-
-  box-shadow:
-    0 6px 18px rgba(0,0,0,0.55),
-    inset 0 0 10px rgba(255,255,255,0.07);
-
-  transition: all 0.25s ease;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--den-border);
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-/* PNG IMAGE INSIDE ICON */
 .focus-den .sidebar-img {
-  width: 50px;        /* Bigger image */
-  height: 50px;
+  width: 38px;
+  height: 38px;
   object-fit: contain;
-  filter: brightness(1.2);
 }
 
-/* LABEL */
 .focus-den .sidebar-label {
-  margin-top: 4px;
-  font-size: 0.82rem;
-  letter-spacing: 1px;
-  color: #f1f1f1;
+  font-size: 0.75rem;
   font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  color: var(--den-text-muted);
 }
 
-/* PROPER ACTIVE + HOVER GLOW — NO LONGER OVERWRITES MAGIC CIRCLE */
+.focus-den .sidebar-btn:hover .sidebar-icon,
+.focus-den .sidebar-btn:focus-visible .sidebar-icon {
+  border-color: var(--den-sky);
+}
+
 .focus-den .sidebar-btn.active .sidebar-icon {
-  border-color: rgba(255,255,255,0.55);
-  box-shadow:
-    0 0 20px rgba(125,211,252,0.95),
-    0 0 30px rgba(14,165,233,0.65),
-    inset 0 0 12px rgba(255,255,255,0.12);
+  background: rgba(3, 105, 161, 0.55);
+  border-color: var(--den-sky);
 }
 
-.focus-den .sidebar-btn:hover .sidebar-icon {
-  border-color: rgba(255,255,255,0.40);
-  box-shadow:
-    0 0 14px rgba(56, 189, 248,0.75),
-    0 0 22px rgba(14, 165, 233,0.55),
-    inset 0 0 10px rgba(255,255,255,0.08);
+.focus-den .sidebar-btn.active .sidebar-label {
+  color: var(--den-sky);
 }
-
-/* MAGIC ORBITING RING — NOW VISIBLE & NOT OVERRIDDEN */
-.focus-den .magic-ring {
-  position: absolute;
-  width: 60px;     
-  height: 60px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-
-  border-top: 3px solid rgba(255,255,255,0.9);
-  border-right: 3px solid transparent;
-  border-bottom: 3px solid transparent;
-  border-left: 3px solid transparent;
-
-  animation: orbit 2s linear infinite;
-  pointer-events: none;
-  z-index: 5;
-}
-
-@keyframes orbit {
-  0%   { transform: translate(-50%, -50%) rotate(0deg); opacity: 0.7; }
-  50%  { opacity: 1; }
-  100% { transform: translate(-50%, -50%) rotate(360deg); opacity: 0.7; }
-}
-
-
-/* ============================================================
-   END SIDEBAR SECTION
-   ============================================================ */
 
 /* --- Encouragement Bar (Bottom Center) --- */
 .focus-den .encouragement-box {
@@ -794,30 +742,30 @@
 }
 
 .focus-den .den-window {
-  background: #25222a;
-  border: 2px solid #1e293b;
-  border-radius: 20px;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+  background: rgba(11, 17, 32, 0.97);
+  border: 1px solid var(--den-border);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(2, 6, 23, 0.7);
   overflow: hidden;
   display: flex; flex-direction: column;
   animation: zoomIn 0.2s ease-out;
 }
 
 .focus-den .window-header {
-  background: #0b1120;
-  padding: 15px 20px;
-  border-bottom: 2px solid #1e293b;
+  background: transparent;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
   display: flex; justify-content: space-between; align-items: center;
 }
 .focus-den .window-title {
-  font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1px; color: var(--den-text);
+  font-weight: 700; font-size: 1.05rem; color: var(--den-text);
 }
 .focus-den .close-btn {
   background: none; border: none;
-  color: #666; font-size: 1.2rem; cursor: pointer;
+  color: var(--den-text-muted); font-size: 1.1rem; cursor: pointer;
+  border-radius: 8px; padding: 2px 6px;
 }
-.focus-den .close-btn:hover { color: white; }
+.focus-den .close-btn:hover { color: white; background: rgba(148, 163, 184, 0.15); }
 
 .focus-den .window-content {
   padding: 20px;
@@ -838,8 +786,9 @@
 .focus-den .den-btn-primary {
   width: 100%;
   padding: 12px;
-  background: #fff; color: #000;
-  border: none; border-radius: 10px;
+  background: linear-gradient(135deg, var(--den-accent), var(--den-accent-deep));
+  color: #fff;
+  border: none; border-radius: 999px;
   font-weight: bold; cursor: pointer;
   transition: transform 0.1s;
 }
@@ -1342,3 +1291,684 @@
 
 
 /* Sarah End of css */
+
+/* =========================================
+   FOCUS DEN LAYOUT
+   Header strip like the main site's nav, Sarah's icon rail on the left,
+   the running session near the top, and one dock along the bottom.
+   ========================================= */
+
+.focus-den .den-ui-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.focus-den .den-ui-layer > * {
+  pointer-events: auto;
+}
+
+.focus-den .den-ui-layer.is-hidden {
+  opacity: 0;
+}
+
+.focus-den .den-ui-layer.is-hidden > * {
+  pointer-events: none;
+}
+
+.focus-den button:focus-visible {
+  outline: 2px solid var(--den-sky);
+  outline-offset: 2px;
+}
+
+/* Shared glass surface */
+.focus-den .den-header,
+.focus-den .den-rail,
+.focus-den .den-session,
+.focus-den .den-dock,
+.focus-den .den-toast {
+  background: var(--den-glass);
+  border: 1px solid var(--den-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 12px 32px rgba(2, 6, 23, 0.45);
+}
+
+/* ---------- Header ---------- */
+.focus-den .den-header {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1180px, calc(100% - 32px));
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 10px 8px 12px;
+  border-radius: 18px;
+}
+
+.focus-den .den-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.focus-den .den-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--den-text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.focus-den .den-back-link svg {
+  color: inherit !important;
+}
+
+.focus-den .den-back-link:hover {
+  color: var(--den-text);
+  border-color: var(--den-border);
+}
+
+.focus-den .den-header-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #f8fafc;
+  white-space: nowrap;
+}
+
+.focus-den .den-progress {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.focus-den .den-level {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.focus-den .den-level-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: #fff;
+  background: radial-gradient(circle at 30% 25%, var(--den-sky), var(--den-accent-deep));
+  box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.18);
+  font-variant-numeric: tabular-nums;
+}
+
+.focus-den .den-level-text {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  column-gap: 10px;
+  row-gap: 4px;
+}
+
+.focus-den .den-level-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--den-text);
+}
+
+.focus-den .den-xp-numbers {
+  font-size: 0.75rem;
+  color: var(--den-text-muted);
+  font-variant-numeric: tabular-nums;
+  justify-self: end;
+}
+
+.focus-den .den-xp-bar {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 180px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.2);
+  overflow: hidden;
+}
+
+.focus-den .den-xp-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--den-accent), var(--den-sky));
+  transition: width 0.8s ease;
+}
+
+.focus-den .den-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--den-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.focus-den .den-header-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.focus-den .den-icon-btn,
+.focus-den .den-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--den-border);
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s ease;
+}
+
+.focus-den .den-icon-btn:hover,
+.focus-den .den-avatar:hover {
+  border-color: var(--den-sky);
+}
+
+.focus-den .den-icon-btn.is-muted {
+  opacity: 0.45;
+}
+
+.focus-den .den-avatar {
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.focus-den .den-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.focus-den .den-profile {
+  position: relative;
+}
+
+.focus-den .den-profile-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 220px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(11, 17, 32, 0.98);
+  border: 1px solid var(--den-border);
+  box-shadow: 0 18px 40px rgba(2, 6, 23, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 40;
+}
+
+.focus-den .den-profile-name {
+  font-weight: 700;
+  color: #fff;
+}
+
+.focus-den .den-profile-email {
+  font-size: 0.78rem;
+  color: var(--den-sky);
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
+.focus-den .den-profile-menu button {
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--den-text);
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.focus-den .den-profile-menu button:hover {
+  background: rgba(14, 165, 233, 0.16);
+}
+
+.focus-den .den-profile-menu button.is-danger {
+  color: #fca5a5;
+  margin-top: 4px;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 0 0 8px 8px;
+}
+
+/* ---------- Sarah's icon rail ---------- */
+.focus-den .den-rail {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 6px;
+  border-radius: 20px;
+}
+
+/* ---------- Running session ---------- */
+.focus-den .den-session {
+  position: absolute;
+  top: 86px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(400px, calc(100% - 32px));
+  padding: 14px 20px 14px;
+  border-radius: 18px;
+  text-align: center;
+}
+
+.focus-den .den-session-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.focus-den .den-session-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--den-sky);
+}
+
+.focus-den .den-session.is-break .den-session-label {
+  color: #86efac;
+}
+
+.focus-den .den-session-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.focus-den .den-session-actions button {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.focus-den .den-session-stop {
+  background: rgba(34, 197, 94, 0.16);
+  color: #86efac;
+}
+
+.focus-den .den-session-giveup {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+}
+
+.focus-den .den-session-actions button:hover {
+  border-color: currentColor;
+}
+
+.focus-den .den-session-time {
+  margin: 4px 0 8px;
+  font-size: clamp(2.6rem, 6vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1;
+  color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.focus-den .den-session-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.2);
+  overflow: hidden;
+}
+
+.focus-den .den-session-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--den-accent), var(--den-sky));
+  transition: width 1s linear;
+}
+
+.focus-den .den-session.is-break .den-session-fill {
+  background: linear-gradient(90deg, #22c55e, #86efac);
+}
+
+.focus-den .den-session-hint {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  color: var(--den-text-muted);
+}
+
+/* ---------- Bottom dock ---------- */
+.focus-den .den-dock {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1040px, calc(100% - 32px));
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 12px;
+  border-radius: 20px;
+}
+
+.focus-den .den-room-modes {
+  display: flex;
+  padding: 3px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.focus-den .den-room-modes button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 9px;
+  background: none;
+  color: var(--den-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.focus-den .den-room-modes button svg {
+  color: inherit !important;
+}
+
+.focus-den .den-room-modes button.is-active {
+  background: var(--den-accent-deep);
+  color: #fff;
+}
+
+.focus-den .den-dock-tools {
+  display: flex;
+  gap: 4px;
+}
+
+.focus-den .den-dock-tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 64px;
+  padding: 6px 0 4px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--den-text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.focus-den .den-dock-tool img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.focus-den .den-dock-tool:hover {
+  border-color: var(--den-border);
+  color: var(--den-text);
+}
+
+.focus-den .den-dock-tool.is-active {
+  background: rgba(3, 105, 161, 0.5);
+  border-color: var(--den-sky);
+  color: #fff;
+}
+
+.focus-den .den-dock-note {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 16px;
+  border-left: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.focus-den .den-dock-next,
+.focus-den .den-dock-message {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.focus-den .den-dock-next {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.focus-den .den-dock-message {
+  font-size: 0.8rem;
+  color: var(--den-text-muted);
+}
+
+.focus-den .den-mood-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+
+/* ---------- Rewards ---------- */
+.focus-den .den-toast {
+  position: absolute;
+  top: 86px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border-color: rgba(252, 211, 77, 0.45);
+  animation: den-toast-in 0.35s ease-out;
+}
+
+.focus-den .den-toast-title {
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.focus-den .den-toast-gain {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.88rem;
+  color: var(--den-text);
+}
+
+.focus-den .den-toast-gain strong {
+  color: var(--den-gold);
+}
+
+@keyframes den-toast-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.focus-den .den-levelup {
+  position: relative;
+  width: min(380px, calc(100% - 32px));
+  padding: 36px 28px 26px;
+  border-radius: 22px;
+  text-align: center;
+  background: radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.35), rgba(11, 17, 32, 0.98) 60%);
+  border: 1px solid rgba(125, 211, 252, 0.45);
+  box-shadow: 0 30px 80px rgba(2, 6, 23, 0.8);
+  animation: zoomIn 0.25s ease-out;
+}
+
+.focus-den .den-levelup h2 {
+  margin: 16px 0 8px;
+  font-size: 1.5rem;
+  color: #f8fafc;
+}
+
+.focus-den .den-levelup p {
+  margin: 0 0 20px;
+  color: var(--den-text-muted);
+  line-height: 1.5;
+}
+
+.focus-den .den-levelup-badge {
+  position: relative;
+  z-index: 1;
+  width: 92px;
+  height: 92px;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #fff;
+  background: radial-gradient(circle at 30% 25%, var(--den-sky), var(--den-accent-deep));
+  box-shadow: 0 0 0 6px rgba(125, 211, 252, 0.2), 0 0 40px rgba(14, 165, 233, 0.6);
+}
+
+.focus-den .den-levelup-burst {
+  position: absolute;
+  top: 82px;
+  left: 50%;
+}
+
+.focus-den .den-levelup-burst span {
+  position: absolute;
+  width: 6px;
+  height: 18px;
+  border-radius: 3px;
+  background: var(--den-gold);
+  transform: rotate(calc(var(--i) * 30deg)) translateY(-70px);
+  opacity: 0;
+  animation: den-burst 0.9s ease-out 0.15s forwards;
+}
+
+.focus-den .den-levelup-burst span:nth-child(even) {
+  background: var(--den-sky);
+}
+
+@keyframes den-burst {
+  0% { opacity: 0; transform: rotate(calc(var(--i) * 30deg)) translateY(-50px) scaleY(0.4); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(calc(var(--i) * 30deg)) translateY(-95px) scaleY(1); }
+}
+
+/* ---------- Smaller screens ---------- */
+@media (max-width: 900px) {
+  .focus-den .den-header {
+    grid-template-columns: 1fr auto;
+    row-gap: 8px;
+  }
+
+  .focus-den .den-progress {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
+  }
+
+  .focus-den .den-xp-bar {
+    width: 120px;
+  }
+
+  .focus-den .den-rail {
+    top: 116px;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: row;
+    max-width: calc(100% - 32px);
+    overflow-x: auto;
+  }
+
+  .focus-den .den-session,
+  .focus-den .den-toast {
+    top: 212px;
+  }
+
+  .focus-den .den-dock {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .focus-den .den-dock-note {
+    order: 3;
+    flex: 1 1 calc(100% - 60px);
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .focus-den .den-mood-btn {
+    order: 4;
+  }
+
+  .focus-den .den-room-modes button span,
+  .focus-den .den-back-link span {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .focus-den .den-header-title,
+  .focus-den .den-dock-tool span {
+    display: none;
+  }
+
+  .focus-den .den-dock-tool {
+    width: 46px;
+  }
+
+  .focus-den .den-rail .sidebar-label {
+    display: none;
+  }
+
+  .focus-den .den-rail .sidebar-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .focus-den .den-rail .sidebar-img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .focus-den .den-toast {
+    left: 16px;
+    right: 16px;
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focus-den *,
+  .focus-den *::before,
+  .focus-den *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

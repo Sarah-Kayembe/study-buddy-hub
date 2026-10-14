@@ -5,8 +5,8 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  useRef,
 } from "react";
+import { useNavigate } from "react-router-dom";
 
 // --- COMPONENTS -----
 import "../styles/focusDen.css";
@@ -14,7 +14,8 @@ import RoomScene from "../components/Dashboard/RoomScene";
 import TopBar from "../components/Dashboard/TopBar";
 import LeftSidebar from "../components/Dashboard/LeftSidebar";
 import QuickMenu from "../components/Dashboard/QuickMenu";
-import EncouragementBar from "../components/Dashboard/EncouragementBar";
+import SessionCard from "../components/Dashboard/SessionCard";
+import { LevelUpCelebration, SessionRewardToast } from "../components/Dashboard/RewardCelebration";
 
 // --- WINDOWS -----
 import TimerWindow from "../components/Dashboard/Windows/TimerWindow";
@@ -47,12 +48,6 @@ import Icon from "../components/Dashboard/Icon";
 
 const API_BASE_URL = `${API_BASE}/api/focus`;
 
-// Format seconds -> MM:SS
-function formatSeconds(s) {
-  const m = Math.floor(s / 60).toString().padStart(2, "0");
-  const sec = (s % 60).toString().padStart(2, "0");
-  return `${m}:${sec}`;
-}
 
 
 // Static reward options
@@ -76,14 +71,14 @@ export default function TimerDashboard() {
 
   // Dashboard Data
   const [tasks, setTasks] = useState([]);
-  const [money, setMoney] = useState(0);
-  const [stats, setStats] = useState({});
-  const [level, setLevel] = useState(1);
+  // Level, XP, coins and streak from the backend (see /api/focus/dashboard)
+  const [progress, setProgress] = useState(null);
+  const [sessionReward, setSessionReward] = useState(null);
+  const [levelUp, setLevelUp] = useState(null);
 
   // User account data (used for top bar and profile picture)
   const [user, setUser] = useState(null);
 
-  const [activeQuick, setActiveQuick] = useState(null);
 
   // Timer State
   const [timerMode, setTimerMode] = useState(null);
@@ -91,6 +86,7 @@ export default function TimerDashboard() {
   const [originalFocusSeconds, setOriginalFocusSeconds] = useState(25 * 60);
   const [isBreak, setIsBreak] = useState(false);
   const [breakSecondsLeft, setBreakSecondsLeft] = useState(0);
+  const [breakTotalSeconds, setBreakTotalSeconds] = useState(0);
   const [flowSeconds, setFlowSeconds] = useState(0);
 
   const [focusMinutes, setFocusMinutes] = useState(25);
@@ -125,8 +121,6 @@ export default function TimerDashboard() {
   const [showSoundSettings, setShowSoundSettings] = useState(false);
 
 
-  // Real-time clock
-  const [currentTime, setCurrentTime] = useState("");
 
   // Reward system
   const [showRewardPicker, setShowRewardPicker] = useState(false);
@@ -249,6 +243,7 @@ export default function TimerDashboard() {
   const handleCancelPreStart = useCallback(() => resetTimerState(), [resetTimerState]);
 
   const handleGiveUpRequest = useCallback(() => setShowGiveUpDialog(true), []);
+  const clearSessionReward = useCallback(() => setSessionReward(null), []);
 
   // Fetch dashboard data
   const fetchDashboardData = useCallback(async () => {
@@ -257,9 +252,7 @@ export default function TimerDashboard() {
       if (res.ok) {
         const data = await res.json();
         setTasks(data.tasks || []);
-        setMoney(data.money || 0);
-        setStats(data.stats || {});
-        setLevel(data.level || 1);
+        setProgress(data.progress || null);
       }
     } catch (e) {
       console.error("API Error", e);
@@ -314,14 +307,21 @@ export default function TimerDashboard() {
 
         const result = await res.json();
         if (result.success) {
-          fetchDashboardData();
-          alert(`Session Complete! +${result.reward.coins} Coins`);
+          setProgress((prev) => ({
+            ...result.progress,
+            streak_days: result.current_streak_days ?? prev?.streak_days ?? 0,
+          }));
+          if (result.leveled_up) {
+            setLevelUp({ level: result.progress.level, reward: result.reward });
+          } else {
+            setSessionReward(result.reward);
+          }
         }
       } catch (e) {
         console.error("Session log failed", e);
       }
     },
-    [tasks, shortBreakMinutes, longBreakMinutes, fetchDashboardData]
+    [tasks, shortBreakMinutes, longBreakMinutes]
   );
 
   // Flowtime finishing
@@ -364,6 +364,7 @@ export default function TimerDashboard() {
       shortBreakMinutes > 0
     ) {
       setBreakSecondsLeft(shortBreakMinutes * 60);
+      setBreakTotalSeconds(shortBreakMinutes * 60);
       setIsBreak(true);
       setIsTimerRunning(true);
       playBreakSound();
@@ -452,31 +453,27 @@ export default function TimerDashboard() {
     return () => clearInterval(id);
   }, [timerMode, isTimerRunning]);
 
-  // Real-time clock
-  useEffect(() => {
-    const update = () => {
-      const now = new Date();
-      const h = now.getHours().toString().padStart(2, "0");
-      const m = now.getMinutes().toString().padStart(2, "0");
-      setCurrentTime(`${h}:${m}`);
-    };
-    update();
-    const interval = setInterval(update, 1000);
-    return () => clearInterval(interval);
-  }, []);
+
+  // Leaving the den ends the running session, so check first.
+  const navigate = useNavigate();
+  const leaveDen = useCallback(
+    (path) => {
+      if (
+        isTimerRunning &&
+        !window.confirm("Leaving the Focus Den stops your timer. Leave anyway?")
+      ) {
+        return;
+      }
+      navigate(path);
+    },
+    [isTimerRunning, navigate]
+  );
 
   // Helper to toggle windows
   const toggleWindow = (win) => {
     setActiveWindow((prev) => (prev === win ? null : win));
   };
 
-  // Quick menu timer display
-  const quickMenuTime =
-    timerMode === "flowtime"
-      ? formatSeconds(flowSeconds)
-      : isBreak
-      ? formatSeconds(breakSecondsLeft)
-      : formatSeconds(timeLeft);
 
   return (
     <div className="den-dashboard">
@@ -486,94 +483,76 @@ export default function TimerDashboard() {
       </div>
 
       <div
-        className="den-ui-layer"
-        style={{
-          opacity: uiVisible ? 1 : 0,
-          transition: "opacity 0.5s",
-        }}
+        className={`den-ui-layer ${uiVisible ? "" : "is-hidden"}`}
+        aria-hidden={!uiVisible}
       >
-        <div className="hud-top-bar">
-           <TopBar
-              level={level}
-              money={money}
-              exp={stats.total_exp || 0}
-              streakDays={stats.current_streak_days || 0}
+        <TopBar
+          progress={progress}
+          profileImage={user?.profile_image}
+          firstName={user?.first_name}
+          lastName={user?.last_name}
+          email={user?.email}
+          soundMuted={soundMuted}
+          soundTheme={soundTheme}
+          onOpenSoundSettings={() => setShowSoundSettings(true)}
+          onToggleUI={() => setUiVisible(!uiVisible)}
+          showProfileMenu={showProfileMenu}
+          setShowProfileMenu={setShowProfileMenu}
+          onViewProfile={() => {
+            setShowProfileMenu(false);
+            setShowProfileWindow(true);
+          }}
+          onLeave={leaveDen}
+          onLogout={async () => {
+            await fetch(`${API_BASE}/auth/logout`, {
+              method: "POST",
+              credentials: "include",
+            });
+            window.location.href = "/login";
+          }}
+        />
 
-              profileImage={user?.profile_image}
-              firstName={user?.first_name}
-              lastName={user?.last_name}
-              email={user?.email}
-
-              soundMuted={soundMuted}
-              soundTheme={soundTheme}
-              onOpenSoundSettings={() => setShowSoundSettings(true)}
-              onToggleUI={() => setUiVisible(!uiVisible)}
-
-              showProfileMenu={showProfileMenu}
-              setShowProfileMenu={setShowProfileMenu}
-
-              onViewProfile={() => {
-                setShowProfileMenu(false);
-                setShowProfileWindow(true);
-              }}
-
-              onLogout={async () => {
-                await fetch(`${API_BASE}/auth/logout`, {
-                  method: "POST",
-                  credentials: "include",
-                });
-                window.location.href = "/login";
-              }}
-            />
-
-
-
-
-        </div>
-
-        <div className="hud-left-sidebar">
+        <div className="den-rail">
           <LeftSidebar
+            activeWindow={activeWindow}
             onOpenStudyVille={() => toggleWindow("studyville")}
-            onOpenRewards={() => toggleWindow("inventory")}
+            onOpenBuddies={() => leaveDen("/groups")}
             onOpenGroups={() => alert("Groups Coming Soon")}
             onOpenLeaderboard={() => toggleWindow("leaderboard")}
           />
         </div>
 
-        <div className="hud-quick-menu">
-          <QuickMenu
-            activeQuick={activeQuick}
-            setActiveQuick={setActiveQuick}
-            onToggleTimer={() => toggleWindow("timer")}
-            onToggleTasks={() => toggleWindow("tasks")}
-            onToggleCalendar={() => toggleWindow("calendar")}
-            onToggleStats={() => toggleWindow("stats")}
-            nextTask={tasks[0] ? tasks[0].title : null}
-            timerRunning={isTimerRunning}
-            remainingTime={quickMenuTime}
-            currentTime={currentTime}
-          />
-        </div>
-
-        <div className="hud-center-bar">
-          <EncouragementBar
-            mode={currentMode}
-            setMode={setCurrentMode}
-            onOpenMood={() => toggleWindow("mood")}
-          />
-        </div>
-
         {isTimerRunning && (
-          <FloatingTimerBubble
+          <SessionCard
             timerMode={timerMode}
             isBreak={isBreak}
             timeLeft={timeLeft}
+            totalSeconds={originalFocusSeconds}
             flowSeconds={flowSeconds}
             breakSecondsLeft={breakSecondsLeft}
+            breakTotalSeconds={breakTotalSeconds}
             onStopFlowtime={handleFlowtimeStop}
             onGiveUp={handleGiveUpRequest}
           />
         )}
+
+        {sessionReward && (
+          <SessionRewardToast reward={sessionReward} onDone={clearSessionReward} />
+        )}
+
+        <QuickMenu
+          activeWindow={activeWindow}
+          onToggleTimer={() => toggleWindow("timer")}
+          onToggleTasks={() => toggleWindow("tasks")}
+          onToggleCalendar={() => leaveDen("/groups")}
+          onToggleStats={() => toggleWindow("stats")}
+          onOpenMood={() => toggleWindow("mood")}
+          roomMode={currentMode}
+          setRoomMode={setCurrentMode}
+          nextTask={tasks.find((t) => t.status !== "done")?.title}
+          timerRunning={isTimerRunning}
+          firstName={user?.first_name}
+        />
       </div>
 
       {flowtimeTooShort && (
@@ -622,6 +601,7 @@ export default function TimerDashboard() {
             const userMinutes = prompt("Break length (minutes)?", 10);
             if (!userMinutes) return setShowFlowDialog(null);
             setBreakSecondsLeft(Number(userMinutes) * 60);
+            setBreakTotalSeconds(Number(userMinutes) * 60);
             setIsBreak(true);
             setIsTimerRunning(true);
             setTimerMode("break");
@@ -879,7 +859,6 @@ export default function TimerDashboard() {
           onFlowtimeStop={handleFlowtimeStop}
           onClose={() => {
             setActiveWindow(null);
-            setActiveQuick(null);
           }}
         />
       </div>
@@ -891,7 +870,6 @@ export default function TimerDashboard() {
             tasks={tasks}
             onClose={() => {
               setActiveWindow(null);
-              setActiveQuick(null);
             }}
             onRefreshData={loadTasks}
           />
@@ -904,7 +882,6 @@ export default function TimerDashboard() {
           <MoodWindow
             onClose={() => {
               setActiveWindow(null);
-              setActiveQuick(null);
             }}
           />
         </div>
@@ -916,7 +893,6 @@ export default function TimerDashboard() {
           <InventoryWindow
             onClose={() => {
               setActiveWindow(null);
-              setActiveQuick(null);
             }}
             onSelectItem={(item) => {
               setSelectedItemToPlace(item);
@@ -935,7 +911,6 @@ export default function TimerDashboard() {
             earnedRewards={earnedRewards}
             onClose={() => {
               setActiveWindow(null);
-              setActiveQuick(null);
             }}
           />
         </div>
@@ -947,7 +922,6 @@ export default function TimerDashboard() {
           <LeaderboardWindow
             onClose={() => {
               setActiveWindow(null);
-              setActiveQuick(null);
             }}
           />
         </div>
@@ -959,7 +933,6 @@ export default function TimerDashboard() {
           <StatsWindow
             onClose={() => {
               setActiveWindow(null);
-              setActiveQuick(null);
             }}
           />
         </div>
@@ -995,6 +968,14 @@ export default function TimerDashboard() {
       )}
 
 
+      {levelUp && (
+        <LevelUpCelebration
+          level={levelUp.level}
+          reward={levelUp.reward}
+          onClose={() => setLevelUp(null)}
+        />
+      )}
+
       {!uiVisible && (
         <button
           onClick={() => setUiVisible(true)}
@@ -1017,179 +998,6 @@ export default function TimerDashboard() {
           <Icon name="eye" title="show interface" />
         </button>
       )}
-    </div>
-  );
-}
-
-// Floating draggable timer bubble
-function FloatingTimerBubble({
-  timerMode,
-  isBreak,
-  timeLeft,
-  flowSeconds,
-  breakSecondsLeft,
-  onStopFlowtime,
-  onGiveUp,
-}) {
-  const [pos, setPos] = useState({
-    x: 0,
-    y: 0,
-  });
-  const [dragging, setDragging] = useState(false);
-  const dragStartRef = useRef({
-    mouseX: 0,
-    mouseY: 0,
-    x: 0,
-    y: 0,
-  });
-
-  useEffect(() => {
-    const move = (e) => {
-      if (!dragging) return;
-      const dx = e.clientX - dragStartRef.current.mouseX;
-      const dy = e.clientY - dragStartRef.current.mouseY;
-      setPos({
-        x: dragStartRef.current.x + dx,
-        y: dragStartRef.current.y + dy,
-      });
-    };
-    const stop = () => setDragging(false);
-
-    if (dragging) {
-      window.addEventListener("mousemove", move);
-      window.addEventListener("mouseup", stop);
-    }
-
-    return () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseup", stop);
-    };
-  }, [dragging]);
-
-  const seconds =
-    timerMode === "flowtime"
-      ? flowSeconds
-      : isBreak
-      ? breakSecondsLeft
-      : timeLeft;
-
-  const label =
-    isBreak ? "Break" : timerMode === "flowtime" ? "Flow" : "Focus";
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: 220 + pos.y,
-        right: 40 - pos.x,
-        zIndex: 60,
-        cursor: dragging ? "grabbing" : "grab",
-      }}
-      onMouseDown={(e) => {
-        setDragging(true);
-        dragStartRef.current = {
-          mouseX: e.clientX,
-          mouseY: e.clientY,
-          x: pos.x,
-          y: pos.y,
-        };
-      }}
-    >
-      <div
-        style={{
-          width: 180,
-          height: 180,
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle at 30% 20%, #111827, #020617 70%)",
-          border: "4px solid #0369a1",
-          boxShadow: "0 0 24px rgba(56,189,248,0.9)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          position: "relative",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            inset: 10,
-            borderRadius: "50%",
-            border: "3px solid rgba(148,163,184,0.4)",
-          }}
-        />
-
-        <div
-          style={{
-            textAlign: "center",
-            color: "#fff",
-          }}
-        >
-          <div
-            style={{
-              fontFamily: "monospace",
-              fontSize: "1.9rem",
-            }}
-          >
-            {formatSeconds(seconds)}
-          </div>
-
-          <div
-            style={{
-              fontSize: "0.75rem",
-              textTransform: "uppercase",
-              color: "#9ca3af",
-            }}
-          >
-            {label}
-          </div>
-
-          <div
-            style={{
-              marginTop: 8,
-              display: "flex",
-              justifyContent: "center",
-              gap: 10,
-            }}
-          >
-            {timerMode === "flowtime" && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onStopFlowtime();
-                }}
-                style={{
-                  border: "none",
-                  borderRadius: 999,
-                  padding: "4px 10px",
-                  background: "rgba(34,197,94,0.1)",
-                  color: "#4ade80",
-                  cursor: "pointer",
-                }}
-              >
-                Stop
-              </button>
-            )}
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onGiveUp();
-              }}
-              style={{
-                border: "none",
-                borderRadius: 999,
-                padding: "4px 10px",
-                background: "rgba(239,68,68,0.1)",
-                color: "#fca5a5",
-                cursor: "pointer",
-              }}
-            >
-              Give Up
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
