@@ -21,7 +21,6 @@ import { LevelUpCelebration, SessionRewardToast } from "../components/Dashboard/
 import TimerWindow from "../components/Dashboard/Windows/TimerWindow";
 import TaskWindow from "../components/Dashboard/Windows/TaskWindow";
 import MoodWindow from "../components/Dashboard/Windows/MoodWindow";
-import InventoryWindow from "../components/Dashboard/Windows/InventoryWindow";
 import StudyVilleWindow from "../components/Dashboard/Windows/StudyVilleWindow";
 import LeaderboardWindow from "../components/Dashboard/Windows/LeaderboardWindow";
 import StatsWindow from "../components/Dashboard/Windows/StatsWindow";
@@ -33,14 +32,6 @@ import ProfileWindow from "../components/Dashboard/Windows/ProfileWindow";
 //----- SOUND (timer sounds) -----
 import { AMBIENCE_THEMES, playChime, startAmbience } from "../utils/focusSounds";
 
-// StudyVille reward images (original SVG drawings)
-import treehouseImg from "../assets/studyville/treehouse.svg";
-import houseImg from "../assets/studyville/house.svg";
-import bookstoreImg from "../assets/studyville/bookstore.svg";
-import coffeeshopImg from "../assets/studyville/coffeeshop.svg";
-import roadImg from "../assets/studyville/road.svg";
-import road2Img from "../assets/studyville/road2.svg";
-import tileImg from "../assets/studyville/tile.svg";
 
 // API Configuration
 import { API_BASE } from "../api/base";
@@ -50,24 +41,14 @@ const API_BASE_URL = `${API_BASE}/api/focus`;
 
 
 
-// Static reward options
-// offsetY lifts taller drawings so their base sits on the tile.
-const REWARD_OPTIONS = [
-  { id: "treehouse", label: "Treehouse", image: treehouseImg, offsetY: 106 },
-  { id: "bhouse", label: "House", image: houseImg, offsetY: 86 },
-  { id: "bookstore", label: "Bookstore", image: bookstoreImg, offsetY: 76 },
-  { id: "coffeeshop", label: "Coffee Shop", image: coffeeshopImg, offsetY: 76 },
-  { id: "road", label: "Road Tile 1", image: roadImg },
-  { id: "road2", label: "Road Tile 2", image: road2Img },
-  { id: "tile", label: "Grass Tile", image: tileImg },
-];
 
 export default function TimerDashboard() {
   // General UI State
   const [currentMode, setCurrentMode] = useState("focus");
   const [uiVisible, setUiVisible] = useState(true);
   const [activeWindow, setActiveWindow] = useState(null);
-  const [selectedItemToPlace, setSelectedItemToPlace] = useState(null);
+  // Item to start placing when StudyVille opens from the Rewards window
+  const [itemToPlace, setItemToPlace] = useState(null);
 
   // Dashboard Data
   const [tasks, setTasks] = useState([]);
@@ -122,11 +103,6 @@ export default function TimerDashboard() {
 
 
 
-  // Reward system
-  const [showRewardPicker, setShowRewardPicker] = useState(false);
-  const [pendingConfig, setPendingConfig] = useState(null);
-  const [currentSessionReward, setCurrentSessionReward] = useState(null);
-  const [earnedRewards, setEarnedRewards] = useState([]);
 
   // Profile window
   const [showProfile, setShowProfile] = useState(false);
@@ -184,21 +160,12 @@ export default function TimerDashboard() {
     setTimeLeft(25 * 60);
     setOriginalFocusSeconds(25 * 60);
     setBreakSecondsLeft(0);
-    setCurrentSessionReward(null);
-    setPendingConfig(null);
   }, []);
 
-  const awardCurrentReward = useCallback(() => {
-    if (!currentSessionReward) return;
-    setEarnedRewards((prev) => [...prev, currentSessionReward]);
-    setCurrentSessionReward(null);
-  }, [currentSessionReward]);
-
-  // Start session after reward chosen
+  // Start a session with the settings chosen in the timer window
   const startTimerWithConfig = useCallback(
-    (config, reward) => {
+    (config) => {
       const type = config?.type || "pomodoro";
-      setCurrentSessionReward(reward);
       setTimerMode(type);
       setIsBreak(false);
       setIsTimerRunning(true);
@@ -225,21 +192,13 @@ export default function TimerDashboard() {
     [playStartSound]
   );
 
-  const handleStartSession = useCallback((config) => {
-    setPendingConfig(config || {});
-    // Close the timer window so the reward picker isn't hidden behind it.
-    setActiveWindow(null);
-    setShowRewardPicker(true);
-  }, []);
-
-  const handleRewardClick = useCallback(
-    (reward) => {
-      if (!pendingConfig) return;
-      setShowRewardPicker(false);
-      startTimerWithConfig(pendingConfig, reward);
-      setPendingConfig(null);
+  const handleStartSession = useCallback(
+    (config) => {
+      // Close the timer window so the room and session card are in view.
+      setActiveWindow(null);
+      startTimerWithConfig(config || {});
     },
-    [pendingConfig, startTimerWithConfig]
+    [startTimerWithConfig]
   );
 
   const handleCancelPreStart = useCallback(() => resetTimerState(), [resetTimerState]);
@@ -340,14 +299,12 @@ export default function TimerDashboard() {
     }
 
     logSessionToBackend(mins, "flowtime");
-    awardCurrentReward();
     resetTimerState();
   }, [
     flowSeconds,
     logSessionToBackend,
     resetTimerState,
     playFinishSound,
-    awardCurrentReward,
   ]);
 
   // Focus finishing
@@ -358,7 +315,6 @@ export default function TimerDashboard() {
 
     if (timerMode === "pomodoro" || timerMode === "custom") {
       logSessionToBackend(durationMin, timerMode);
-      awardCurrentReward();
     }
 
     if (
@@ -383,7 +339,6 @@ export default function TimerDashboard() {
     resetTimerState,
     playBreakSound,
     playFinishSound,
-    awardCurrentReward,
   ]);
 
   // Break finishing
@@ -517,7 +472,10 @@ export default function TimerDashboard() {
         <div className="den-rail">
           <LeftSidebar
             activeWindow={activeWindow}
-            onOpenStudyVille={() => toggleWindow("studyville")}
+            onOpenStudyVille={() => {
+              setItemToPlace(null);
+              toggleWindow("studyville");
+            }}
             onOpenBuddies={() => leaveDen("/groups")}
             onOpenGroups={() => alert("Groups Coming Soon")}
             onOpenLeaderboard={() => toggleWindow("leaderboard")}
@@ -612,7 +570,6 @@ export default function TimerDashboard() {
           onEndSession={() => {
             const mins = Math.floor(flowSeconds / 60);
             logSessionToBackend(mins, "flowtime");
-            awardCurrentReward();
             resetTimerState();
             setShowFlowDialog(null);
           }}
@@ -655,102 +612,6 @@ export default function TimerDashboard() {
             setShowGiveUpDialog(false);
           }}
         />
-      )}
-
-      {showRewardPicker && (
-        <div className="den-window-overlay">
-          <div
-            className="den-window"
-            style={{
-              width: "480px",
-              maxWidth: "95vw",
-            }}
-          >
-            <div className="window-header">
-              <span className="window-title">Choose Your StudyVille Reward</span>
-              <button
-                className="close-btn"
-                onClick={() => {
-                  setShowRewardPicker(false);
-                  setPendingConfig(null);
-                }}
-              >
-                ✖
-              </button>
-            </div>
-            <div className="window-content">
-              <p
-                style={{
-                  color: "#e5e7eb",
-                  marginBottom: "10px",
-                  fontSize: "0.9rem",
-                }}
-              >
-                Pick one building or tile you will earn if you finish this session.
-              </p>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                  gap: 12,
-                }}
-              >
-                {REWARD_OPTIONS.map((reward) => (
-                  <button
-                    key={reward.id}
-                    onClick={() => handleRewardClick(reward)}
-                    style={{
-                      borderRadius: 12,
-                      border: "1px solid rgba(148,163,184,0.6)",
-                      background: "rgba(15,23,42,0.9)",
-                      padding: "8px 6px",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      transition: "transform 0.12s ease, box-shadow 0.12s ease",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "70px",
-                        height: "70px",
-                        borderRadius: 10,
-                        overflow: "hidden",
-                        background: "rgba(15,23,42,1)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginBottom: 6,
-                      }}
-                    >
-                      <img
-                        src={reward.image}
-                        alt={reward.label}
-                        style={{
-                          maxWidth: "100%",
-                          maxHeight: "100%",
-                          objectFit: "contain",
-                        }}
-                      />
-                    </div>
-                    <span
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "#e5e7eb",
-                        textAlign: "center",
-                      }}
-                    >
-                      {reward.label}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
       )}
 
       {showSoundSettings && (
@@ -889,29 +750,13 @@ export default function TimerDashboard() {
         </div>
       )}
 
-      {/* INVENTORY WINDOW */}
-      {activeWindow === "inventory" && (
-        <div className="den-window-overlay">
-          <InventoryWindow
-            onClose={() => {
-              setActiveWindow(null);
-            }}
-            onSelectItem={(item) => {
-              setSelectedItemToPlace(item);
-              setActiveWindow("studyville");
-            }}
-          />
-        </div>
-      )}
-
       {/* STUDYVILLE WINDOW */}
       {activeWindow === "studyville" && (
         <div className="den-window-overlay">
           <StudyVilleWindow
-            selectedItemToPlace={selectedItemToPlace}
-            onClearSelection={() => setSelectedItemToPlace(null)}
-            earnedRewards={earnedRewards}
+            initialItemId={itemToPlace}
             onClose={() => {
+              setItemToPlace(null);
               setActiveWindow(null);
             }}
           />
