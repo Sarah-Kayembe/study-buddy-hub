@@ -1,10 +1,6 @@
 /* Focus Den dashboard styles (Sarah Kayembe).
    Every rule is scoped under .focus-den so these styles only apply
    inside the dashboard and never change the rest of the site. */
-/* Sarah Kayembe */
-
-/* === TIMER DASHBOARD LAYOUT =================================== */
-
 /* =========================================
    1. GLOBAL RESET & BASE THEME
    ========================================= */
@@ -31,7 +27,6 @@
   -webkit-font-smoothing: antialiased;
 }
 
-
 /* =========================================
    2. GAME CONTAINER (The Stage)
    ========================================= */
@@ -54,575 +49,6 @@
 .focus-den .den-room-image {
   width: 100%; height: 100%; object-fit: cover;
   transition: opacity 1s ease;
-}
-
-/* LAYER 1: Avatar */
-.focus-den .den-avatar-layer {
-  position: absolute;
-  bottom: 18%; 
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  pointer-events: none; 
-}
-.focus-den .den-avatar-img {
-  width: 280px; height: auto;
-  filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6));
-}
-
-/* LAYER 2: UI Container (Click-through) */
-.focus-den .den-ui-layer {
-  position: absolute; inset: 0; z-index: 20;
-  pointer-events: none; 
-}
-
-.focus-den .den-ui-layer button,
-.focus-den .den-ui-layer .den-window,
-.focus-den .den-ui-layer .den-window *,
-.focus-den .den-ui-layer .hud-active-panel,
-.focus-den .den-ui-layer .hud-center-bar div {
-  pointer-events: auto;
-}
-
-/* ENABLE CLICKING ON TOP BAR (PROFILE, SETTINGS, SOUND) */
-.focus-den .hud-top-right,
-.focus-den .hud-top-right *,
-.focus-den .hud-top-left,
-.focus-den .hud-top-left * {
-  pointer-events: auto;
-}
-
-.focus-den .hud-top-right [role="button"],
-.focus-den .hud-top-right div[onclick],
-.focus-den .hud-top-right img {
-  cursor: pointer;
-}
-
-.focus-den .den-date-input {
-  background-color: #020617;
-  color: #e5e7eb;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 10px;
-  padding: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-
-.focus-den .den-date-input::-webkit-calendar-picker-indicator {
-  filter: invert(1) brightness(1.4);
-  cursor: pointer;
-  opacity: 0.85;
-}
-
-.focus-den .den-date-input:hover {
-  border-color: #0ea5e9;
-  box-shadow: 0 0 0 1px rgba(14, 165, 233,0.4);
-}
-
-
-
-/* =========================================
-   3. HUD LAYOUT (Positioning)
-   ========================================= */
-
-/* TOP LEFT: XP BAR */
-.focus-den .hud-top-left {
-  position: absolute; top: 30px; left: 30px;
-  width: auto;         
-  min-width: 400px;
-  display: flex; flex-direction: column; gap: 5px;
-}
-
-/* TOP RIGHT: SYSTEM MENU */
-.focus-den .hud-top-right {
-  position: absolute; top: 30px; right: 30px;
-  display: flex; gap: 15px;
-}
-
-/* LEFT SIDEBAR */
-.focus-den .hud-left-sidebar {
-  position: absolute; top: 50%; left: 30px;
-  transform: translateY(-50%);
-  display: flex; flex-direction: column; gap: 25px;
-  align-items: center;
-}
-
-/*  SARAH'S BOTTOM CENTER: ENCOURAGEMENT */
-.focus-den .hud-center-bar {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-
-/* BOTTOM CENTER: ENCOURAGEMENT END*/
-
-/* ============================================================
-   SARAH — MODE POPUP
-   ============================================================ */
-
-.focus-den .mode-popup {
-  width: 160px;
-  padding: 10px;
-  border-radius: 16px;
-
-  background: rgba(11, 17, 32,0.95);  /* MATCH tooltip */
-  border: 1px solid rgba(255,255,255,0.18);
-  backdrop-filter: blur(8px);
-
-  box-shadow:
-    0 6px 20px rgba(0,0,0,0.55),
-    inset 0 0 12px rgba(255,255,255,0.06);
-
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  animation: fadeIn 0.2s ease-out;
-}
-
-/* Buttons in popup */
-.focus-den .mode-popup button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  background: transparent;
-  border: none;
-  border-radius: 10px;
-
-  padding: 8px;
-  cursor: pointer;
-
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-
-  color: rgba(255,255,255,0.8);
-  transition: 0.2s ease;
-}
-
-/* Hover effect */
-.focus-den .mode-popup button:hover {
-  background: rgba(255,255,255,0.06);
-  color: white;
-}
-
-.focus-den .mode-popup button:hover {
-  background: rgba(255,255,255,0.08);
-  color: white;
-}
-
-.focus-den .mode-popup button.active-mode {
-  background: rgba(255,255,255,0.15);
-  color: white;
-}
-
-/* ============================================================
-   SARAH — MOOD & MODE BUTTON MAGIC CIRCLE
-   ============================================================ */
-
-.focus-den .circle-btn {
-  position: relative; /* needed for magic ring */
-  overflow: visible;
-  background: rgba(30, 41, 59, 0.99); 
-}
-
-/*
-.circle-btn:hover .magic-ring,
-.circle-btn.active .magic-ring {
-  display: block;
-}*/
-
-/* The orbiting magic ring 
-.magic-ring {
-  display: block;
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  border-radius: 50%;
-  border-top: 2px solid rgba(255,255,255,0.9);
-  border-right: 2px solid transparent;
-  border-bottom: 2px solid transparent;
-  border-left: 2px solid transparent;
-
-  pointer-events: none;
-  animation: orbit 2s linear infinite;
-}*/
-
-@keyframes orbit {
-  0%   { transform: translate(-50%, -50%) rotate(0deg);   opacity: 0.6; }
-  50%  { opacity: 1; }
-  100% { transform: translate(-50%, -50%) rotate(360deg); opacity: 0.6; }
-}
-
-/* END OF ENCOURAGEMENT */
-
-
-/* ============================================================
-   4C. SARAH'S QUICK MENU — POSITION + STYLING
-   ============================================================ */
-
-/* Container inherits bottom-right position from .hud-quick-menu */
-.focus-den .hud-quick-menu {
-  position: absolute;
-  bottom: 40px;
-  right: 40px;
-  display: flex;
-  flex-direction: column;   /* Icons first, then info bar below */
-  align-items: flex-end;    /* Keep aligned to the right side */
-  gap: 12px;
-}
-
-/* Icons stay in a horizontal line */
-.focus-den .quick-icons-row {
-  display: flex;
-  gap: 15px;
-}
-
-/* Quick Menu Button wrapper for tooltip support */
-.focus-den .quick-btn-wrapper {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Tooltip ABOVE the icon */
-.focus-den .quick-tooltip {
-  position: absolute;
-  top: -20px;                        /* moved above icon */
-  left: 50%;
-  transform: translateX(-50%) translateY(-5px);
-  
-  background: rgba(11, 17, 32,0.95);
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.70rem;
-  white-space: nowrap;
-
-  color: white;
-  opacity: 0;
-  pointer-events: none;
-
-  transition: all 0.2s ease;
-  z-index: 9999;                    /* ensures it's ABOVE everything */
-
-  /* ADDED — Match sidebar text style */
-  font-weight: 700;                   /* bold like sidebar */
-  letter-spacing: 0.8px;              /* sidebar spacing */
-  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-
-  /* glass look */
-  border: 1px solid rgba(255,255,255,0.18);
-  backdrop-filter: blur(6px);
-}
-
-/* Show tooltip on hover */
-.focus-den .quick-btn-wrapper:hover .quick-tooltip {
-  opacity: 1;
-  transform: translateX(-50%) translateY(-12px);
-}
-
-/* Quick Menu Buttons (same glass look as sidebar, smaller size) */
-.focus-den .quick-btn {
-  width: 62px;
-  height: 62px;
-  background: rgba(15, 23, 42, 0.92);
-  border-radius: 50%;
-  border: 3px solid rgba(255,255,255,0.18);
-  backdrop-filter: blur(10px);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  position: relative;
-  cursor: pointer;
-
-  box-shadow:
-    0 6px 16px rgba(0,0,0,0.45),
-    inset 0 0 10px rgba(255,255,255,0.07);
-
-  transition: all 0.25s ease;
-}
-
-.focus-den .quick-btn:hover {
-  transform: scale(1.12);
-  border-color: rgba(255,255,255,0.45);
-  box-shadow:
-    0 0 14px rgba(56, 189, 248,0.75),
-    0 0 22px rgba(14, 165, 233,0.55),
-    inset 0 0 10px rgba(255,255,255,0.1);
-}
-
-.focus-den .quick-btn.active {
-  transform: scale(1.18);
-}
-
-/* Icon image inside the circle */
-.focus-den .quick-btn-img {
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
-  filter: brightness(1.2);
-}
-
-/* Magic rotating orbit ring
-.magic-ring {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-
-  border-top: 3px solid rgba(255,255,255,0.9);
-  border-right: 3px solid transparent;
-  border-bottom: 3px solid transparent;
-  border-left: 3px solid transparent;
-
-  animation: orbit 2s linear infinite;
-  pointer-events: none;
-  z-index: 5;
-}*/
-
-@keyframes orbit {
-  0%   { transform: translate(-50%, -50%) rotate(0deg); opacity: 0.7; }
-  50%  { opacity: 1; }
-  100% { transform: translate(-50%, -50%) rotate(360deg); opacity: 0.7; }
-}
-
-/* ============================================================
-   SARAH — STREAK + EXP BAR
-   ============================================================ */
-
-.focus-den .streak-exp-container {
-  display: flex;
-  align-items: center;
-  gap: -6px;
-  margin-bottom: 12px;
-
-  height: 70px;     
-  overflow: visible; 
-}
-
-
-/* 🔥 FIRE ICON + number in center */
-.focus-den .streak-icon-wrapper {
-  position: relative;
-  flex-shrink: 0;
-  width: 88px;
-  height: 88px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.focus-den .streak-icon-img {
-  width: 80px;             
-  height: 80px;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
-}
-
-.focus-den .streak-count {
-  position: absolute;
-  top: 50%;                 
-  left: 50%;                
-  transform: translate(-50%, -50%);  
-
-  color: white;
-  font-size: 1.9rem;
-  font-weight: 900;
-  text-shadow: 0 3px 5px rgba(0,0,0,0.75);
-}
-
-/* ─────────── EXP BAR ─────────── */
-.focus-den .exp-bar {
-  position: relative;
-  flex: 1;
-  max-width: 360px;
-  height: 36px;
-  background: rgba(40, 35, 55, 0.92);
-  border-radius: 24px;
-  border: 2px solid rgba(255,255,255,0.15);
-  overflow: hidden;
-
-  box-shadow:
-    0 4px 10px rgba(0,0,0,0.45),
-    inset 0 0 8px rgba(255,255,255,0.08);
-}
-
-.focus-den .exp-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #7c5cff, #c5a3ff); /* matches your purple buttons */
-  border-radius: 24px;
-  transition: width 0.4s ease-out;
-}
-
-/* EXP label inside bar */
-
-
-.focus-den .exp-total {
-  display: flex;               /* ✅ put number + word in one row */
-  align-items: center;         /* ✅ align vertically */
-  gap: 4px;                    /* small space between 0 and EXP */
-
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: white;
-  text-shadow: 0 3px 6px rgba(0,0,0,0.6);
-  min-width: 70px;
-  justify-content: flex-end;
-}
-
-/* Number can stay big & strong */
-.focus-den .exp-total-value {
-  font-size: 1.1rem;
-  font-weight: 800;
-}
-
-/* EXP word – slightly smaller if you want */
-.focus-den .exp-total-label {
-  font-size: 0.9rem;
-  font-weight: 700;
-  opacity: 0.9;
-}
-/* EXP BAR AND STREAK END */
-
-
-/* MINI INFO PANEL (under icons) */
-.focus-den .quick-info-panel {
-  margin-top: 24px;   /* ← increase this number for more space */
-  width: 320px;
-  background: rgba(11, 17, 32, 0.78);
-  border: 2px solid rgba(255,255,255,0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 10px 15px;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
-  font-size: 0.85rem;
-  color: white;
-}
-
-.focus-den .quick-panel-clock {
-  font-size: 1.4rem;     /* ← THIS controls the size */
-  font-weight: 800;       /* ← THIS makes it bold */
-  letter-spacing: 1px;
-  opacity: 0.95;
-  color: #ffffff;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-  filter: brightness(1.3);
-}
-
-/* Task title text */
-.focus-den .quick-panel-task {
-  font-size: 0.82rem;                /* similar size to sidebar */
-  font-weight: 700;                  /* bold like sidebar labels */
-  letter-spacing: 0.5px;             /* sidebar letter spacing */
-  color: #ffffff;
-  opacity: 0.95;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-}
-
-/* Timer status text */
-.focus-den .quick-panel-status {
-  font-size: 0.70rem;                /* slightly smaller than task */
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  color: rgba(255,255,255,0.8);
-  opacity: 0.85;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-}
-
-
-
-.focus-den .quick-task {
-  flex: 1;
-  text-align: left;
-}
-
-.focus-den .quick-timer-status {
-  flex: 1;
-  text-align: center;
-  color: #b07cff;
-  font-weight: bold;
-}
-
-.focus-den .quick-clock {
-  flex: 1;
-  text-align: right;
-  opacity: 0.75;
-}
-
-/* END OF QUICKMENU */
-
-
-/* MIDDLE RIGHT: ACTIVE TASK PANEL */
-.focus-den .hud-active-panel {
-  position: absolute; top: 50%; right: 0;
-  transform: translateY(-50%);
-}
-
-/* =========================================
-   4. COMPONENT STYLING
-   ========================================= */
-
-/* XP Bar Styling */
-.focus-den .xp-container {
-  background: rgba(0, 0, 0, 0.6);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  height: 24px;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-  position: relative;
-}
-.focus-den .xp-fill {
-  background: linear-gradient(90deg, #0369a1, #9333ea);
-  height: 100%;
-  width: 0%;
-  transition: width 0.5s ease-out;
-}
-.focus-den .xp-text {
-  position: absolute; top: -25px; left: 5px;
-  font-weight: 800; font-size: 1.2rem;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-  font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
-}
-
-/* --- Circle Buttons (Quick Menu) --- */
-.focus-den .circle-btn {
-  width: 52px; height: 52px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  background: rgba(30, 41, 59, 0.99); ;
-  backdrop-filter: blur(10px);
-  color: white;
-  font-size: 1.4rem;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-.focus-den .circle-btn:hover {
-  background: #3a3544;
-  border-color: #fff;
-  transform: scale(1.15);
 }
 
 /* ============================================================
@@ -677,56 +103,6 @@
 
 .focus-den .sidebar-btn.active .sidebar-label {
   color: var(--den-sky);
-}
-
-/* --- Encouragement Bar (Bottom Center) --- */
-.focus-den .encouragement-box {
-  background: rgba(30, 41, 59, 0.99);  /* SAME as tooltip */
-  border: 2px solid rgba(255,255,255,0.15);
-  border-radius: 14px;
-  padding: 16px 32px;
-  width: 480px;
-  text-align: center;
-  color: white;
-  backdrop-filter: blur(10px);
-  box-shadow:
-    0 6px 20px rgba(0,0,0,0.55),
-    inset 0 0 12px rgba(255,255,255,0.04);
-
-  position: relative;
-}
-
-.focus-den .encouragement-box::before,
-.focus-den .encouragement-box::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 6px;
-  height: 60%;
-  background: rgba(255, 255, 255, 0.633);
-  transform: translateY(-50%);
-  border-radius: 3px;
-}
-
-.focus-den .encouragement-box::before { left: 10px; }
-.focus-den .encouragement-box::after { right: 10px; }
-
-.focus-den .mode-title {
-  font-size: 0.75rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: #c3b8ff; /* soft lavender */
-  margin-bottom: 6px;
-}
-
-.focus-den .quote-text {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #fff;
-  opacity: 0.95;
-  line-height: 1.35;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
 }
 
 /* =========================================
@@ -795,25 +171,12 @@
 .focus-den .den-btn-primary:active { transform: scale(0.98); }
 
 /* Task List */
-.focus-den .task-item {
-  background: #0b1120;
-  border: 1px solid transparent;
-  padding: 12px;
-  border-radius: 10px;
-  display: flex; align-items: center; gap: 12px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.focus-den .task-item:hover { background: #302b3a; border-color: #555; }
 
 .focus-den .checkbox {
   width: 20px; height: 20px; border-radius: 50%;
   border: 2px solid #666;
   display: flex; align-items: center; justify-content: center;
 }
-.focus-den .task-item.done .checkbox { background: #4ade80; border-color: #4ade80; }
-.focus-den .task-item.done .task-title { text-decoration: line-through; color: #666; }
 
 /* =========================================
    TASK WINDOW (SMALL RIGHT PANEL)
@@ -846,10 +209,6 @@
   justify-content: center;
   opacity: 0.6;
 }
-.focus-den .task-empty-emoji {
-  font-size: 3rem;
-  margin-bottom: 8px;
-}
 
 /* Task rows */
 .focus-den .task-row {
@@ -866,16 +225,6 @@
 .focus-den .task-row.done .task-title-text {
   text-decoration: line-through;
   color: #6b7280;
-}
-
-/* drag handle (⋮⋮) */
-.focus-den .task-drag-handle {
-  width: 18px;
-  text-align: center;
-  cursor: grab;
-  font-size: 1.1rem;
-  line-height: 1;
-  color: rgba(229, 231, 235, 0.8);
 }
 
 /* checkbox */
@@ -909,12 +258,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.focus-den .task-subtext {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: rgba(209, 213, 219, 0.8);
 }
 
 /* delete button */
@@ -958,64 +301,6 @@
 .focus-den .task-add-button:hover {
   background: rgba(249, 250, 251, 0.05);
 }
-.focus-den .task-add-plus {
-  font-size: 1.1rem;
-}
-
-/* =========================================
-   ADD TASK – BIG CENTERED MODAL
-   ========================================= */
-
-.focus-den .add-task-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.focus-den .add-task-modal {
-  width: 560px;
-  max-width: 92vw;
-  display: flex;
-  flex-direction: column;
-}
-
-.focus-den .add-task-body {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.focus-den .add-task-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.focus-den .add-task-label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.11em;
-  color: #9ca3af;
-  font-weight: 700;
-}
-
-.focus-den .add-task-helper {
-  font-size: 0.75rem;
-  color: #9ca3af;
-}
-
-/* footer buttons */
-.focus-den .add-task-footer {
-  padding: 16px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
 
 /* secondary button style */
 .focus-den .den-btn-secondary {
@@ -1028,76 +313,6 @@
   cursor: pointer;
 }
 
-/* small clear "x" */
-.focus-den .course-clear-btn {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  border: none;
-  background: transparent;
-  color: #9ca3af;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-
-.focus-den .course-search-wrapper {
-  position: relative;
-}
-
-/* results list */
-.focus-den .course-results {
-  margin-top: 6px;
-  max-height: 180px;
-  overflow-y: auto;
-  background: rgba(17, 24, 39, 0.98);
-  border-radius: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.6);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.8);
-}
-.focus-den .course-results-loading {
-  padding: 8px 10px;
-  font-size: 0.8rem;
-  color: #9ca3af;
-}
-
-.focus-den .course-result-item {
-  width: 100%;
-  text-align: left;
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
-.focus-den .course-result-item:hover {
-  background: rgba(55, 65, 81, 0.9);
-}
-.focus-den .course-code {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #e5e7eb;
-}
-.focus-den .course-name {
-  font-size: 0.8rem;
-  color: #cbd5f5;
-}
-
-/* due date row */
-.focus-den .due-date-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.focus-den .add-task-error {
-  margin-top: 6px;
-  font-size: 0.78rem;
-  color: #fecaca;
-}
-
 /* =========================================
    BREAK + FLOWTIME DIALOG WINDOWS
    Same glass look
@@ -1105,8 +320,7 @@
 
 .focus-den .break-dialog-overlay,
 .focus-den .flow-dialog-overlay {
-  z-index: 120; /* Above timer & HUD */
-}
+  z-index: 120; }
 
 .focus-den .break-dialog,
 .focus-den .flow-dialog {
@@ -1133,8 +347,6 @@
   gap: 10px;
   margin-top: 10px;
 }
-/* END OF MODAL/WINDOWS*/
-
 /* =========================================
    GIVE UP DIALOG (Forest-style)
    ========================================= */
@@ -1160,31 +372,9 @@
   opacity: 0.9;
   margin-top: -5px;
 }
-/* END OF GIVEUP DIALOG*/
-
 /* =========================================
    CALENDAR
    ========================================= */
-
-.focus-den .calendar-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 130;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.focus-den .calendar-card {
-  width: 360px;
-  background: rgba(2, 6, 23, 0.97);
-  border-radius: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.18);
-  box-shadow:
-    0 22px 50px rgba(0, 0, 0, 0.85),
-    inset 0 0 16px rgba(255, 255, 255, 0.04);
-  padding: 14px 14px 16px;
-}
 
 .focus-den .calendar-header {
   display: flex;
@@ -1193,29 +383,6 @@
   margin-bottom: 8px;
 }
 
-.focus-den .calendar-title {
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-  color: #e5e7eb;
-}
-
-.focus-den .calendar-nav-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.7);
-  background: transparent;
-  color: #e5e7eb;
-  cursor: pointer;
-}
-
-.focus-den .calendar-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 4px;
-}
 .focus-den .calendar-weekday {
   text-align: center;
   font-size: 0.7rem;
@@ -1228,11 +395,6 @@
   flex-direction: column;
   gap: 4px;
   margin-bottom: 10px;
-}
-.focus-den .calendar-week-row {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
 }
 
 .focus-den .calendar-day {
@@ -1259,38 +421,11 @@
   background: rgba(56, 189, 248, 0.9);
 }
 
-.focus-den .calendar-footer {
-  display: flex;
-  justify-content: flex-end;
-}
-
-
 /* =========================================
    6. ANIMATIONS
    ========================================= */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-/* FLOATING UP AND DOWN */
-@keyframes floatUpDown {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-25px); }
-  100% { transform: translateY(0); }
-}
-
-/* SOFT GLOW */
-@keyframes glowPulse {
-  0% { filter: brightness(1); }
-  50% { filter: brightness(1.2); }
-  100% { filter: brightness(1); }
-}
-
-
-/* Sarah End of css */
 
 /* =========================================
    FOCUS DEN LAYOUT
