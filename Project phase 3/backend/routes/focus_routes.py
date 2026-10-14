@@ -438,3 +438,27 @@ def remove_from_city(layout_id):
     if not repo.remove_placement(user_id, layout_id):
         return jsonify({"error": "Nothing placed there"}), 404
     return jsonify({"success": True})
+
+
+# ------------------------------------------------------------------
+# Daily challenges
+# ------------------------------------------------------------------
+
+@bp.get("/challenges")
+def get_challenges():
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    return jsonify({"day": _utc_now().date().isoformat(), "challenges": repo.daily_challenges(user_id, _utc_now().date())})
+
+
+@bp.post("/challenges/<key>/claim")
+def claim_challenge(key):
+    user_id = _current_user_id()
+    if not user_id:
+        return _not_logged_in()
+    try:
+        result = repo.claim_challenge(user_id, key, _utc_now().date())
+    except repo.ChallengeError as error:
+        return jsonify({"error": error.reason}), error.status
+    return jsonify({"success": True, **result})
