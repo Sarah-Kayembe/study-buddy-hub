@@ -25,3 +25,6 @@ export const getCity = () => request("/city");
 export const placeItem = (itemId, x, y) =>
   request("/city", { method: "POST", body: JSON.stringify({ item_id: itemId, x, y }) });
 export const removeFromCity = (layoutId) => request(`/city/${layoutId}`, { method: "DELETE" });
+export const getCalendar = () => request("/calendar");
+export const getChallenges = () => request("/challenges");
+export const claimChallenge = (key) => request(`/challenges/${key}/claim`, { method: "POST" });

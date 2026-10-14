@@ -5,10 +5,11 @@ Uses the study management tables from the Phase 2 schema
 user's data takes that user's id, so one user can never see or change
 another user's tasks or sessions.
 """
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import mysql.connector
 
+import challenges
 import progression
 from db import transaction
 
@@ -534,3 +535,74 @@ def remove_placement(user_id, layout_id):
             (layout_id, user_id),
         )
         return cursor.rowcount > 0
+
+
+# ------------------------------------------------------------------
+# Daily challenges
+# ------------------------------------------------------------------
+
+def _day_counts(cursor, user_id, day):
+    """What the user did on one UTC day, for the daily challenges."""
+    start = datetime.combine(day, datetime.min.time())
+    end = start + timedelta(days=1)
+    cursor.execute(
+        """
+        SELECT COALESCE(SUM(duration_min), 0) AS minutes, COUNT(*) AS sessions
+        FROM timersessions WHERE host_id = %s AND start_time >= %s AND start_time < %s
+        """,
+        (user_id, start, end),
+    )
+    counts = cursor.fetchone()
+    cursor.execute(
+        """
+        SELECT COUNT(*) AS tasks_done FROM tasks
+        WHERE user_id = %s AND status = 'done' AND updated_at >= %s AND updated_at < %s
+        """,
+        (user_id, start, end),
+    )
+    counts.update(cursor.fetchone())
+    cursor.execute(
+        "SELECT COUNT(*) AS moods FROM moodtracking WHERE user_id = %s AND recorded_at >= %s AND recorded_at < %s",
+        (user_id, start, end),
+    )
+    counts.update(cursor.fetchone())
+    return {k: int(v) for k, v in counts.items()}
+
+
+def daily_challenges(user_id, day):
+    with transaction(dictionary=True) as cursor:
+        counts = _day_counts(cursor, user_id, day)
+        cursor.execute(
+            "SELECT challenge_key FROM challenge_claims WHERE user_id = %s AND day = %s",
+            (user_id, day),
+        )
+        claimed = {row["challenge_key"] for row in cursor.fetchall()}
+    return challenges.daily_challenges(counts, claimed)
+
+
+class ChallengeError(Exception):
+    def __init__(self, reason, status=400):
+        super().__init__(reason)
+        self.reason = reason
+        self.status = status
+
+
+def claim_challenge(user_id, key, day):
+    """Pay out a finished challenge once. Returns the new coin balance."""
+    definition = challenges.BY_KEY.get(key)
+    if definition is None:
+        raise ChallengeError("No such challenge", status=404)
+    _, _, measure, target, coins = definition
+
+    with transaction(dictionary=True) as cursor:
+        wallet = _locked_progress(cursor, user_id)
+        if _day_counts(cursor, user_id, day).get(measure, 0) < target:
+            raise ChallengeError("Finish the challenge first")
+        cursor.execute(
+            "INSERT IGNORE INTO challenge_claims (user_id, challenge_key, day) VALUES (%s, %s, %s)",
+            (user_id, key, day),
+        )
+        if cursor.rowcount == 0:
+            raise ChallengeError("Already claimed today", status=409)
+        cursor.execute("UPDATE user_progress SET coins = coins + %s WHERE user_id = %s", (coins, user_id))
+    return {"coins": wallet["coins"] + coins, "reward_coins": coins}

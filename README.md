@@ -246,6 +246,7 @@ All of these act on the logged-in user and return `401` otherwise, except the th
 - `GET /api/focus/city` - StudyVille layout
 - `POST /api/focus/city` with `item_id`, `x`, `y` - Place an owned item on a free tile of the 8x8 town
 - `DELETE /api/focus/city/<layout_id>` - Take an item off the map and back into the inventory
+- `GET /api/focus/challenges` - Today's challenges with progress, and `POST /api/focus/challenges/<key>/claim` to collect a finished challenge's coins (once per UTC day)
 - `GET /api/focus/leaderboard?period=daily|weekly|monthly|all_time` - Top users by focused minutes
 - `GET /api/focus/shop`, `POST /api/focus/shop/<item_id>/buy`, `GET /api/focus/inventory` - Spend coins on items and list what you own, with how many are placed. Each item has an `art` key naming its drawing in the frontend
 
